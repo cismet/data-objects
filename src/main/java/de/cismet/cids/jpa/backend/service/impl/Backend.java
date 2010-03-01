@@ -9,29 +9,15 @@
 
 package de.cismet.cids.jpa.backend.service.impl;
 
-import de.cismet.cids.jpa.backend.core.PersistenceInterceptor;
-import de.cismet.cids.jpa.backend.core.PersistenceProvider;
-import de.cismet.cids.jpa.backend.service.CatalogService;
-import de.cismet.cids.jpa.backend.service.ClassService;
-import de.cismet.cids.jpa.backend.service.CommonService;
-import de.cismet.cids.jpa.backend.service.MetaService;
-import de.cismet.cids.jpa.backend.service.UserService;
+import de.cismet.cids.jpa.backend.core.*;
+import de.cismet.cids.jpa.backend.service.*;
 import de.cismet.cids.jpa.entity.catalog.CatNode;
-import de.cismet.cids.jpa.entity.cidsclass.Attribute;
-import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
-import de.cismet.cids.jpa.entity.cidsclass.Icon;
-import de.cismet.cids.jpa.entity.cidsclass.JavaClass;
-import de.cismet.cids.jpa.entity.cidsclass.Type;
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-import de.cismet.cids.jpa.entity.common.Domain;
-import de.cismet.cids.jpa.entity.common.URL;
-import de.cismet.cids.jpa.entity.common.URLBase;
+import de.cismet.cids.jpa.entity.cidsclass.*;
+import de.cismet.cids.jpa.entity.common.*;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.util.ProgressListener;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import net.sf.tie.ProxyInjector;
 import net.sf.tie.ext.InterceptionBuilder;
 
@@ -141,71 +127,85 @@ public final class Backend implements
         return cb.getURL(url);
     }
 
+    @Override
     public List<URL> getURLsLikeURL(final URL url)
     {
         return cb.getURLsLikeURL(url);
     }
 
+    @Override
     public URL storeURL(final URL url)
     {
         return cb.storeURL(url);
     }
 
+    @Override
     public List<URL> storeURLs(final List<URL> urls)
     {
         return cb.storeURLs(urls);
     }
 
+    @Override
     public void deleteURL(final URL url)
     {
         cb.deleteURL(url);
     }
 
+    @Override
     public void deleteURLs(final List<URL> urls)
     {
         cb.deleteURLs(urls);
     }
 
+    @Override
     public void deleteURLBaseIfUnused(final URLBase urlbase)
     {
         cb.deleteURLBaseIfUnused(urlbase);
     }
 
+    @Override
     public void deleteURLBasesIfUnused(final List<URLBase> urlbases)
     {
         cb.deleteURLBasesIfUnused(urlbases);
     }
-    
+
+    @Override
     public boolean contains(final JavaClass jc)
     {
         return cb.contains(jc);
     }
-    
+
+    @Override
     public JavaClass getJavaClass(final String qualifier)
     {
         return cb.getJavaClass(qualifier);
     }
-    
+
+    @Override
     public void deleteJavaClass(final JavaClass jc)
     {
         cb.deleteJavaClass(jc);
     }
-    
+
+    @Override
     public List getSortedTypes()
     {
         return cb.getSortedTypes();
     }
-    
+
+    @Override
     public boolean stillReferenced(final Type t)
     {
         return cb.stillReferenced(t);
     }
-    
+
+    @Override
     public boolean stillReferenced(final Icon icon)
     {
         return cb.stillReferenced(icon);
     }
-    
+
+    @Override
     public void deleteIcon(final Icon i)
     {
         cb.deleteIcon(i);
