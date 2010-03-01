@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 public class PersistenceInterceptor implements MethodInterceptor
 {
     private static final transient Logger LOG = Logger.getLogger(
-            PersistenceInterceptor.class);
+                                                  PersistenceInterceptor.class);
     
     private final transient PersistenceProvider provider;
     private final transient ThreadLocal<Method> methodHolder;
@@ -37,24 +37,39 @@ public class PersistenceInterceptor implements MethodInterceptor
         this.methodHolder = new ThreadLocal<Method>();
     }
 
+    @Override
     public Object invoke(final MethodInvocation mi) throws Throwable
     {
         final Method method = mi.getMethod();
         try
         {
-            LOG.debug("invokation started: method=" + method.getDeclaringClass(
-                    ).getCanonicalName() + "." + method.getName() + 
-                    " | args=" + argsToString(mi.getArguments()));
-            if(!method.getDeclaringClass().isAssignableFrom(ClosableResource.
-                    class))
+            if(LOG.isDebugEnabled())
+            {
+                LOG.debug("invokation started: method=" +
+                          method.getDeclaringClass().getCanonicalName() + "." +
+                          method.getName() + " | args=" +
+                          argsToString(mi.getArguments()));
+            }
+
+            final Class declaringClass = method.getDeclaringClass();
+            if(! declaringClass.isAssignableFrom(ClosableResource.class))
+            {
                 injectManager(method);
+            }
+
             final Object ret = method.invoke(mi.getThis(), mi.getArguments());
             cleanup(method, null);
-            LOG.debug("invokation succeeded: method=" + method.
-                    getDeclaringClass().getCanonicalName() + "." + method.
-                    getName() + " | args=" + argsToString(mi.getArguments()));
+
+            if(LOG.isDebugEnabled())
+            {
+               LOG.debug("invokation succeeded: method=" +
+                         method.getDeclaringClass().getCanonicalName() + "." +
+                         method.getName() + " | args=" +
+                         argsToString(mi.getArguments()));
+            }
+
             return ret;
-        }catch(final Throwable t)
+        }catch(final Exception t)
         {
             // retrieve wrapped exception
             final Throwable toThrow = (t.getCause() == null) ? t : t.getCause();
@@ -63,20 +78,25 @@ public class PersistenceInterceptor implements MethodInterceptor
             try
             {
                 cleanup(method, toThrow);
-            } catch (final Throwable ex)
+            } catch (final Exception ex)
             {
                 // do nothing since cleanup already handles logging
+                LOG.warn("An error occured during cleanup operation", ex);
             }
+            
+            final Class declaringClass = method.getDeclaringClass();
+            final String logMessage    = "invokation failed: method=" +
+                                         declaringClass.getCanonicalName() +
+                                         "." + method.getName() + " | args=" +
+                                         argsToString(mi.getArguments());
+            
             if(toThrow instanceof NoResultException)
-                LOG.warn("invokation failed: method=" + method.
-                        getDeclaringClass().getCanonicalName() + "." + method.
-                        getName() + " | args=" + argsToString(mi.getArguments(
-                        )), toThrow);
-            else
-                LOG.error("invokation failed: method=" + method.
-                        getDeclaringClass().getCanonicalName() + "." + method.
-                        getName() + " | args=" + argsToString(mi.getArguments(
-                        )), toThrow);
+            {
+                LOG.warn(logMessage, toThrow);             
+            } else
+            {
+                LOG.error(logMessage, toThrow);
+            }
             throw toThrow;
         }
     }
@@ -84,11 +104,18 @@ public class PersistenceInterceptor implements MethodInterceptor
     private String argsToString(final Object[] args)
     {
         if(args == null || args.length == 0)
+        {
             return "";
+        }
+
         final StringBuffer sb = new StringBuffer();
         sb.append(args[0]);
+        
         for(int i = 1; i < args.length; ++i)
+        {
             sb.append(", ").append(args[i]);
+        }
+
         return sb.toString();
     }
     
@@ -101,7 +128,10 @@ public class PersistenceInterceptor implements MethodInterceptor
     private void injectManager(final Method m)
     {
         if(methodHolder.get() != null)
+        {
             return;
+        }
+        
         final EntityManager em = provider.emf.createEntityManager();
         em.getTransaction().begin();
         provider.em.set(em);
@@ -114,23 +144,32 @@ public class PersistenceInterceptor implements MethodInterceptor
         // if no method is associated with the calling thread or if method to
         // cleanup for is not the same as the associated method do nothing
         if(associatedMethod == null || !associatedMethod.equals(m))
+        {
             return;
+        }
+        
         final EntityManager em = provider.em.get();
         // cleanup was already called, do not try again
         if(em == null || !em.isOpen())
+        {
             return;
+        }
+        
         provider.em.set(null);
         methodHolder.set(null);
         try
         {
-            if(t != null)
-                em.getTransaction().rollback();
-            else
+            if(t == null)
+            {
                 em.getTransaction().commit();
-        }catch(final Throwable tw)
+            } else
+            {
+                em.getTransaction().rollback();
+            }
+        }catch(final Exception tw)
         {
             LOG.error("cleanup failed: method=" + m.getDeclaringClass().
-                    getCanonicalName() + "." + m.getName(), tw);
+                      getCanonicalName() + "." + m.getName(), tw);
             throw tw;
         }finally
         {

@@ -28,11 +28,9 @@ import de.cismet.cids.jpa.entity.common.URL;
 import de.cismet.cids.jpa.entity.common.URLBase;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.util.ProgressListener;
-import java.io.File;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import net.sf.tie.ProxyInjector;
 import net.sf.tie.ext.InterceptionBuilder;
@@ -45,18 +43,18 @@ import net.sf.tie.ext.InterceptionBuilder;
  * date $Date: 2009/10/29 14:24:52 $
  */
 public final class Backend implements 
-        ClassService,
-        UserService,
-        CatalogService,
-        MetaService, 
-        CommonService
+                                    ClassService,
+                                    UserService,
+                                    CatalogService,
+                                    MetaService,
+                                    CommonService
 {
-    final ClassService cb;
-    final UserService ub;
-    final CatalogService catBackend;
-    final MetaService metaBackend;
-    final PersistenceProvider provider;
-    final CommonService commonBackend;
+    private final transient ClassService cb;
+    private final transient UserService ub;
+    private final transient CatalogService catBackend;
+    private final transient MetaService metaBackend;
+    private final transient PersistenceProvider provider;
+    private final transient CommonService commonBackend;
     
     // <editor-fold defaultstate="collapsed" desc=" Part: Constructors ">
     /** Creates a new instance of Backend */
@@ -79,6 +77,7 @@ public final class Backend implements
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" Part: Backend operations ">
+    @Override
     public void close() throws Exception
     {
         // it should be enough to close the persistence provider
@@ -88,24 +87,28 @@ public final class Backend implements
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Part: CommonService">
+    @Override
     public <T extends CommonEntity> T store(final T entity)
     {
         return commonBackend.store(entity);
     }
 
+    @Override
     public void delete(final CommonEntity ce)
     {
         commonBackend.delete(ce);
     }
 
-    public <T extends CommonEntity> T getEntity(final Class<T> entity, final int
-            id)
+    @Override
+    public <T extends CommonEntity> T getEntity(final Class<T> entity, 
+                                               final int id)
     {
         return commonBackend.getEntity(entity, id);
     }
 
-    public <T extends CommonEntity> List<T> getAllEntities(final Class<T> 
-            entity)
+    @Override
+    public <T extends CommonEntity> List<T> getAllEntities(
+                                                          final Class<T> entity)
     {
         return commonBackend.getAllEntities(entity);
     }
@@ -113,8 +116,9 @@ public final class Backend implements
     /**
      * assumes entity has a mapped member named 'name'
      */
-    public <T extends CommonEntity> T getEntity(final Class<T> entity, final 
-            String name)
+    @Override
+    public <T extends CommonEntity> T getEntity(final Class<T> entity, 
+                                                final String name)
     {
         return commonBackend.getEntity(entity, name);
     }
@@ -122,14 +126,16 @@ public final class Backend implements
     /**
      * assumes entity has a mapped member named 'name'
      */
+    @Override
     public <T extends CommonEntity> boolean contains(final Class<T> entity, 
-            final String name)
+                                                     final String name)
     {
         return commonBackend.contains(entity, name);
     }
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Part: ClassBackend ">
+    @Override
     public URL getURL(final String url)
     {
         return cb.getURL(url);
@@ -207,6 +213,7 @@ public final class Backend implements
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Part: UserBackend ">
+    @Override
     public User getUser(final String userName, final String password)
     {
         return ub.getUser(userName, password);
@@ -214,22 +221,25 @@ public final class Backend implements
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Part: CatalogBackend  ">
-    public HashMap<String, String> getSimpleObjectInformation(final CatNode 
-            node)
+    @Override
+    public Map<String, String> getSimpleObjectInformation(final CatNode node)
     {
         return catBackend.getSimpleObjectInformation(node);
     }
 
+    @Override
     public List<CatNode> getNodeParents(final CatNode node)
     {
         return catBackend.getNodeParents(node);
     }
 
+    @Override
     public List<CatNode> getNodeChildren(final CatNode node)
     {
         return catBackend.getNodeChildren(node);
     }
 
+    @Override
     public List<CatNode> getRootNodes(final CatNode.Type type)
     {
         return catBackend.getRootNodes(type);
@@ -240,99 +250,116 @@ public final class Backend implements
      * @returns true if the node has been deleted from the database, false if
      *          only the link has been deleted
      */
+    @Override
     public boolean deleteNode(final CatNode parent, final CatNode node)
     {
         return catBackend.deleteNode(parent, node);
     }
-    
+
+    @Override
     public void deleteRootNode(final CatNode node)
     {
         catBackend.deleteRootNode(node);
     }
 
-    public void moveNode(final CatNode oldParent, final CatNode newParent, final 
-            CatNode node)
+    @Override
+    public void moveNode(final CatNode oldParent, final CatNode newParent, 
+                        final  CatNode node)
     {
         catBackend.moveNode(oldParent, newParent, node);
     }
 
-    public void copyNode(final CatNode oldParent, final CatNode newParent, final 
-            CatNode node)
+    @Override
+    public void copyNode(final CatNode oldParent, final CatNode newParent, 
+                         final CatNode node)
     {
         catBackend.copyNode(oldParent, newParent, node);
     }
 
-    public void linkNode(final CatNode oldParent, final CatNode newParent, final
-            CatNode node)
+    @Override
+    public void linkNode(final CatNode oldParent, final CatNode newParent, 
+                         final CatNode node)
     {
         catBackend.linkNode(oldParent, newParent, node);
     }
 
+    @Override
     public void moveChildren(final CatNode oldParent, final CatNode newParent)
     {
         catBackend.moveChildren(oldParent, newParent);
     }
-    
-    public CatNode addNode(final CatNode parent, final CatNode newNode, final 
-            Domain domainTo)
+
+    @Override
+    public CatNode addNode(final CatNode parent, final CatNode newNode, 
+                           final Domain domainTo)
     {
         return catBackend.addNode(parent, newNode, domainTo);
     }
 
+    @Override
     public boolean isLeaf(final CatNode node, final boolean useCache)
     {
         return catBackend.isLeaf(node, useCache);
     }
 
+    @Override
     public void reloadNonLeafNodeCache()
     {
         catBackend.reloadNonLeafNodeCache();
     }
 
+    @Override
     public List<CatNode> getRootNodes()
     {
         return catBackend.getRootNodes();
     }
 
+    @Override
     public Domain getLinkDomain(final CatNode from, final CatNode to)
     {
         return catBackend.getLinkDomain(from, to);
     }
 
-    public void setLinkDomain(final CatNode from, final CatNode to, final Domain 
-            domainTo)
+    @Override
+    public void setLinkDomain(final CatNode from, final CatNode to, 
+                              final Domain domainTo)
     {
         catBackend.setLinkDomain(from, to, domainTo);
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" Part: MetaBackend ">
-    
+    @Override
     public void refreshIndex(final CidsClass cidsClass) throws SQLException
     {
         metaBackend.refreshIndex(cidsClass);
     }
 
+    @Override
     public void adjustTypeClassId(final Type type) throws SQLException
     {
         metaBackend.adjustTypeClassId(type);
     }
 
+    @Override
     public void adjustAttrForeignKey(final Attribute attr) throws SQLException
     {
         metaBackend.adjustAttrForeignKey(attr);
     }
 
+    @Override
     public void addProgressListener(final ProgressListener pl)
     {
         metaBackend.addProgressListener(pl);
     }
 
+    @Override
     public void removeProgressListener(final ProgressListener pl)
     {
         metaBackend.removeProgressListener(pl);
     }
 
+    @Override
     public void cancel()
     {
         metaBackend.cancel();
@@ -340,80 +367,4 @@ public final class Backend implements
 
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" Part: testing purposes ">
-    public static void main(String[] args)
-    {
-        Properties p=new Properties();
-        p.put("log4j.appender.Remote", "org.apache.log4j.net.SocketAppender");
-        p.put("log4j.appender.Remote.remoteHost","localhost");
-        p.put("log4j.appender.Remote.port", "4445");
-        p.put("log4j.appender.Remote.locationInfo", "true");
-        p.put("log4j.rootLogger", "DEBUG,Remote");
-        // hibernate core, maybe the following must then not be set anymore
-        p.put("log4j.logger.org.hibernate", "WARN,Remote");
-        // hql parser activity
-//        p.put("log4j.logger.org.hibernate.hql.ast.AST", "WARN,Remote");
-//        // sql
-//        p.put("log4j.logger.org.hibernate.SQL", "WARN,Remote");
-//        // jdbc bind parameters
-//        p.put("log4j.logger.org.hibernate.type", "WARN,Remote");
-//        // schema export/update
-//        p.put("log4j.logger.org.hibernate.tool.hbm2ddl", "WARN,Remote");
-//        // hql parse trees
-//        p.put("log4j.logger.org.hibernate.hql", "WARN,Remote");
-//        // cache activity
-//        p.put("log4j.logger.org.hibernate.cache", "WARN,Remote");
-//        // transaction activity
-//        p.put("log4j.logger.org.hibernate.transaction", "WARN,Remote");
-//        //jdbc resource acquisition
-//        p.put("log4j.logger.org.hibernate.jdbc", "WARN,Remote");
-        // c3p0 connection pool logging
-        p.put("log4j.logger.com.mchange.v2.c3p0", "WARN,Remote");
-        org.apache.log4j.PropertyConfigurator.configure(p);
-        Backend backend = null;
-        try
-        {
-            p = new Properties();
-            p.load(new File("/Users/mscholl/cvswork6/testauslieferung/cidsDistribution/abf_dev_20090320/runtime.properties").toURL().openStream());
-            backend = new Backend(p);
-            System.out.println("========================================================");
-            long begin = System.currentTimeMillis();
-            URL url1 = new URL();
-            URL url2 = new URL();
-            URL url3 = new URL();
-            URLBase urlbase = new URLBase();
-            urlbase.setServer("s10221");
-            url1.setUrlbase(urlbase);
-            url1.setObjectName("a1");
-            url2.setUrlbase(urlbase);
-            url2.setObjectName("b2");
-            url3.setUrlbase(urlbase);
-            url3.setObjectName("c3");
-            //url.setObjectName("ufermauer_51");
-            //final List<URL> urls = backend.getURLsLikeURL(url);
-            //url1 = backend.store(url1);
-            //url2 = backend.store(url2);
-            //url3 = backend.store(url3);
-            List<URL> urls = Arrays.asList(url1, url2, url3);
-            urls = backend.storeURLs(urls);
-            backend.deleteURLs(urls);
-//            backend.deleteURL(urls.get(0));
-//            backend.deleteURL(urls.get(1));
-//            backend.deleteURL(urls.get(2));
-//            url1 = backend.storeURL(url1);
-//            url2 = backend.storeURL(url2);
-//            url3 = backend.storeURL(url3);
-//            backend.delete(url1);
-//            backend.delete(url2);
-//            backend.delete(url3);
-            //final User u = backend.getUser("GiessE102", "GiessE102");
-//            System.out.println("loaded in: " + (System.currentTimeMillis() - begin));
-//            System.out.println("--------");
-//            for(final URL u : urls)
-//                System.out.println(u);
-        }catch(Throwable t)
-        {
-            t.printStackTrace();
-        }
-    }// </editor-fold>
 }

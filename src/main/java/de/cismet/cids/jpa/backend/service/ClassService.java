@@ -6,10 +6,10 @@ package de.cismet.cids.jpa.backend.service;
 
 /**  */
 public interface ClassService extends 
-        URLService, 
-        TypeService, 
-        JavaClassService, 
-        IconService
+                                    URLService,
+                                    TypeService,
+                                    JavaClassService,
+                                    IconService
 {
     // became obsolete in favor of store(T extends CommonEntity)
     //public CidsClass storeClass(final CidsClass c);

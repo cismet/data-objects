@@ -8,25 +8,17 @@ package de.cismet.cids.jpa.backend.service.impl;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.CatalogService;
-import de.cismet.cids.jpa.entity.catalog.CatLink;
-import de.cismet.cids.jpa.entity.catalog.CatNode;
+import de.cismet.cids.jpa.entity.catalog.*;
 import de.cismet.cids.jpa.entity.cidsclass.Attribute;
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-import de.cismet.cids.jpa.entity.common.Domain;
+import de.cismet.cids.jpa.entity.common.*;
 import de.cismet.cids.jpa.entity.permission.NodePermission;
 import de.cismet.diff.db.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.*;
 import org.apache.log4j.Logger;
 
 /**
@@ -35,10 +27,10 @@ import org.apache.log4j.Logger;
  */
 public class CatalogBackend implements CatalogService
 {
-    private static final transient Logger LOG = Logger.getLogger(
-            CatalogBackend.class);
+    private static final transient Logger LOG =
+                                         Logger.getLogger(CatalogBackend.class);
     
-    private transient HashSet<Integer> nonLeafCache;
+    private transient Set<Integer> nonLeafCache;
     private final transient PersistenceProvider provider;
     
     /**
@@ -50,11 +42,14 @@ public class CatalogBackend implements CatalogService
         nonLeafCache = getNonLeafNodes();
     }
 
-    public HashMap<String, String> getSimpleObjectInformation(final CatNode 
-            node)
+    @Override
+    public  Map<String, String> getSimpleObjectInformation(final CatNode node)
     {
         if(!node.getNodeType().equals(CatNode.Type.OBJECT.getType()))
+        {
             return null;
+        }
+
         final HashMap<String, String> objInfo = new HashMap<String, String>();
         final HashMap<String, String> tmp = new HashMap<String, String>();
         try
@@ -71,15 +66,18 @@ public class CatalogBackend implements CatalogService
             return null;
         }
         // dynamic bean creation 
-        Connection c = null;
+        Connection c   = null;
+        ResultSet  set = null;
+
         try
         {
-            c = DatabaseConnection.getConnection(provider.getRuntimeProperties(
-                    ));
+            final Properties prop = provider.getRuntimeProperties();
+            c = DatabaseConnection.getConnection(prop);
             c.setAutoCommit(false);
-            final ResultSet set = c.createStatement().executeQuery("select * " +
-                    "from " + node.getCidsClass().getTableName() + 
-                    " where id = " + node.getObjectId());
+            set = c.createStatement().executeQuery("select * " +
+                                  "from " + node.getCidsClass().getTableName() +
+                                  " where id = " + node.getObjectId());
+
             while(set.next())
             {
                 for(final Iterator<Entry<String, String>> entries = tmp.
@@ -88,13 +86,18 @@ public class CatalogBackend implements CatalogService
                     final Entry<String, String> e = entries.next();
                     objInfo.put(e.getKey(), set.getString(e.getValue()));
                 }
+                
                 break;
             }
+            
             if(set.next())
+            {
                 throw new SQLException("query shall return just one row");
+            }
+
             set.close();
             c.commit();
-            c = null;
+            
             return objInfo;
         } catch (final SQLException ex)
         {
@@ -109,56 +112,85 @@ public class CatalogBackend implements CatalogService
                     LOG.error("could not roll back", sqle);
                 }
             }
+        }finally
+        {
+            try
+            {
+                if(c != null)
+                {
+                    c.close();
+                }
+
+                if(set != null)
+                {
+                    set.close();
+                }
+
+            }catch(final SQLException e)
+            {
+                LOG.warn("could not close connection", e);
+            }
         }
         return null;
     }
 
+    @Override
     public List<CatNode> getNodeParents(final CatNode node)
     {
         final EntityManager em = provider.getEntityManager();
-        final Query q = em.createQuery("FROM CatNode node WHERE node.id in (" +
-                "SELECT idFrom FROM CatLink WHERE idTo = :id)").
-                setParameter("id", node.getId());
+        final Query q = em.createQuery( "FROM CatNode node WHERE node.id in " +
+                               "(SELECT idFrom FROM CatLink WHERE idTo = :id)");
+        q.setParameter("id", node.getId());
         final List<CatNode> nodeList = q.getResultList();
-        for(final ListIterator<CatNode> it = nodeList.listIterator(); it.
-                hasNext();)
+        
+        ListIterator<CatNode> it = nodeList.listIterator();
+        while(it.hasNext())
         {
             final CatNode n = it.next();
             n.setIsLeaf(false);
+            it = nodeList.listIterator();
         }
         return nodeList;
     }
 
+    @Override
     public List<CatNode> getNodeChildren(final CatNode node)
     {
         final EntityManager em = provider.getEntityManager();
         final Query q = em.createQuery(
-                "FROM CatNode node WHERE node.id in (SELECT idTo FROM " +
-                "CatLink WHERE idFrom = :id)").
-                setParameter("id", node.getId());
+                               "FROM CatNode node WHERE node.id in " +
+                               "(SELECT idTo FROM CatLink WHERE idFrom = :id)");
+        q.setParameter("id", node.getId());
+
         final List<CatNode> nodeList = q.getResultList();
-        for(final ListIterator<CatNode> it = nodeList.listIterator(); 
-                it.hasNext();)
+        ListIterator<CatNode> it = nodeList.listIterator();
+
+        while(it.hasNext())
         {
             final CatNode n = it.next();
             n.setIsLeaf(isLeaf(n, true));
+            it = nodeList.listIterator();
         }
+
         return nodeList;
     }
-    
+
+    @Override
     public List<CatNode> getRootNodes(final CatNode.Type type)
     {
         final EntityManager em = provider.getEntityManager();
         final Query q;
-        if(type != null)
+
+        if(type == null)
         {
-            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true " +
-                    "AND node.nodeType = :type").
-                    setParameter("type", type.getType());
+            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true ");
+
         }
         else
         {
-            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true ");
+            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true " +
+                               "AND node.nodeType = :type");
+            q.setParameter("type", type.getType());
         }
         final List<CatNode> nodeList = q.getResultList();
         for(final ListIterator<CatNode> it = nodeList.listIterator(); 
@@ -169,7 +201,8 @@ public class CatalogBackend implements CatalogService
         }
         return nodeList;
     }
-    
+
+    @Override
     public List<CatNode> getRootNodes()
     {
         return getRootNodes(null);
@@ -180,6 +213,7 @@ public class CatalogBackend implements CatalogService
      * @returns true if the node has been deleted from the database, false if
      *          only the link has been deleted
      */
+    @Override
     public boolean deleteNode(final CatNode parent, final CatNode node)
     {
         final EntityManager em = provider.getEntityManager();
@@ -217,12 +251,14 @@ public class CatalogBackend implements CatalogService
             return false;
         }
     }
-    
+
+    @Override
     public void deleteRootNode(final CatNode node)
     {
         deleteNode(null, node);
     }
-    
+
+    @Override
     public void moveNode(final CatNode oldParent, final CatNode newParent, final
             CatNode node)
     {
@@ -252,7 +288,8 @@ public class CatalogBackend implements CatalogService
         nonLeafCache.add(newParent.getId());
         provider.store(link);
     }
-    
+
+    @Override
     public void copyNode(final CatNode oldParent, final CatNode newParent, final
             CatNode node)
     {
@@ -320,6 +357,7 @@ public class CatalogBackend implements CatalogService
         }
     }
 
+    @Override
     public void linkNode(final CatNode oldParent, final CatNode newParent, final
             CatNode node)
     {
@@ -347,42 +385,13 @@ public class CatalogBackend implements CatalogService
     }
     
     /** @deprecated */
+    @Override
     public void moveChildren(CatNode oldParent, CatNode newParent)
     {
         throw new UnsupportedOperationException("cannot be used anymore");
-//        if(LOG_DEBUG)
-//            log.debug("CatalogBackend: moveChildren requested: from: " + 
-//                    oldParent.toString() + " to: " + newParent.toString());
-//        final EntityTransaction t = em.getTransaction();
-//        try
-//        {
-//            t.begin();
-//            for(Iterator<CatNode> it = getNodeChildren(oldParent).iterator(); 
-//                    it.hasNext();)
-//            {
-//                CatNode child = it.next();
-//                CatLink link = (CatLink)backend.getSession().createQuery(
-//                        "FROM CatLink WHERE idFrom = " + oldParent.getId() + 
-//                        "AND idTo = " + child.getId()).uniqueResult();
-//                detach(link);
-//                link.setIdFrom(newParent.getId());
-//                backend.store(link);
-//            }
-//        }catch(Throwable tw)
-//        {
-//            log.error("CatalogBackend: error while moving children from node " +
-//                    oldParent.toString() + " to node " + newParent.toString(),
-//                    tw);
-//            t.rollback();
-//            if(tw instanceof HibernateException)
-//                backend.reconnect();
-//            throw new CatalogBackendException("CatalogBackend: error while " +
-//                    "moving children from node " + oldParent.toString() + 
-//                    " to node " + newParent.toString(), tw);
-//        }
-//        t.commit();
     }
-    
+
+    @Override
     public CatNode addNode(final CatNode parent, final CatNode newNode, final 
             Domain domainTo)
     {
@@ -407,6 +416,7 @@ public class CatalogBackend implements CatalogService
         return node;
     }
 
+    @Override
     public boolean isLeaf(final CatNode node, final boolean useCache)
     {
         if(useCache && nonLeafCache != null)
@@ -419,7 +429,8 @@ public class CatalogBackend implements CatalogService
         final boolean isLeaf = q.getResultList().size() == 0;
         return isLeaf;
     }
-    
+
+    @Override
     public void reloadNonLeafNodeCache()
     {
         final Thread t = new Thread(new Runnable() 
@@ -432,7 +443,7 @@ public class CatalogBackend implements CatalogService
         t.start();
     }
     
-    private synchronized HashSet<Integer> getNonLeafNodes()
+    private synchronized Set<Integer> getNonLeafNodes()
     {
         final ResultSet set;
         try
@@ -446,11 +457,13 @@ public class CatalogBackend implements CatalogService
             LOG.error("could not fetch nonLeafCache", ex);
             return null;
         }
-        final HashSet<Integer> ret = new HashSet<Integer>();
+        final Set<Integer> ret = new HashSet<Integer>();
         try
         {
             while(set.next())
+            {
                 ret.add(set.getInt(1));
+            }
         } catch (final Exception ex)
         {
             LOG.error("could not build non leaf node id cache", ex);
@@ -458,7 +471,8 @@ public class CatalogBackend implements CatalogService
         }
         return nonLeafCache = ret;
     }
-    
+
+    @Override
     public Domain getLinkDomain(final CatNode from, final CatNode to)
     {
         if(from == null || to == null)
@@ -471,7 +485,8 @@ public class CatalogBackend implements CatalogService
         final CatLink link = (CatLink)q.getSingleResult();
         return provider.getEntity(Domain.class, link.getDomainTo().getId());
     }
-    
+
+    @Override
     public void setLinkDomain(final CatNode from, final CatNode to, final Domain 
             domainTo)
     {

@@ -17,26 +17,20 @@ import javax.persistence.NoResultException;
  * @version 1.0
  */
 public interface URLService
-{
-    // became obsolete in favor of getEntity(Class<T>)
-    //public List<URL> getAllURLs();
-    
-    // became obsolete in favor of getEntity(Class<T>, int)
-    //public URL getURL(final int id);
-    
-    public URL getURL(final String url) throws NoResultException;
+{    
+    URL getURL(final String url) throws NoResultException;
 
-    public List<URL> getURLsLikeURL(final URL url);
+    List<URL> getURLsLikeURL(final URL url);
 
-    public URL storeURL(final URL url);
+    URL storeURL(final URL url);
 
-    public List<URL> storeURLs(final List<URL> urls);
+    List<URL> storeURLs(final List<URL> urls);
 
-    public void deleteURL(final URL url);
+    void deleteURL(final URL url);
 
-    public void deleteURLs(final List<URL> urls);
+    void deleteURLs(final List<URL> urls);
 
-    public void deleteURLBaseIfUnused(final URLBase urlbase);
+    void deleteURLBaseIfUnused(final URLBase urlbase);
 
-    public void deleteURLBasesIfUnused(final List<URLBase> urlbases);
+    void deleteURLBasesIfUnused(final List<URLBase> urlbases);
 }

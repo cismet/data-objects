@@ -10,7 +10,6 @@
 package de.cismet.cids.jpa.backend.service.impl;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
-import de.cismet.cids.jpa.backend.service.QueryService;
 import de.cismet.cids.jpa.entity.query.Query;
 import de.cismet.cids.jpa.entity.query.QueryStore;
 import java.util.List;
@@ -24,7 +23,7 @@ import org.hibernate.HibernateException;
  * @author mscholl
  * @depricated
  */
-public class QueryBackend implements QueryService
+public class QueryBackend
 {
     private final transient Logger log = Logger.getLogger(this.getClass());
     

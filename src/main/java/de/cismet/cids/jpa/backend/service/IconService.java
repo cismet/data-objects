@@ -1,7 +1,6 @@
 package de.cismet.cids.jpa.backend.service;
 
 import de.cismet.cids.jpa.entity.cidsclass.Icon;
-import java.util.List;
 
 /**
  *
@@ -13,30 +12,12 @@ import java.util.List;
  * encapsulates methods related to user management
  */
 public interface IconService
-{
-    // became obsolete in favor of store(T extends CommonEntity)
-    //public Icon storeIcon(final Icon i);
-    
-    // became obsolete in favor of getEntity(Class<T>, int)
-    //public Icon getIcon(final int id);
-    
-    // became obsolete in favor of getEntity(Class<T>, String)
-    //public Icon getIconByName(final String name);
-    
-    // became obsolete due to mapping
-    //public List<Icon> getIcons(final int classId);
-    
-    // became obsolete in favor of getEntity(Class<T>)
-    //public List<Icon> getAllIcons();
-    
+{ 
     // special implementation because icon id of owning cidsclasses has to be
     // set to null. as it is not necessary for an icon to know which classes
     // hold a reference to it, this will be solved with the impl of this method
     // instead of using mapping and cascading.
-    public void deleteIcon(final Icon i);
+    void deleteIcon(final Icon i);
     
-    // became obsolete in favor of contains(Class<T>, String)
-    //public boolean contains(final Icon i);
-    
-    public boolean stillReferenced(final Icon icon);
+    boolean stillReferenced(final Icon icon);
 }

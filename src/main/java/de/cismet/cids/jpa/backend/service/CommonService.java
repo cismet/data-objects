@@ -19,21 +19,21 @@ import javax.persistence.NoResultException;
  */
 public interface CommonService
 {
-    public <T extends CommonEntity> T store(final T entity);
+    <T extends CommonEntity> T store(final T entity);
     
-    public void delete(final CommonEntity ce);
+    void delete(final CommonEntity ce);
     
-    public <T extends CommonEntity> T getEntity(final Class<T> entity, final int
-            id) throws NoResultException;
+    <T extends CommonEntity> T getEntity(final Class<T> entity, final int id)
+                                        throws NoResultException;
     
-    public <T extends CommonEntity> List<T> getAllEntities(final Class<T> 
-            entity);
-    
-    // assumes entity has a mapped member named 'name'
-    public <T extends CommonEntity> T getEntity(final Class<T> entity, final 
-            String name) throws NoResultException;
+    <T extends CommonEntity> List<T> getAllEntities(final Class<T>entity);
     
     // assumes entity has a mapped member named 'name'
-    public <T extends CommonEntity> boolean contains(final Class<T> entity, 
-            final String name);
+    <T extends CommonEntity> T getEntity(final Class<T> entity, 
+                                         final String name)
+                                        throws NoResultException;
+    
+    // assumes entity has a mapped member named 'name'
+    <T extends CommonEntity> boolean contains(final Class<T> entity,
+                                              final String name);
 }
