@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import javax.persistence.*;
 import org.apache.log4j.Logger;
 
+
 /**
  * @author Martin Scholl
  * @version 1.0
@@ -235,9 +236,14 @@ public class CatalogBackend implements CatalogService
         {
             q = em.createQuery("FROM CatLink c WHERE c.idFrom = " + node.
                     getId());
-            for(final Iterator<CatLink> lit = q.getResultList().iterator(); 
-                    lit.hasNext();)
+
+            Iterator<CatLink> lit = q.getResultList().iterator();
+            while(lit.hasNext())
+            {
                 provider.delete(lit.next());
+                lit = q.getResultList().iterator();
+            }
+            
             provider.delete(node);
             return true;
         }else
@@ -259,29 +265,32 @@ public class CatalogBackend implements CatalogService
     }
 
     @Override
-    public void moveNode(final CatNode oldParent, final CatNode newParent, final
-            CatNode node)
+    public void moveNode(final CatNode oldParent,
+                         final CatNode newParent,
+                         final CatNode node)
     {
         final EntityManager em = provider.getEntityManager();
         final CatLink link;
-        if(oldParent != null)
+
+        if(oldParent == null)
         {
-            link = (CatLink)em.createQuery("FROM CatLink WHERE idFrom = " + 
-                    oldParent.getId() + "AND idTo = " + node.getId()).
-                    getSingleResult();
+            final Domain domain = (Domain)em.createQuery(
+                          "FROM Domain WHERE name = 'LOCAL'").getSingleResult();
+            link = new CatLink();
+            link.setIdTo(node.getId());
+            link.setDomainTo(domain);
+        }
+        else
+        {
+            link = (CatLink)em.createQuery(
+                            "FROM CatLink WHERE idFrom = " + oldParent.getId() +
+                            " AND idTo = " + node.getId()).getSingleResult();
+
             if(isLeaf(oldParent, false))
             {
                 oldParent.setIsLeaf(true);
                 nonLeafCache.remove(oldParent.getId());
             }
-        }
-        else
-        {
-            final Domain domain = (Domain)em.createQuery(
-                    "FROM Domain WHERE name = 'LOCAL'").getSingleResult();
-            link = new CatLink();
-            link.setIdTo(node.getId());
-            link.setDomainTo(domain);
         }
         link.setIdFrom(newParent.getId());
         newParent.setIsLeaf(false);
@@ -298,13 +307,13 @@ public class CatalogBackend implements CatalogService
                                 // there is no domain for dynamic nodes
         if(oldParent != null && node.getId() != -1)
         {
-            domainTo = ((CatLink)em.createQuery("FROM CatLink WHERE idFrom = " +
-                    oldParent.getId() + "AND idTo = " + node.getId()).
-                    getSingleResult()).getDomainTo();
+            domainTo = (Domain)em.createQuery(
+                          "FROM Domain WHERE name = 'LOCAL'").getSingleResult();
         }else
         {
-            domainTo = (Domain)em.createQuery("FROM Domain WHERE name = " +
-                    "'LOCAL'").getSingleResult();
+            domainTo = ((CatLink)em.createQuery(
+                "FROM CatLink WHERE idFrom = " + oldParent.getId() +
+                " AND idTo = " + node.getId()).getSingleResult()).getDomainTo();
         }
         // TODO: will the child nodes be copied also or linked or just left out
         CatNode newNode = new CatNode();
@@ -345,8 +354,9 @@ public class CatalogBackend implements CatalogService
     private void copyLinks(final CatNode oldNode, final CatNode newNode)
     {
         final EntityManager em = provider.getEntityManager();
-        final List<CatLink> links = em.createQuery("FROM CatLink WHERE " +
-                "idFrom = " + oldNode.getId()).getResultList();
+        final List<CatLink> links = em.createQuery(
+              "FROM CatLink WHERE idFrom = " + oldNode.getId()).getResultList();
+
         for(final CatLink link : links)
         {
             final CatLink newLink = new CatLink();
@@ -363,21 +373,23 @@ public class CatalogBackend implements CatalogService
     {
         final EntityManager em = provider.getEntityManager();
         final CatLink clone;
-        if(oldParent != null)
+
+        if(oldParent == null)
         {
-            final CatLink link = (CatLink)em.createQuery("FROM CatLink " +
-                    "WHERE idFrom = " + oldParent.getId() + "AND idTo = " +
-                    node.getId()).getSingleResult();
-            clone = link.clone();
-        }
-        else
-        {
-            final Domain domain = (Domain)em.createQuery("FROM Domain " +
+             final Domain domain = (Domain)em.createQuery("FROM Domain " +
                     "WHERE name = 'LOCAL'").getSingleResult();
             clone = new CatLink();
             clone.setDomainTo(domain);
             clone.setIdTo(node.getId());
         }
+        else
+        {
+            final CatLink link = (CatLink)em.createQuery(
+                            "FROM CatLink WHERE idFrom = " + oldParent.getId() +
+                            " AND idTo = " + node.getId()).getSingleResult();
+            clone = link.clone();
+        }
+
         clone.setIdFrom(newParent.getId());
         newParent.setIsLeaf(false);
         nonLeafCache.add(newParent.getId());
@@ -386,22 +398,32 @@ public class CatalogBackend implements CatalogService
     
     /** @deprecated */
     @Override
-    public void moveChildren(CatNode oldParent, CatNode newParent)
+    public void moveChildren(final CatNode oldParent, final CatNode newParent)
     {
         throw new UnsupportedOperationException("cannot be used anymore");
     }
 
     @Override
-    public CatNode addNode(final CatNode parent, final CatNode newNode, final 
-            Domain domainTo)
+    public CatNode addNode(final CatNode parent,
+                           final CatNode newNode,
+                           final Domain  domainTo)
     {
         if(newNode == null)
+        {
             throw new IllegalArgumentException("new node must not be null");
+        }
+
         if(domainTo == null)
+        {
             throw new IllegalArgumentException("domainTo must not be null");
+        }
+
         if(parent == null && !newNode.getIsRoot())
+        {
             throw new IllegalArgumentException("if parent == null new node " +
-                    "must be root node");
+                                               "must be root node");
+        }
+
         final CatNode node = provider.store(newNode);
         if(parent != null)
         {
@@ -420,13 +442,19 @@ public class CatalogBackend implements CatalogService
     public boolean isLeaf(final CatNode node, final boolean useCache)
     {
         if(useCache && nonLeafCache != null)
-            return !nonLeafCache.contains(node.getId());
+        {
+            return ! nonLeafCache.contains(node.getId());
+        }
+
         final EntityManager em = provider.getEntityManager();
         final Integer id = node.getId();
-        final Query q = em.createQuery("select id from CatLink link " +
-                "where link.idFrom = :id").setParameter("id", id).
-                setMaxResults(1);
+        final Query q = em.createQuery(
+                         "select id from CatLink link where link.idFrom = :id");
+                q.setParameter("id", id);
+                q.setMaxResults(1);
+
         final boolean isLeaf = q.getResultList().size() == 0;
+
         return isLeaf;
     }
 
@@ -435,6 +463,7 @@ public class CatalogBackend implements CatalogService
     {
         final Thread t = new Thread(new Runnable() 
         {
+            @Override
             public void run()
             {
                 getNonLeafNodes();
@@ -442,21 +471,51 @@ public class CatalogBackend implements CatalogService
         });
         t.start();
     }
-    
+
+
     private synchronized Set<Integer> getNonLeafNodes()
     {
-        final ResultSet set;
+        ResultSet  set = null;
+        Connection c   = null;
         try
         {
-            final Connection c = DatabaseConnection.getConnection(provider.
+            c = DatabaseConnection.getConnection(provider.
                     getRuntimeProperties());
             set = c.createStatement().executeQuery(
-                    "SELECT DISTINCT id_from FROM cs_cat_link");
+                                    "SELECT DISTINCT id_from FROM cs_cat_link");
         } catch (final Exception ex)
         {
             LOG.error("could not fetch nonLeafCache", ex);
             return null;
+        } finally
+        {
+            if(set != null)
+            {
+                try
+                {
+                    set.close();
+                }
+                catch (final SQLException ex)
+                {
+                    LOG.error("Could not close ResultSet",ex);
+                }
+            }
+
+            if(c != null)
+            {
+                try
+                {
+                    c.close();
+                }
+                catch (SQLException ex)
+                {
+                   LOG.error("Could not close connection", ex);
+                }
+            }
+
         }
+
+
         final Set<Integer> ret = new HashSet<Integer>();
         try
         {
@@ -476,31 +535,47 @@ public class CatalogBackend implements CatalogService
     public Domain getLinkDomain(final CatNode from, final CatNode to)
     {
         if(from == null || to == null)
+        {
             return null;
+        }
+
         final EntityManager em = provider.getEntityManager();
-        Query q = em.createQuery("FROM CatLink link WHERE link.idFrom = " +
-                ":idFrom AND link.idTo = :idTo").
-                setParameter("idFrom", from.getId()).
-                setParameter("idTo", to.getId());
+        final Query q = em.createQuery(
+         "FROM CatLink link WHERE link.idFrom = :idFrom AND link.idTo = :idTo");
+                q.setParameter("idFrom", from.getId());
+                q.setParameter("idTo",    to.getId());
         final CatLink link = (CatLink)q.getSingleResult();
         return provider.getEntity(Domain.class, link.getDomainTo().getId());
     }
 
     @Override
-    public void setLinkDomain(final CatNode from, final CatNode to, final Domain 
-            domainTo)
+    public void setLinkDomain(final CatNode from, 
+                              final CatNode to,
+                              final Domain domainTo)
     {
         if(from == null)
+        {
             throw new IllegalArgumentException("from node must not be null");
+        }
+
         if(to == null)
+        {
             throw new IllegalArgumentException("to node must not be null");
+        }
+            
         if(domainTo == null)
+        {
             throw new IllegalArgumentException("domainTo must not be null");
+        }
+        
         final EntityManager em = provider.getEntityManager();
-        final Query q = em.createQuery("FROM CatLink link WHERE link." +
-                "idFrom = :idFrom AND link.idTo = :idTo").
-                setParameter("idFrom", from.getId()).
-                setParameter("idTo", to.getId());
+        final Query q = em.createQuery(
+                "FROM CatLink link WHERE link.idFrom = :idFrom " +
+                "AND link.idTo = :idTo");
+        
+        q.setParameter("idFrom", from.getId());
+        q.setParameter("idTo",   to.getId());
+
         final CatLink link = (CatLink)q.getSingleResult();
         link.setDomainTo(domainTo);
         provider.store(link);
