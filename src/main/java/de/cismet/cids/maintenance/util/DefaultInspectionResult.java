@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * DefaultInspectionResult.java
  *
@@ -6,83 +13,106 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.cids.maintenance.util;
 
 import de.cismet.cids.maintenance.InspectionResult;
 import de.cismet.cids.maintenance.container.Row;
+
 import de.cismet.diff.container.Table;
-import java.util.Vector;
+import java.util.List;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-public class DefaultInspectionResult implements InspectionResult
-{
-    private Table table;
-    private String message;
-    private Vector<Row> rows;
-    private int code;
-    private int erroneousColumnCount;
-    
-    /** Creates a new instance of DefaultInspectionResult */
-    public DefaultInspectionResult()
-    {
-    }
+public class DefaultInspectionResult implements InspectionResult {
 
-    public Table getTable()
-    {
+    //~ Instance fields --------------------------------------------------------
+
+    private transient Table table;
+    private transient String message;
+    private transient List<Row> rows;
+    private transient int code;
+    private transient int erroneousColumnCount;
+
+    //~ Constructors -----------------------------------------------------------
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override
+    public Table getTable() {
         return table;
     }
 
-    public void setTable(Table table)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  table  DOCUMENT ME!
+     */
+    public void setTable(final Table table) {
         this.table = table;
     }
 
-    public String getResultMessage()
-    {
+    @Override
+    public String getResultMessage() {
         return message;
     }
 
-    public void setResultMessage(String message)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  message  DOCUMENT ME!
+     */
+    public void setResultMessage(final String message) {
         this.message = message;
     }
 
-    public Vector<Row> getErroneousRows()
-    {
+    @Override
+    public List<Row> getErroneousRows() {
         return rows;
     }
 
-    public void setErroneousRows(Vector<Row> rows)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rows  DOCUMENT ME!
+     */
+    public void setErroneousRows(final List<Row> rows) {
         this.rows = rows;
     }
 
-    public int getMessageCode()
-    {
+    @Override
+    public int getMessageCode() {
         return code;
     }
 
-    public void setCode(int code)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  code  DOCUMENT ME!
+     */
+    public void setCode(final int code) {
         this.code = code;
     }
-    
-    public int getErroneousColumnCount()
-    {
+
+    @Override
+    public int getErroneousColumnCount() {
         return erroneousColumnCount;
     }
 
-    public void setErroneousColumnCount(int erroneousColumnCount)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  erroneousColumnCount  DOCUMENT ME!
+     */
+    public void setErroneousColumnCount(final int erroneousColumnCount) {
         this.erroneousColumnCount = erroneousColumnCount;
     }
 
-    public int getErroneousRowCount()
-    {
-        return rows == null ? 0 : rows.size();
+    @Override
+    public int getErroneousRowCount() {
+        return (rows == null) ? 0 : rows.size();
     }
 }

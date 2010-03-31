@@ -1,15 +1,14 @@
-/*
- * Permission.java
- *
- * Created on 10. Januar 2007, 14:32
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.common;
 
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,53 +18,79 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
+ * DOCUMENT ME!
  *
- * @author schlob
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-@Entity()
+@Entity
 @Table(name = "cs_domain")
-public class Domain extends CommonEntity implements Serializable
-{
+public class Domain extends CommonEntity implements Serializable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** Use serialVersionUID for interoperability. */
+    private static final long serialVersionUID = -6821668427120945252L;
+
+    //~ Instance fields --------------------------------------------------------
+
     @Id
-    @SequenceGenerator(name = "cs_domain_sequence",
-            sequenceName = "cs_domain_sequence",
-            allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, 
-            generator = "cs_domain_sequence")
+    @SequenceGenerator(
+        name = "cs_domain_sequence",
+        sequenceName = "cs_domain_sequence",
+        allocationSize = 1
+    )
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "cs_domain_sequence"
+    )
     @Column(name = "id")
     private Integer id;
- 
+
     @Column(name = "name")
     private String name;
-    
-    /** Creates a new instance of Permission */
-    public Domain()
-    {
-        name = null;
-    }
-       
-    public String getName()
-    {
-        return name;
-    }
-    
-    public void setName(final String name)
-    {
-        this.name = name;
-    }
-    
-    public String toString()
-    {
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getName() {
         return name;
     }
 
-    public Integer getId()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  name  DOCUMENT ME!
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id)
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setId(final Integer id) {
         this.id = id;
     }
 }

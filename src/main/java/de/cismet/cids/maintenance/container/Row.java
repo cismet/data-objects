@@ -1,122 +1,206 @@
-/*
- * Row.java
- *
- * Created on 13. September 2007, 17:26
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.maintenance.container;
 
 import de.cismet.diff.container.Table;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-public class Row
-{
-    private Table table;
-    private Vector headlessRowdata;
-    
-    private Vector<ErrorAwareEntry> rowdata;
-    
-    /** Creates a new instance of Row */
-    public Row(Table table, Vector data, Vector<String> erroneousColumnNames)
-    {
+public class Row {
+
+    //~ Instance fields --------------------------------------------------------
+
+    private final transient Table table;
+    private final transient List headlessRowdata;
+
+    private final transient List<ErrorAwareEntry> rowdata;
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of Row.
+     *
+     * @param  table                 DOCUMENT ME!
+     * @param  data                  DOCUMENT ME!
+     * @param  erroneousColumnNames  DOCUMENT ME!
+     */
+    public Row(final Table table, final List data, final List<String> erroneousColumnNames) {
         this.table = table;
         this.headlessRowdata = data;
-        String[] names = table.getColumnNames();
-        rowdata = new Vector<ErrorAwareEntry>(names.length);
-        while(names.length > headlessRowdata.size())
-            headlessRowdata.add("");
-        for(int i = 0; i < names.length; i++)
-        {
-            boolean hasError = erroneousColumnNames.contains(names[i]);
-            rowdata.add(new ErrorAwareEntry(names[i], headlessRowdata.get(i),
-                    hasError));
+        final String[] names = table.getColumnNames();
+        rowdata = new ArrayList<ErrorAwareEntry>(names.length);
+        while (names.length > headlessRowdata.size()) {
+            headlessRowdata.add(""); // NOI18N
+        }
+        for (int i = 0; i < names.length; i++) {
+            final boolean hasError = erroneousColumnNames.contains(names[i]);
+            rowdata.add(new ErrorAwareEntry(names[i], headlessRowdata.get(i), hasError));
         }
     }
-    
-    public Object getData(String columnName)
-    {
-        for(Entry e : rowdata)
-            if(e.getColumnName().equalsIgnoreCase(columnName))
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   columnName  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Object getData(final String columnName) {
+        for (final Entry e : rowdata) {
+            if (e.getColumnName().equalsIgnoreCase(columnName)) {
                 return e.getData();
+            }
+        }
         return null;
     }
 
-    public Vector getHeadlessRowdata()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public List getHeadlessRowdata() {
         return headlessRowdata;
     }
-    
-    public Vector<ErrorAwareEntry> getRowdata()
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public List<ErrorAwareEntry> getRowdata() {
         return rowdata;
     }
 
-    public Table getTable()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Table getTable() {
         return table;
     }
-    
-    public Vector<ErrorAwareEntry> getErroneousEntries()
-    {
-        Vector<ErrorAwareEntry> ret = new Vector<ErrorAwareEntry>();
-        for(ErrorAwareEntry entry : rowdata)
-            if(entry.hasError())
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public List<ErrorAwareEntry> getErroneousEntries() {
+        final List<ErrorAwareEntry> ret = new ArrayList<ErrorAwareEntry>();
+        for (final ErrorAwareEntry entry : rowdata) {
+            if (entry.hasError()) {
                 ret.add(entry);
+            }
+        }
         return ret;
     }
-    
-    public static class Entry
-    {
-        private String columnName;
-        private Object data;
-        
-        public Entry(String columnName, Object data)
-        {
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer();
+        for (Object o : headlessRowdata) {
+            sb.append(o).append('\t'); // NOI18N
+        }
+        return sb.toString();
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public static class Entry {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private final transient String columnName;
+        private final transient Object data;
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new Entry object.
+         *
+         * @param  columnName  DOCUMENT ME!
+         * @param  data        DOCUMENT ME!
+         */
+        public Entry(final String columnName, final Object data) {
             this.columnName = columnName;
             this.data = data;
         }
 
-        public String getColumnName()
-        {
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getColumnName() {
             return columnName;
         }
 
-        public Object getData()
-        {
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public Object getData() {
             return data;
         }
     }
-    
-    public static class ErrorAwareEntry extends Entry
-    {
-        private boolean hasError;
-        
-        public ErrorAwareEntry(String columnName, Object data, boolean hasError)
-        {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public static class ErrorAwareEntry extends Entry {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private final transient boolean hasError;
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new ErrorAwareEntry object.
+         *
+         * @param  columnName  DOCUMENT ME!
+         * @param  data        DOCUMENT ME!
+         * @param  hasError    DOCUMENT ME!
+         */
+        public ErrorAwareEntry(final String columnName, final Object data, final boolean hasError) {
             super(columnName, data);
             this.hasError = hasError;
         }
 
-        public boolean hasError()
-        {
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public boolean hasError() {
             return hasError;
         }
-    }
-    
-    public String toString()
-    {
-        StringBuffer sb = new StringBuffer();
-        for(Object o : headlessRowdata)
-            sb.append(o).append("\t");
-        return sb.toString();
     }
 }

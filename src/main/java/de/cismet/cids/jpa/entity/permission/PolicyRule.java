@@ -1,11 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
 import de.cismet.cids.jpa.entity.common.CommonEntity;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,84 +19,134 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-@Entity()
+@Entity
 @Table(name = "cs_policy_rule")
-public class PolicyRule extends CommonEntity
-{
+public class PolicyRule extends CommonEntity {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** Use serialVersionUID for interoperability. */
+    private static final long serialVersionUID = 7222583952655634829L;
+
+    //~ Instance fields --------------------------------------------------------
+
     @Id
-    @SequenceGenerator(name = "cs_policy_rule_sequence",
-            sequenceName = "cs_policy_rule_sequence",
-            allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-            generator = "cs_policy_rule_sequence")
+    @SequenceGenerator(
+        name = "cs_policy_rule_sequence",
+        sequenceName = "cs_policy_rule_sequence",
+        allocationSize = 1
+    )
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "cs_policy_rule_sequence"
+    )
     @Column(name = "id")
     private Integer id;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "policy", nullable = false)
+    @ManyToOne(
+        optional = false,
+        fetch = FetchType.EAGER
+    )
+    @JoinColumn(
+        name = "policy",
+        nullable = false
+    )
     @Fetch(FetchMode.SELECT)
     private Policy policy;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "permission", nullable = false)
+    @ManyToOne(
+        optional = false,
+        fetch = FetchType.EAGER
+    )
+    @JoinColumn(
+        name = "permission",
+        nullable = false
+    )
     @Fetch(FetchMode.SELECT)
     private Permission permission;
 
     @Column(name = "default_value")
     private Boolean defaultValue;
 
-    public PolicyRule()
-    {
-        id = null;
-        policy = null;
-        permission = null;
-        defaultValue = null;
-    }
+    //~ Methods ----------------------------------------------------------------
 
-    public Boolean getDefaultValue()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Boolean getDefaultValue() {
         return defaultValue;
     }
 
-    public void setDefaultValue(final Boolean defaultValue)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  defaultValue  DOCUMENT ME!
+     */
+    public void setDefaultValue(final Boolean defaultValue) {
         this.defaultValue = defaultValue;
     }
 
-    public Permission getPermission()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Permission getPermission() {
         return permission;
     }
 
-    public void setPermission(final Permission permission)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  permission  DOCUMENT ME!
+     */
+    public void setPermission(final Permission permission) {
         this.permission = permission;
     }
 
-    public Policy getPolicy()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Policy getPolicy() {
         return policy;
     }
 
-    public void setPolicy(final Policy policy)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  policy  DOCUMENT ME!
+     */
+    public void setPolicy(final Policy policy) {
         this.policy = policy;
     }
 
-    public Integer getId()
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(final Integer id)
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setId(final Integer id) {
         this.id = id;
     }
 }

@@ -1,42 +1,89 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.util;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-public interface ProgressListener
-{
-    public void progress(final int steps);
-    public void processingStateChanged(final ProgressState state);
+public interface ProgressListener {
 
-    public static final class ProgressState
-    {
-        private String state;
-        private int maxSteps;
+    //~ Methods ----------------------------------------------------------------
 
-        public ProgressState(final String state, final int maxSteps)
-        {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  steps  DOCUMENT ME!
+     */
+    void progress(final int steps);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  state  DOCUMENT ME!
+     */
+    void processingStateChanged(final ProgressState state);
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public static final class ProgressState {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private final String state;
+        private final int maxSteps;
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new ProgressState object.
+         *
+         * @param  state     DOCUMENT ME!
+         * @param  maxSteps  DOCUMENT ME!
+         */
+        public ProgressState(final String state, final int maxSteps) {
             this.state = state;
             this.maxSteps = maxSteps;
         }
 
-        public String getState()
-        {
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getState() {
             return state;
         }
 
-        public int getMaxSteps()
-        {
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public int getMaxSteps() {
             return maxSteps;
         }
 
-        public boolean isIndeterminate()
-        {
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public boolean isIndeterminate() {
             return maxSteps < 1;
         }
     }

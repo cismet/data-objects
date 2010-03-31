@@ -1,7 +1,16 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
 import de.cismet.cids.jpa.entity.common.CommonEntity;
+
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -12,98 +21,175 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-@Entity()
+/**
+ * DOCUMENT ME!
+ *
+ * @author   mscholl
+ * @version  $Revision$, $Date$
+ */
+@Entity
 @Table(name = "cs_class_attr")
-public class ClassAttribute extends CommonEntity implements Serializable
-{
+public class ClassAttribute extends CommonEntity implements Serializable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** Use serialVersionUID for interoperability. */
+    private static final long serialVersionUID = 7059910660267569751L;
+
+    //~ Instance fields --------------------------------------------------------
+
     @Id
-    @SequenceGenerator(name = "cs_class_attr_sequence",
-            sequenceName = "cs_class_attr_sequence",
-            allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, 
-            generator = "cs_class_attr_sequence")
+    @SequenceGenerator(
+        name = "cs_class_attr_sequence",
+        sequenceName = "cs_class_attr_sequence",
+        allocationSize = 1
+    )
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "cs_class_attr_sequence"
+    )
     @Column(name = "id")
     private Integer id;
- 
+
     @Column(name = "attr_key")
     private String attrKey;
-    
+
     @Column(name = "attr_value")
     private String attrValue;
-    
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "class_id", nullable = false)
+
+    @ManyToOne(
+        optional = false,
+        fetch = FetchType.EAGER
+    )
+    @JoinColumn(
+        name = "class_id",
+        nullable = false
+    )
     @Fetch(FetchMode.SELECT)
     private CidsClass cidsClass;
-    
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "type_id", nullable = false)
+
+    @ManyToOne(
+        optional = false,
+        fetch = FetchType.EAGER
+    )
+    @JoinColumn(
+        name = "type_id",
+        nullable = false
+    )
     @Fetch(FetchMode.SELECT)
     private Type type;
-    
-    public ClassAttribute()
-    {
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new ClassAttribute object.
+     */
+    public ClassAttribute() {
         setAttrKey(null);
         setAttrValue(null);
         setCidsClass(null);
         setType(null);
     }
 
-    public String getAttrKey()
-    {
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getAttrKey() {
         return attrKey;
     }
 
-    public void setAttrKey(final String attrKey)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  attrKey  DOCUMENT ME!
+     */
+    public void setAttrKey(final String attrKey) {
         this.attrKey = attrKey;
     }
 
-    public String getAttrValue()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getAttrValue() {
         return attrValue;
     }
 
-    public void setAttrValue(final String attrValue)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  attrValue  DOCUMENT ME!
+     */
+    public void setAttrValue(final String attrValue) {
         this.attrValue = attrValue;
     }
 
-    public CidsClass getCidsClass()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public CidsClass getCidsClass() {
         return cidsClass;
     }
 
-    public void setCidsClass(final CidsClass cidsClass)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  cidsClass  DOCUMENT ME!
+     */
+    public void setCidsClass(final CidsClass cidsClass) {
         this.cidsClass = cidsClass;
     }
 
-    public Type getType()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Type getType() {
         return type;
     }
 
-    public void setType(final Type type)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  type  DOCUMENT ME!
+     */
+    public void setType(final Type type) {
         this.type = type;
     }
-    
-    public String toString()
-    {
-        return getAttrKey() + "(" + getId() + ")" + getAttrValue();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return getAttrKey() + "(" + getId() + ")" + getAttrValue(); // NOI18N
     }
 
-    public Integer getId()
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id)
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setId(final Integer id) {
         this.id = id;
     }
 }

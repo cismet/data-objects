@@ -1,12 +1,14 @@
-/*
- * URLBase.java
- *
- * Created on 24. January 2008, 15:46
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.common;
 
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,83 +17,122 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-
 /**
- * @author mscholl
- * @version 1.0
+ * DOCUMENT ME!
+ *
+ * @author   mscholl
+ * @version  1.0
  */
-@Entity()
+@Entity
 @Table(name = "url_base")
-public class URLBase extends CommonEntity implements Serializable
-{
+public class URLBase extends CommonEntity implements Serializable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** Use serialVersionUID for interoperability. */
+    private static final long serialVersionUID = -7190048614906288827L;
+
+    //~ Instance fields --------------------------------------------------------
+
     @Id
-    @SequenceGenerator(name = "url_base_seq",
-            sequenceName = "url_base_seq",
-            allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, 
-            generator = "url_base_seq")
+    @SequenceGenerator(
+        name = "url_base_seq",
+        sequenceName = "url_base_seq",
+        allocationSize = 1
+    )
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "url_base_seq"
+    )
     @Column(name = "id")
     private Integer id;
- 
+
     @Column(name = "prot_prefix")
     private String protocolPrefix;
-    
+
     @Column(name = "server")
     private String server;
 
     @Column(name = "path")
     private String path;
-    
-    public URLBase()
-    {
-        protocolPrefix = null;
-        server = null;
-        path = null;
-    }
 
-    public String getProtocolPrefix()
-    {
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getProtocolPrefix() {
         return protocolPrefix;
     }
 
-    public void setProtocolPrefix(final String protocolPrefix)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  protocolPrefix  DOCUMENT ME!
+     */
+    public void setProtocolPrefix(final String protocolPrefix) {
         this.protocolPrefix = protocolPrefix;
     }
 
-    public String getServer()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getServer() {
         return server;
     }
 
-    public void setServer(final String server)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  server  DOCUMENT ME!
+     */
+    public void setServer(final String server) {
         this.server = server;
     }
 
-    public String getPath()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getPath() {
         return path;
     }
 
-    public void setPath(final String path)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  path  DOCUMENT ME!
+     */
+    public void setPath(final String path) {
         this.path = path;
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return protocolPrefix + server + path;
     }
 
-    public Integer getId()
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(final Integer id)
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setId(final Integer id) {
         this.id = id;
     }
 }

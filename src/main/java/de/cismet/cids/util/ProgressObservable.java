@@ -1,11 +1,32 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.util;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-public interface ProgressObservable
-{
-    public void addProgressListener(final ProgressListener pl);
-    public void removeProgressListener(final ProgressListener pl);
+public interface ProgressObservable {
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  pl  DOCUMENT ME!
+     */
+    void addProgressListener(final ProgressListener pl);
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  pl  DOCUMENT ME!
+     */
+    void removeProgressListener(final ProgressListener pl);
 }

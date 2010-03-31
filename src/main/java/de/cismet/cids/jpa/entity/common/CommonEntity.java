@@ -1,49 +1,70 @@
-/*
- * CommonEntity.java
- *
- * Created on 23. Januar 2008, 16:48
- *
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.common;
 
 import java.io.Serializable;
+
 import javax.persistence.MappedSuperclass;
 
 /**
+ * DOCUMENT ME!
  *
- * @author $Author: mscholl $
- * @version $Revision: 1.3 $
- * tag $Name:  $
- * date $Date: 2008/04/23 10:24:26 $
+ * @author   mscholl
+ * @version  1.3
  */
 @MappedSuperclass
-public abstract class CommonEntity implements Serializable
-{
+public abstract class CommonEntity implements Serializable {
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public abstract Integer getId();
-    
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  id  DOCUMENT ME!
+     */
     public abstract void setId(final Integer id);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean equals(final Object o)
-    {
-        if(!(o instanceof CommonEntity))
+    public boolean equals(final Object o) {
+        if (!(o instanceof CommonEntity)) {
             return false;
+        }
         final CommonEntity theOther = (CommonEntity)o;
-        if(getId() == null && theOther.getId() == null)
+        if ((getId() == null) && (theOther.getId() == null)) {
             return this == theOther;
-        if(getId() == null || theOther.getId() == null)
+        }
+        if ((getId() == null) || (theOther.getId() == null)) {
             return false;
-        if(getId().equals(theOther.getId()))
+        }
+        if (getId().equals(theOther.getId())) {
             return true;
+        }
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public int hashCode()
-    {
-        if(getId() == null)
+    public int hashCode() {
+        if (getId() == null) {
             return super.hashCode();
+        }
         return getId().hashCode();
     }
 }

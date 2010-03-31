@@ -1,6 +1,14 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
 import de.cismet.cids.jpa.entity.common.CommonEntity;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,64 +18,86 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-@Entity()
+@Entity
 @Table(name = "cs_policy")
-public class Policy extends CommonEntity
-{
+public class Policy extends CommonEntity {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** Use serialVersionUID for interoperability. */
+    private static final long serialVersionUID = 7915079227556265514L;
+
+    public static final Policy NO_POLICY;
+
+    static {
+        NO_POLICY = new Policy();
+        NO_POLICY.setName("<keine Richtlinie>"); // TODO: I18N
+    }
+
+    //~ Instance fields --------------------------------------------------------
+
     @Id
-    @SequenceGenerator(name = "cs_policy_sequence",
-            sequenceName = "cs_policy_sequence",
-            allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-            generator = "cs_policy_sequence")
+    @SequenceGenerator(
+        name = "cs_policy_sequence",
+        sequenceName = "cs_policy_sequence",
+        allocationSize = 1
+    )
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "cs_policy_sequence"
+    )
     @Column(name = "id")
     private Integer id;
 
     @Column(name = "name")
     private String name;
 
-    public static final Policy NO_POLICY;
+    //~ Methods ----------------------------------------------------------------
 
-    static
-    {
-        final Policy p = new Policy();
-        p.name = "<keine Richtlinie>";
-        p.id = null;
-        NO_POLICY = p;
-    }
-
-    public Policy()
-    {
-        this.id = null;
-        this.name = null;
-    }
-
-    public Integer getId()
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(final Integer id)
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setId(final Integer id) {
         this.id = id;
     }
 
-    public String getName()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getName() {
         return name;
     }
 
-    public void setName(final String name)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  name  DOCUMENT ME!
+     */
+    public void setName(final String name) {
         this.name = name;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 }

@@ -1,34 +1,71 @@
-/*
- * InspectionResult.java
- *
- * Created on 13. September 2007, 16:09
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.maintenance;
 
 import de.cismet.cids.maintenance.container.Row;
+import de.cismet.cids.maintenance.container.Row;
+
 import de.cismet.diff.container.Table;
-import java.util.Vector;
+
+import java.util.List;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-public interface InspectionResult
-{
-    public static final int CODE_NO_KEYS = 0;
-    public static final int CODE_ONE_KEY = 1;
-    public static final int CODE_ONE_KEY_ERROR = 2;
-    public static final int CODE_MULTIPLE_KEYS = 3;
-    public static final int CODE_MULTIPLE_KEYS_ERROR = 4;
-    
-    public Table getTable();
-    public Vector<Row> getErroneousRows();
-    public String getResultMessage();
-    public int getMessageCode();
-    public int getErroneousColumnCount();
-    public int getErroneousRowCount();
+public interface InspectionResult {
+
+    //~ Instance fields --------------------------------------------------------
+
+    int CODE_NO_KEYS = 0;
+    int CODE_ONE_KEY = 1;
+    int CODE_ONE_KEY_ERROR = 2;
+    int CODE_MULTIPLE_KEYS = 3;
+    int CODE_MULTIPLE_KEYS_ERROR = 4;
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Table getTable();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<Row> getErroneousRows();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    String getResultMessage();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    int getMessageCode();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    int getErroneousColumnCount();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    int getErroneousRowCount();
 }

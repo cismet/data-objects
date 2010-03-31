@@ -1,16 +1,16 @@
-/*
- * AllAttrMapping.java.java
- *
- * Created on 23. November 2007, 11:59
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
 import de.cismet.cids.jpa.entity.common.CommonEntity;
+
 import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,89 +19,135 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-
 /**
+ * DOCUMENT ME!
  *
- * @author cschmidt
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-@Entity()
+@Entity
 @Table(name = "cs_all_attr_mapping")
-public class AllAttrMapping extends CommonEntity implements Serializable
-{
+public class AllAttrMapping extends CommonEntity implements Serializable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** Use serialVersionUID for interoperability. */
+    private static final long serialVersionUID = -8132976524052091455L;
+
+    //~ Instance fields --------------------------------------------------------
+
     @Id
-    @SequenceGenerator(name = "cs_all_attr_mapping_sequence",
-            sequenceName = "cs_all_attr_mapping_sequence",
-            allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,
-    generator = "cs_all_attr_mapping_sequence")
+    @SequenceGenerator(
+        name = "cs_all_attr_mapping_sequence",
+        sequenceName = "cs_all_attr_mapping_sequence",
+        allocationSize = 1
+    )
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "cs_all_attr_mapping_sequence"
+    )
     @Column(name = "id")
     private Integer id;
-    
+
     @Column(name = "class_id")
     private Integer classId;
-    
+
     @Column(name = "object_id")
     private Integer objectId;
-    
+
     @Column(name = "attr_class_id")
     private Integer attrClassId;
-    
+
     @Column(name = "attr_object_id")
     private Integer attrObjectId;
-    
-    /** Creates a new instance of AllAttrMapping */
-    public AllAttrMapping()
-    {
-        classId = objectId = attrClassId = attrObjectId = null;
-    }
-    
-    public Integer getClassId()
-    {
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Integer getClassId() {
         return classId;
     }
-    
-    public void setClassId(final Integer classId)
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  classId  DOCUMENT ME!
+     */
+    public void setClassId(final Integer classId) {
         this.classId = classId;
     }
-    
-    public Integer getObjectId()
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Integer getObjectId() {
         return objectId;
     }
-    
-    public void setObjectId(final Integer objectId)
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  objectId  DOCUMENT ME!
+     */
+    public void setObjectId(final Integer objectId) {
         this.objectId = objectId;
     }
-    
-    public Integer getAttrClassId()
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Integer getAttrClassId() {
         return attrClassId;
     }
-    
-    public void setAttrClassId(final Integer attrClassId)
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  attrClassId  DOCUMENT ME!
+     */
+    public void setAttrClassId(final Integer attrClassId) {
         this.attrClassId = attrClassId;
     }
-    
-    public Integer getAttrObjectId()
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Integer getAttrObjectId() {
         return attrObjectId;
     }
-    
-    public void setAttrObjectId(final Integer attrObjectId)
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  attrObjectId  DOCUMENT ME!
+     */
+    public void setAttrObjectId(final Integer attrObjectId) {
         this.attrObjectId = attrObjectId;
     }
 
-    public Integer getId()
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id)
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setId(final Integer id) {
         this.id = id;
     }
 }

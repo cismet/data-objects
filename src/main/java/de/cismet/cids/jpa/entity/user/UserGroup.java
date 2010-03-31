@@ -1,10 +1,20 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.cids.jpa.entity.user;
 
 import de.cismet.cids.jpa.entity.common.CommonEntity;
 import de.cismet.cids.jpa.entity.common.Domain;
+
 import java.io.Serializable;
+
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,99 +27,169 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-@Entity()
+/**
+ * DOCUMENT ME!
+ *
+ * @author   mscholl
+ * @version  $Revision$, $Date$
+ */
+@Entity
 @Table(name = "cs_ug")
-public class UserGroup extends CommonEntity implements Serializable
-{
+public class UserGroup extends CommonEntity implements Serializable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** Use serialVersionUID for interoperability. */
+    private static final long serialVersionUID = 2027747626400050699L;
+
+    //~ Instance fields --------------------------------------------------------
+
     @Id
-    @SequenceGenerator(name = "cs_ug_sequence",
-            sequenceName = "cs_ug_sequence",
-            allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, 
-            generator = "cs_ug_sequence")
+    @SequenceGenerator(
+        name = "cs_ug_sequence",
+        sequenceName = "cs_ug_sequence",
+        allocationSize = 1
+    )
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "cs_ug_sequence"
+    )
     @Column(name = "id")
     private Integer id;
- 
+
     @Column(name = "name")
     private String name;
-    
+
     @Column(name = "descr")
     private String description;
-    
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "domain", nullable = false)
+
+    @ManyToOne(
+        optional = false,
+        fetch = FetchType.EAGER
+    )
+    @JoinColumn(
+        name = "domain",
+        nullable = false
+    )
     private Domain domain;
-    
+
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "cs_ug_membership",
-        joinColumns = {@JoinColumn(name = "ug_id")},
-        inverseJoinColumns = {@JoinColumn(name = "usr_id")})
+    @JoinTable(
+        name = "cs_ug_membership",
+        joinColumns = { @JoinColumn(name = "ug_id") },
+        inverseJoinColumns = { @JoinColumn(name = "usr_id") }
+    )
     @Fetch(FetchMode.SUBSELECT)
     private Set<User> users;
-    
-    public UserGroup()
-    {
-        name = null;
-        description = null;
-        domain = null;
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new UserGroup object.
+     */
+    public UserGroup() {
         users = new HashSet<User>();
     }
-    
-    public String getName()
-    {
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getName() {
         return name;
     }
-    
-    public void setName(final String name)
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  name  DOCUMENT ME!
+     */
+    public void setName(final String name) {
         this.name = name;
     }
-    
-    public String getDescription()
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getDescription() {
         return description;
     }
-    
-    public void setDescription(final String description)
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  description  DOCUMENT ME!
+     */
+    public void setDescription(final String description) {
         this.description = description;
     }
-    
-    public Domain getDomain()
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Domain getDomain() {
         return domain;
     }
-    
-    public void setDomain(final Domain domain)
-    {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  domain  DOCUMENT ME!
+     */
+    public void setDomain(final Domain domain) {
         this.domain = domain;
     }
-    
-    public String toString()
-    {
-        return getName() + "(" + getId() + ")";
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return getName() + "(" + getId() + ")"; // NOI18N
     }
 
-    public Set<User> getUsers()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Set<User> getUsers() {
         return users;
     }
 
-    public void setUsers(final Set<User> users)
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  users  DOCUMENT ME!
+     */
+    public void setUsers(final Set<User> users) {
         this.users = users;
     }
 
-    public Integer getId()
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id)
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setId(final Integer id) {
         this.id = id;
     }
 }

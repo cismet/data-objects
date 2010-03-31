@@ -1,12 +1,3 @@
-/*
- * Backend.java
- *
- * Created on 9. Januar 2007, 15:12
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package de.cismet.cids.jpa.backend.service.impl;
 
 import de.cismet.cids.jpa.backend.core.*;
@@ -17,16 +8,16 @@ import de.cismet.cids.jpa.entity.common.*;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.util.ProgressListener;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import net.sf.tie.ProxyInjector;
 import net.sf.tie.ext.InterceptionBuilder;
 
 /**
  *
- * @author $Author: mscholl $
- * @version $Revision: 1.13 $
- * tag $Name:  $
- * date $Date: 2009/10/29 14:24:52 $
+ * @author mscholl
+ * @version 1.13
  */
 public final class Backend implements 
                                     ClassService,
@@ -120,13 +111,6 @@ public final class Backend implements
     }
     // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc=" Part: ClassBackend ">
-    @Override
-    public URL getURL(final String url)
-    {
-        return cb.getURL(url);
-    }
-
     @Override
     public List<URL> getURLsLikeURL(final URL url)
     {
@@ -221,7 +205,6 @@ public final class Backend implements
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Part: CatalogBackend  ">
-    @Override
     public Map<String, String> getSimpleObjectInformation(final CatNode node)
     {
         return catBackend.getSimpleObjectInformation(node);
@@ -247,7 +230,7 @@ public final class Backend implements
     
     /**
      * 
-     * @returns true if the node has been deleted from the database, false if
+     * @return true if the node has been deleted from the database, false if
      *          only the link has been deleted
      */
     @Override
@@ -283,15 +266,8 @@ public final class Backend implements
         catBackend.linkNode(oldParent, newParent, node);
     }
 
-    @Override
-    public void moveChildren(final CatNode oldParent, final CatNode newParent)
-    {
-        catBackend.moveChildren(oldParent, newParent);
-    }
-
-    @Override
-    public CatNode addNode(final CatNode parent, final CatNode newNode, 
-                           final Domain domainTo)
+    public CatNode addNode(final CatNode parent, final CatNode newNode, final 
+            Domain domainTo)
     {
         return catBackend.addNode(parent, newNode, domainTo);
     }
@@ -366,5 +342,4 @@ public final class Backend implements
     }
 
     // </editor-fold>
-    
 }
