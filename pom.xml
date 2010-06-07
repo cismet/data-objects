@@ -16,6 +16,12 @@
     <name>cids DataObjects</name>
     <description>Database layer for the cids meta system</description>
 
+    <scm>
+        <connection>scm:svn:svn+ssh://repositories/svn/repositories/central/de/cismet/cids/data-objects/trunk</connection>
+        <developerConnection>scm:svn:svn+ssh://repositories/svn/repositories/central/de/cismet/cids/data-objects/trunk</developerConnection>
+        <url>http://repositories:8082/central/browse/de/cismet/cids/data-objects/trunk</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>javax.persistence</groupId>
