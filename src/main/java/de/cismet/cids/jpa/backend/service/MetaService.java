@@ -9,14 +9,14 @@ package de.cismet.cids.jpa.backend.service;
 
 import com.mchange.v1.util.ClosableResource;
 
+import java.sql.SQLException;
+
 import de.cismet.cids.jpa.entity.cidsclass.Attribute;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 import de.cismet.cids.jpa.entity.cidsclass.Type;
 
 import de.cismet.cids.util.Cancelable;
 import de.cismet.cids.util.ProgressObservable;
-
-import java.sql.SQLException;
 
 /**
  * DOCUMENT ME!
@@ -26,7 +26,7 @@ import java.sql.SQLException;
  */
 public interface MetaService extends ClosableResource, ProgressObservable, Cancelable {
 
-    //~ Static fields/initializers ---------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
     String CS_ATTR_MAP_TABLE = "cs_all_attr_mapping";
     String CS_ATTR_STRING_TABLE = "cs_attr_string";

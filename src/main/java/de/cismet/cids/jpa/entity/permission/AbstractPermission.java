@@ -7,8 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-import de.cismet.cids.jpa.entity.user.UserGroup;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 
@@ -17,8 +17,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
+import de.cismet.cids.jpa.entity.user.UserGroup;
 
 /**
  * DOCUMENT ME!

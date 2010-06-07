@@ -42,7 +42,11 @@ public final class ThreadUtil {
             final boolean lineNumbers) {
         if ((ste1 == null) || (ste2 == null)) {
             throw new IllegalArgumentException(
-                "equality check only allowed for non-null objects: ste1=" + ste1 + "||" + "ste2=" + ste2);
+                "equality check only allowed for non-null objects: ste1="
+                + ste1
+                + "||"
+                + "ste2="
+                + ste2);
         }
         if (ste1.length != ste2.length) {
             return false;
@@ -66,7 +70,7 @@ public final class ThreadUtil {
      *
      * @return  DOCUMENT ME!
      *
-     * @throws  NullPointerException  DOCUMENT ME!
+     * @throws  IllegalArgumentException  NullPointerException DOCUMENT ME!
      */
     public static boolean equals(
             final StackTraceElement ste1,
@@ -74,7 +78,11 @@ public final class ThreadUtil {
             final boolean lineNumbers) {
         if ((ste1 == null) || (ste2 == null)) {
             throw new IllegalArgumentException(
-                "equality check only allowed for non-null objects: ste1=" + ste1 + "||" + "ste2=" + ste2);
+                "equality check only allowed for non-null objects: ste1="
+                + ste1
+                + "||"
+                + "ste2="
+                + ste2);
         }
         if (lineNumbers) {
             return ste1.equals(ste2);

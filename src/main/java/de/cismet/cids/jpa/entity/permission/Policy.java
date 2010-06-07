@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +14,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import de.cismet.cids.jpa.entity.common.CommonEntity;
 
 /**
  * DOCUMENT ME!

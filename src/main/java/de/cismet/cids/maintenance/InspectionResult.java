@@ -7,12 +7,11 @@
 ****************************************************/
 package de.cismet.cids.maintenance;
 
-import de.cismet.cids.maintenance.container.Row;
+import java.util.List;
+
 import de.cismet.cids.maintenance.container.Row;
 
 import de.cismet.diff.container.Table;
-
-import java.util.List;
 
 /**
  * DOCUMENT ME!

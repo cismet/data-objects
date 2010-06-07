@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * IndexProgressListener.java
  *
@@ -6,27 +13,58 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.cids.meta;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 /**
+ * DOCUMENT ME!
  *
- * @author cschmidt
+ * @author   cschmidt
+ * @version  $Revision$, $Date$
  */
 public interface IndexProgressListener {
-    
-    public void dispose();
-    
-    public JLabel getLblInsertIntoDb();
-    
-    public JProgressBar getProgInsertIntoDb();
-    
-    public JProgressBar getProgBarAttr();
-    
-    public JProgressBar getProgBarClass();
-    
-    public JLabel getLblAttribute();
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     */
+    void dispose();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    JLabel getLblInsertIntoDb();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    JProgressBar getProgInsertIntoDb();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    JProgressBar getProgBarAttr();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    JProgressBar getProgBarClass();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    JLabel getLblAttribute();
 }

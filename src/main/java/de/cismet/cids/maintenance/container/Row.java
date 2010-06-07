@@ -7,10 +7,10 @@
 ****************************************************/
 package de.cismet.cids.maintenance.container;
 
-import de.cismet.diff.container.Table;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import de.cismet.diff.container.Table;
 
 /**
  * DOCUMENT ME!
@@ -113,7 +113,7 @@ public class Row {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer();
-        for (Object o : headlessRowdata) {
+        for (final Object o : headlessRowdata) {
             sb.append(o).append('\t'); // NOI18N
         }
         return sb.toString();

@@ -7,13 +7,7 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
-import de.cismet.cids.jpa.backend.core.PersistenceProvider;
-import de.cismet.cids.jpa.backend.service.ClassService;
-import de.cismet.cids.jpa.entity.cidsclass.Icon;
-import de.cismet.cids.jpa.entity.cidsclass.JavaClass;
-import de.cismet.cids.jpa.entity.cidsclass.Type;
-import de.cismet.cids.jpa.entity.common.URL;
-import de.cismet.cids.jpa.entity.common.URLBase;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -21,7 +15,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-import org.apache.log4j.Logger;
+import de.cismet.cids.jpa.backend.core.PersistenceProvider;
+import de.cismet.cids.jpa.backend.service.ClassService;
+import de.cismet.cids.jpa.entity.cidsclass.Icon;
+import de.cismet.cids.jpa.entity.cidsclass.JavaClass;
+import de.cismet.cids.jpa.entity.cidsclass.Type;
+import de.cismet.cids.jpa.entity.common.URL;
+import de.cismet.cids.jpa.entity.common.URLBase;
 
 /**
  * DOCUMENT ME!
@@ -167,10 +167,18 @@ public class ClassBackend implements ClassService {
         final String object = (url.getObjectName() == null) ? "" : url.getObjectName();                   // NOI18N
         final Query q = em.createQuery(
                 "FROM URL url "                                                                           // NOI18N
-                + "WHERE url.urlbase.protocolPrefix LIKE '%" + protocol + "%' "                           // NOI18N
-                + "AND url.urlbase.server LIKE '%" + server + "%' "                                       // NOI18N
-                + "AND url.urlbase.path LIKE '%" + path + "%' "                                           // NOI18N
-                + "AND url.objectName LIKE '%" + object + "%'");                                          // NOI18N
+                + "WHERE url.urlbase.protocolPrefix LIKE '%"
+                + protocol
+                + "%' "                                                                                   // NOI18N
+                + "AND url.urlbase.server LIKE '%"
+                + server
+                + "%' "                                                                                   // NOI18N
+                + "AND url.urlbase.path LIKE '%"
+                + path
+                + "%' "                                                                                   // NOI18N
+                + "AND url.objectName LIKE '%"
+                + object
+                + "%'");                                                                                  // NOI18N
         return q.getResultList();
     }
 
@@ -187,28 +195,34 @@ public class ClassBackend implements ClassService {
         final URLBase urlBase = url.getUrlbase();
         String protocol = urlBase.getProtocolPrefix();
         if (protocol == null) {
-            protocol = "";                                           // NOI18N
+            protocol = "";                               // NOI18N
             urlBase.setProtocolPrefix(protocol);
         }
         String server = urlBase.getServer();
         if (server == null) {
-            server = "";                                             // NOI18N
+            server = "";                                 // NOI18N
             urlBase.setServer(server);
         }
         String path = urlBase.getPath();
         if (path == null) {
-            path = "";                                               // NOI18N
+            path = "";                                   // NOI18N
             urlBase.setPath(path);
         }
         final Query q = em.createQuery(
-                "FROM URLBase ub "                                   // NOI18N
-                + "WHERE ub.protocolPrefix LIKE '" + protocol + "' " // NOI18N
-                + "AND ub.server LIKE '" + server + "' "             // NOI18N
-                + "AND ub.path LIKE '" + path + "'");                // NOI18N
+                "FROM URLBase ub "                       // NOI18N
+                + "WHERE ub.protocolPrefix LIKE '"
+                + protocol
+                + "' "                                   // NOI18N
+                + "AND ub.server LIKE '"
+                + server
+                + "' "                                   // NOI18N
+                + "AND ub.path LIKE '"
+                + path
+                + "'");                                  // NOI18N
         try {
             url.setUrlbase((URLBase)q.getSingleResult());
             if (LOG.isDebugEnabled()) {
-                LOG.debug("received urlbase, using it");             // NOI18N
+                LOG.debug("received urlbase, using it"); // NOI18N
             }
         } catch (final NoResultException e) {
             // urlbase not existing, store it and set it
@@ -270,7 +284,9 @@ public class ClassBackend implements ClassService {
         final EntityManager em = provider.getEntityManager();
         final Query q = em.createQuery(                                             // NOI18N
                 "FROM URLBase ub "                                                  // NOI18N
-                + "WHERE ub.id = " + urlbase.getId() + " "                          // NOI18N
+                + "WHERE ub.id = "
+                + urlbase.getId()
+                + " "                                                               // NOI18N
                 + "AND ub NOT IN "                                                  // NOI18N
                 + "(SELECT urlbase FROM URL)");                                     // NOI18N
         try {
@@ -352,7 +368,7 @@ public class ClassBackend implements ClassService {
     @Override
     public boolean stillReferenced(final Type t) {
         final EntityManager em = provider.getEntityManager();
-        
+
         Query q = em.createQuery("FROM Attribute a WHERE a.type = :type"); // NOI18N
         q.setParameter("type", t);                                         // NOI18N
         List l = q.getResultList();

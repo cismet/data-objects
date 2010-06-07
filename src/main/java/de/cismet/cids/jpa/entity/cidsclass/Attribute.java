@@ -7,11 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-import de.cismet.cids.jpa.entity.permission.AbstractPermission;
-import de.cismet.cids.jpa.entity.permission.AttributePermission;
-import de.cismet.cids.jpa.entity.permission.Policy;
-import de.cismet.cids.jpa.entity.common.PermissionAwareEntity;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 
@@ -31,9 +29,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
+import de.cismet.cids.jpa.entity.common.PermissionAwareEntity;
+import de.cismet.cids.jpa.entity.permission.AbstractPermission;
+import de.cismet.cids.jpa.entity.permission.AttributePermission;
+import de.cismet.cids.jpa.entity.permission.Policy;
 
 /**
  * DOCUMENT ME!
@@ -182,8 +182,14 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
      * Creates a new Attribute object.
      */
     public Attribute() {
-        visible = true;
         attributePermissions = new HashSet<AttributePermission>();
+        // defaults initialisation to prevent not-null constraint errors
+        visible = true;
+        foreignKey = false;
+        substitute = false;
+        indexed = false;
+        array = false;
+        optional = true;
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -591,14 +597,12 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
     }
 
     @Override
-    public Set<? extends AbstractPermission> getPermissions()
-    {
+    public Set<? extends AbstractPermission> getPermissions() {
         return getAttributePermissions();
     }
 
     @Override
-    public Policy getPolicy()
-    {
+    public Policy getPolicy() {
         return getCidsClass().getAttributePolicy();
     }
 }

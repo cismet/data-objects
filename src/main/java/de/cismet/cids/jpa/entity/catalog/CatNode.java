@@ -7,14 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.catalog;
 
-import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
-import de.cismet.cids.jpa.entity.cidsclass.JavaClass;
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-import de.cismet.cids.jpa.entity.common.URL;
-import de.cismet.cids.jpa.entity.permission.AbstractPermission;
-import de.cismet.cids.jpa.entity.permission.NodePermission;
-import de.cismet.cids.jpa.entity.permission.Policy;
-import de.cismet.cids.jpa.entity.common.PermissionAwareEntity;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 
@@ -34,9 +29,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
+import de.cismet.cids.jpa.entity.cidsclass.JavaClass;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
+import de.cismet.cids.jpa.entity.common.PermissionAwareEntity;
+import de.cismet.cids.jpa.entity.common.URL;
+import de.cismet.cids.jpa.entity.permission.AbstractPermission;
+import de.cismet.cids.jpa.entity.permission.NodePermission;
+import de.cismet.cids.jpa.entity.permission.Policy;
 
 /**
  * DOCUMENT ME!
@@ -447,8 +447,7 @@ public class CatNode extends CommonEntity implements Serializable, PermissionAwa
     }
 
     @Override
-    public Set<? extends AbstractPermission> getPermissions()
-    {
+    public Set<? extends AbstractPermission> getPermissions() {
         return getNodePermissions();
     }
 
@@ -463,9 +462,9 @@ public class CatNode extends CommonEntity implements Serializable, PermissionAwa
 
         //~ Static fields/initializers -----------------------------------------
 
-        public static final Type CLASS = new Type("C"); // NOI18N
+        public static final Type CLASS = new Type("C");  // NOI18N
         public static final Type OBJECT = new Type("O"); // NOI18N
-        public static final Type ORG = new Type("N"); // NOI18N
+        public static final Type ORG = new Type("N");    // NOI18N
 
         //~ Instance fields ----------------------------------------------------
 

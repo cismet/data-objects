@@ -7,12 +7,12 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.UserService;
 import de.cismet.cids.jpa.entity.user.User;
-
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 
 /**
  * DOCUMENT ME!

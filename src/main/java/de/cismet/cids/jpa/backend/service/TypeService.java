@@ -7,9 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service;
 
-import de.cismet.cids.jpa.entity.cidsclass.Type;
-
 import java.util.List;
+
+import de.cismet.cids.jpa.entity.cidsclass.Type;
 
 /**
  * DOCUMENT ME!

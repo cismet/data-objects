@@ -7,12 +7,12 @@
 ****************************************************/
 package de.cismet.diff.container;
 
+import java.util.Arrays;
+import java.util.ResourceBundle;
+
 import de.cismet.diff.DiffAccessor;
 
 import de.cismet.diff.exception.UnsupportedActionException;
-
-import java.util.Arrays;
-import java.util.ResourceBundle;
 
 /**
  * Provides a simple container to hold actions that has been performed and the arguments that are involved. The

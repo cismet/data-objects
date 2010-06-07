@@ -7,14 +7,7 @@
 ****************************************************/
 package de.cismet.cids.maintenance;
 
-import de.cismet.cids.maintenance.container.Row;
-import de.cismet.cids.maintenance.util.DefaultInspectionResult;
-
-import de.cismet.diff.container.Table;
-import de.cismet.diff.container.TableColumn;
-
-import de.cismet.diff.db.DatabaseConnection;
-import de.cismet.diff.db.SimpleTablesDataProvider;
+import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -26,7 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import de.cismet.cids.maintenance.container.Row;
+import de.cismet.cids.maintenance.util.DefaultInspectionResult;
+
+import de.cismet.diff.container.Table;
+import de.cismet.diff.container.TableColumn;
+
+import de.cismet.diff.db.DatabaseConnection;
+import de.cismet.diff.db.SimpleTablesDataProvider;
 
 /**
  * DOCUMENT ME!
@@ -86,7 +86,7 @@ public class MaintenanceBackend {
             final Map<String, String> param = new HashMap<String, String>();
             final List<String> colnames = new ArrayList<String>();
             final Table check = new Table(tablename, provider.getColumns(tablename));
-            for (TableColumn t : provider.getColumns(tablename)) {
+            for (final TableColumn t : provider.getColumns(tablename)) {
                 if (t.getColumnName().matches(FOREIGN_KEY_PATTERN)) {
                     final String colname = t.getColumnName();
                     final String tname = "cs_" + colname.substring(0, colname.indexOf("_id"));    // NOI18N
@@ -98,7 +98,7 @@ public class MaintenanceBackend {
                 result.setResultMessage(
                     org.openide.util.NbBundle.getMessage(
                         MaintenanceBackend.class,
-                        "MaintenanceBackend.resultmessage.noForeignkeysFound"));// NOI18N
+                        "MaintenanceBackend.resultmessage.noForeignkeysFound"));                  // NOI18N
                 result.setCode(InspectionResult.CODE_NO_KEYS);
                 result.setTable(check);
                 result.setErroneousRows(null);
@@ -107,7 +107,7 @@ public class MaintenanceBackend {
             }
             final List<Row> rows = new ArrayList<Row>();
             int errorColumnCount = 0;
-            for (String colname : colnames) {
+            for (final String colname : colnames) {
                 final String sql =
                     SQL_PATTERN.replaceFirst("\\?", tablename)                                    // NOI18N
                     .replaceFirst("\\?", colname)                                                 // NOI18N
@@ -125,7 +125,7 @@ public class MaintenanceBackend {
                 while (set.next()) {
                     countForColumn++;
                     final List data = new ArrayList(check.getColumnNames().length);
-                    for (String cname : check.getColumnNames()) {
+                    for (final String cname : check.getColumnNames()) {
                         data.add(set.getObject(cname));
                     }
                     final List errorCol = new ArrayList(1);

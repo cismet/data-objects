@@ -7,8 +7,10 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.catalog;
 
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-import de.cismet.cids.jpa.entity.common.Domain;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import org.openide.util.Exceptions;
 
 import java.io.Serializable;
 
@@ -23,10 +25,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-
-import org.openide.util.Exceptions;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
+import de.cismet.cids.jpa.entity.common.Domain;
 
 /**
  * DOCUMENT ME!

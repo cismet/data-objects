@@ -1,36 +1,59 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 package de.cismet.diff;
 
-import de.cismet.cids.jpa.backend.service.impl.Backend;
-import de.cismet.diff.container.PSQLStatementGroup;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.util.Properties;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+
+import java.util.Properties;
+
+import de.cismet.cids.jpa.backend.service.impl.Backend;
+
+import de.cismet.diff.container.PSQLStatementGroup;
+
 import static org.junit.Assert.*;
 
 /**
+ * DOCUMENT ME!
  *
- * @author mscholl
+ * @author   mscholl
+ * @version  $Revision$, $Date$
  */
-public class DiffAccessorTest
-{
+public class DiffAccessorTest {
 
-    public DiffAccessorTest()
-    {
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new DiffAccessorTest object.
+     */
+    public DiffAccessorTest() {
     }
 
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
     @BeforeClass
-    public static void setUpClass() throws Exception
-    {
+    public static void setUpClass() throws Exception {
         final Properties p = new Properties();
         p.put("log4j.appender.Remote", "org.apache.log4j.net.SocketAppender");
         p.put("log4j.appender.Remote.remoteHost", "localhost");
@@ -42,23 +65,35 @@ public class DiffAccessorTest
         org.apache.log4j.PropertyConfigurator.configure(p);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
     @AfterClass
-    public static void tearDownClass() throws Exception
-    {
+    public static void tearDownClass() throws Exception {
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     @Before
-    public void setUp()
-    {
+    public void setUp() {
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     @After
-    public void tearDown()
-    {
+    public void tearDown() {
     }
 
-    private String getCurrentMethodName()
-    {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String getCurrentMethodName() {
         return new Throwable().getStackTrace()[1].getMethodName();
     }
 
@@ -67,11 +102,10 @@ public class DiffAccessorTest
      */
     @Ignore
     @Test
-    public void testPutDropAction()
-    {
+    public void testPutDropAction() {
         System.out.println("putDropAction");
-        String affectedTable = "";
-        DiffAccessor instance = null;
+        final String affectedTable = "";
+        final DiffAccessor instance = null;
         instance.putDropAction(affectedTable);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -79,24 +113,24 @@ public class DiffAccessorTest
 
     /**
      * Test of getStatementGroups method, of class DiffAccessor.
+     *
+     * @throws  Exception  DOCUMENT ME!
      */
     @Ignore
     @Test
-    public void testGetStatementGroups() throws Exception
-    {
+    public void testGetStatementGroups() throws Exception {
         System.out.println("TEST " + getCurrentMethodName());
-        try
-        {
+        try {
             final Properties prop = new Properties();
-            prop.load(new BufferedInputStream(new FileInputStream(
-                    "/Users/mscholl/cvswork6/testauslieferung/" +
-                    "cidsDistribution/abf_dev_20090320/runtime.properties")));
+            prop.load(new BufferedInputStream(
+                    new FileInputStream(
+                        "/Users/mscholl/cvswork6/testauslieferung/"
+                        + "cidsDistribution/abf_dev_20090320/runtime.properties")));
             final Backend b = new Backend(prop);
             final DiffAccessor da = new DiffAccessor(prop, b);
             final PSQLStatementGroup[] grp = da.getStatementGroups();
             System.out.println(grp.length);
-        }catch(final Exception e)
-        {
+        } catch (final Exception e) {
             e.printStackTrace();
             fail("could not get statements");
         }
@@ -108,10 +142,9 @@ public class DiffAccessorTest
      */
     @Ignore
     @Test
-    public void testRemoveActions()
-    {
+    public void testRemoveActions() {
         System.out.println("removeActions");
-        DiffAccessor instance = null;
+        final DiffAccessor instance = null;
         instance.removeActions();
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
@@ -122,13 +155,11 @@ public class DiffAccessorTest
      */
     @Ignore
     @Test
-    public void testFreeResources()
-    {
+    public void testFreeResources() {
         System.out.println("freeResources");
-        DiffAccessor instance = null;
+        final DiffAccessor instance = null;
         instance.freeResources();
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
-
 }

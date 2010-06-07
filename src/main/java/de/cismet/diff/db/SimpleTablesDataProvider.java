@@ -7,14 +7,14 @@
 ****************************************************/
 package de.cismet.diff.db;
 
-import de.cismet.diff.container.TableColumn;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.LinkedList;
 import java.util.Properties;
+
+import de.cismet.diff.container.TableColumn;
 
 /**
  * This class uses a single JDBC connection to claim data from the database. It provides information about the names of
@@ -29,10 +29,12 @@ import java.util.Properties;
  */
 public class SimpleTablesDataProvider {
 
-    //~ Instance fields --------------------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
     // default type of a table, will probably not have to be altered
     private static final String[] TYPES = { "TABLE" }; // NOI18N
+
+    //~ Instance fields --------------------------------------------------------
 
     private final transient Connection con;
 
@@ -67,8 +69,8 @@ public class SimpleTablesDataProvider {
             set = con.getMetaData().getTables(null, null, null, TYPES);
             while (set.next()) {
                 final String table = set.getString(3);
-                if (!(table.startsWith("cs_") // NOI18N
-                                || table.equals("spatial_ref_sys") // NOI18N
+                if (!(table.startsWith("cs_")                           // NOI18N
+                                || table.equals("spatial_ref_sys")      // NOI18N
                                 || table.equals("geometry_columns"))) { // NOI18N
                     names.add(table);
                 }

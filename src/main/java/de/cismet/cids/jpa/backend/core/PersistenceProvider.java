@@ -7,9 +7,7 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.core;
 
-import de.cismet.cids.jpa.backend.service.CommonService;
-import de.cismet.cids.jpa.entity.cidsclass.ClassAttribute;
-import de.cismet.cids.jpa.entity.common.CommonEntity;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +20,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import org.apache.log4j.Logger;
+import de.cismet.cids.jpa.backend.service.CommonService;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
 
 /**
  * DOCUMENT ME!

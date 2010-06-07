@@ -38,7 +38,7 @@ public interface ProgressListener {
      *
      * @version  $Revision$, $Date$
      */
-    public static final class ProgressState {
+    final class ProgressState {
 
         //~ Instance fields ----------------------------------------------------
 

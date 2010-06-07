@@ -7,13 +7,13 @@
 ****************************************************/
 package de.cismet.diff;
 
+import org.apache.log4j.Logger;
+
+import java.util.Properties;
+
 import de.cismet.cids.jpa.backend.service.impl.Backend;
 
-import de.cismet.diff.util.ProgressionQueue;
-
 import de.cismet.diff.builder.ScriptGenerator;
-import de.cismet.diff.builder.ScriptGenerator;
-import de.cismet.diff.builder.TableLoader;
 import de.cismet.diff.builder.TableLoader;
 
 import de.cismet.diff.container.Action;
@@ -25,9 +25,7 @@ import de.cismet.diff.exception.ScriptGeneratorException;
 import de.cismet.diff.exception.TableLoaderException;
 import de.cismet.diff.exception.UnsupportedActionException;
 
-import java.util.Properties;
-
-import org.apache.log4j.Logger;
+import de.cismet.diff.util.ProgressionQueue;
 
 /**
  * This class provides access to all the functionality the <code>de.cismet.diff</code> package provides. To use this

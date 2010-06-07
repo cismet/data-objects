@@ -9,11 +9,11 @@ package de.cismet.cids.jpa.backend.service;
 
 import com.mchange.v1.util.ClosableResource;
 
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-
 import java.util.List;
 
 import javax.persistence.NoResultException;
+
+import de.cismet.cids.jpa.entity.common.CommonEntity;
 
 /**
  * DOCUMENT ME!

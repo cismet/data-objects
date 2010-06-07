@@ -7,7 +7,7 @@
 ****************************************************/
 package de.cismet.diff.db;
 
-import de.cismet.diff.DiffAccessor;
+import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import org.apache.log4j.Logger;
+import de.cismet.diff.DiffAccessor;
 
 /**
  * DOCUMENT ME!
@@ -109,7 +109,7 @@ public class DatabaseConnection {
      * @throws  SQLException  DOCUMENT ME!
      */
     public static int updateSQL(final Properties runtime, final String sql, final int callerHashcode)
-        throws SQLException {
+            throws SQLException {
         if (CON_HASH_UPDATE.get(callerHashcode) == null) {
             final Connection con = getConnection(runtime);
             con.setAutoCommit(false);
@@ -130,7 +130,7 @@ public class DatabaseConnection {
      * @throws  SQLException  DOCUMENT ME!
      */
     public static ResultSet execSQL(final Properties runtime, final String sql, final int callerHashcode)
-        throws SQLException {
+            throws SQLException {
         if (CON_HASH_EXEC.get(callerHashcode) == null) {
             CON_HASH_EXEC.put(callerHashcode, getConnection(runtime));
         }

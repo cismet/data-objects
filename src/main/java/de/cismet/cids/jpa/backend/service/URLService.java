@@ -7,12 +7,12 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service;
 
-import de.cismet.cids.jpa.entity.common.URL;
-import de.cismet.cids.jpa.entity.common.URLBase;
-
 import java.util.List;
 
 import javax.persistence.NoResultException;
+
+import de.cismet.cids.jpa.entity.common.URL;
+import de.cismet.cids.jpa.entity.common.URLBase;
 
 /**
  * DOCUMENT ME!

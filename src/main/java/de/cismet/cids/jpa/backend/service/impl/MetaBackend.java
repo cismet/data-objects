@@ -7,16 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
-import de.cismet.cids.jpa.backend.service.MetaService;
-import de.cismet.cids.jpa.entity.cidsclass.Attribute;
-import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
-import de.cismet.cids.jpa.entity.cidsclass.Type;
+import org.apache.log4j.Logger;
 
-import de.cismet.cids.util.AbstractProgressObservable;
-import de.cismet.cids.util.ProgressListener;
-import de.cismet.cids.util.ProgressListener.ProgressState;
-
-import de.cismet.diff.db.DatabaseConnection;
+import org.openide.util.NbBundle;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -32,9 +25,16 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import de.cismet.cids.jpa.backend.service.MetaService;
+import de.cismet.cids.jpa.entity.cidsclass.Attribute;
+import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
+import de.cismet.cids.jpa.entity.cidsclass.Type;
 
-import org.openide.util.NbBundle;
+import de.cismet.cids.util.AbstractProgressObservable;
+import de.cismet.cids.util.ProgressListener;
+import de.cismet.cids.util.ProgressListener.ProgressState;
+
+import de.cismet.diff.db.DatabaseConnection;
 
 /**
  * DOCUMENT ME!
@@ -696,7 +696,13 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
         rowCount = stmtCopyToAttrString.executeUpdate();
         if (LOG.isDebugEnabled()) {
             LOG.debug(
-                "copied " + rowCount + " rows from '" + ATTR_STRING_TEMP_TABLE + "' to '" + CS_ATTR_STRING_TABLE + "'"); // NOI18N
+                "copied "
+                + rowCount
+                + " rows from '"
+                + ATTR_STRING_TEMP_TABLE
+                + "' to '"
+                + CS_ATTR_STRING_TABLE
+                + "'");                                                                                                  // NOI18N
         }
     }
 

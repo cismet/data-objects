@@ -15,11 +15,12 @@
  */
 package de.cismet.cids.maintenance.util;
 
+import java.util.List;
+
 import de.cismet.cids.maintenance.InspectionResult;
 import de.cismet.cids.maintenance.container.Row;
 
 import de.cismet.diff.container.Table;
-import java.util.List;
 
 /**
  * DOCUMENT ME!
@@ -36,8 +37,6 @@ public class DefaultInspectionResult implements InspectionResult {
     private transient List<Row> rows;
     private transient int code;
     private transient int erroneousColumnCount;
-
-    //~ Constructors -----------------------------------------------------------
 
     //~ Methods ----------------------------------------------------------------
 

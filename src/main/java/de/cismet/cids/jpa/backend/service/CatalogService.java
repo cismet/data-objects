@@ -7,11 +7,11 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service;
 
-import de.cismet.cids.jpa.entity.catalog.CatNode;
-import de.cismet.cids.jpa.entity.common.Domain;
-
 import java.util.List;
 import java.util.Map;
+
+import de.cismet.cids.jpa.entity.catalog.CatNode;
+import de.cismet.cids.jpa.entity.common.Domain;
 
 /**
  * DOCUMENT ME!

@@ -7,9 +7,9 @@
 ****************************************************/
 package de.cismet.diff.container;
 
-import de.cismet.diff.DiffAccessor;
-
 import java.util.ResourceBundle;
+
+import de.cismet.diff.DiffAccessor;
 
 /**
  * Simple container class to provide information about a column of a table.
@@ -144,10 +144,14 @@ public class TableColumn {
         final String colon = " : ";   // NOI18N
         if (isPrimKey) {
             return new String(
-                    columnName + colon
-                    + typeName + colon
-                    + defaultValue + colon
-                    + nullable + colon
+                    columnName
+                    + colon
+                    + typeName
+                    + colon
+                    + defaultValue
+                    + colon
+                    + nullable
+                    + colon
                     + "primary key"); // NOI18N
         } else {
             return new String(columnName + colon

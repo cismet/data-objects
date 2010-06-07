@@ -7,6 +7,13 @@
 ****************************************************/
 package de.cismet.diff.builder;
 
+import java.sql.SQLException;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.ResourceBundle;
+
 import de.cismet.cids.jpa.backend.service.impl.Backend;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 
@@ -17,13 +24,6 @@ import de.cismet.diff.container.Table;
 import de.cismet.diff.db.SimpleTablesDataProvider;
 
 import de.cismet.diff.exception.TableLoaderException;
-
-import java.sql.SQLException;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.ResourceBundle;
 
 /**
  * This class allows you to retrieve <code>Table</code> and <code>CidsClass</code> instances from the database the

@@ -7,7 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
-import de.cismet.cids.jpa.entity.query.QueryStore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 
@@ -22,8 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import de.cismet.cids.jpa.entity.query.QueryStore;
 
 /**
  * DOCUMENT ME!

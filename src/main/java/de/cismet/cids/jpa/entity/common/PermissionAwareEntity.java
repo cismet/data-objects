@@ -7,10 +7,10 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.common;
 
+import java.util.Set;
+
 import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.permission.Policy;
-
-import java.util.Set;
 
 /**
  * DOCUMENT ME!

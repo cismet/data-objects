@@ -7,14 +7,14 @@
 ****************************************************/
 package de.cismet.diff.container;
 
-import de.cismet.diff.DiffAccessor;
-
-import de.cismet.diff.exception.IllegalCodeException;
-
 import java.text.MessageFormat;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import de.cismet.diff.DiffAccessor;
+
+import de.cismet.diff.exception.IllegalCodeException;
 
 /**
  * Container class for PSQL statements. This class is able to build correct statements of correct <code>

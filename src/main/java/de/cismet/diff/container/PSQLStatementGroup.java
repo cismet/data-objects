@@ -7,9 +7,9 @@
 ****************************************************/
 package de.cismet.diff.container;
 
-import de.cismet.diff.exception.IllegalCodeException;
-
 import java.util.Arrays;
+
+import de.cismet.diff.exception.IllegalCodeException;
 
 /**
  * DOCUMENT ME!
@@ -52,7 +52,7 @@ public class PSQLStatementGroup extends StatementGroup {
         super(statements, transaction);
         applyStatements(statements);
         if (transaction) {
-            PSQLStatement[] tmp = new PSQLStatement[statements.length + 2];
+            final PSQLStatement[] tmp = new PSQLStatement[statements.length + 2];
             tmp[0] = new PSQLStatement(
                     "BEGIN WORK;", // NOI18N
                     null,

@@ -7,11 +7,11 @@
 ****************************************************/
 package de.cismet.diff.util;
 
-import de.cismet.diff.container.Action;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import de.cismet.diff.container.Action;
 
 /**
  * Used as event queue where to put <code>Action</code> instance representing the actions a user has performed that

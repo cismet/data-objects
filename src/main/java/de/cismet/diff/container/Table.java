@@ -7,10 +7,10 @@
 ****************************************************/
 package de.cismet.diff.container;
 
-import de.cismet.diff.DiffAccessor;
-
 import java.util.LinkedList;
 import java.util.ResourceBundle;
+
+import de.cismet.diff.DiffAccessor;
 
 /**
  * Simple container class for information about a table in a database.
@@ -75,7 +75,7 @@ public class Table {
      * @return  DOCUMENT ME!
      */
     public String[] getColumnNames() {
-        String[] columnNames = new String[columns.length];
+        final String[] columnNames = new String[columns.length];
         for (int i = 0; i < columns.length; i++) {
             columnNames[i] = columns[i].getColumnName();
         }

@@ -7,9 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.query;
 
-import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
-import de.cismet.cids.jpa.entity.common.CommonEntity;
-import de.cismet.cids.jpa.entity.permission.QueryPermission;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.io.Serializable;
 
@@ -30,9 +30,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
+import de.cismet.cids.jpa.entity.permission.QueryPermission;
 
 /**
  * DOCUMENT ME!
