@@ -77,41 +77,49 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <!-- copy the jar to the old abf library wrapper after build -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-installed</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>${project.artifactId}</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>${project.packaging}</type>
-                                    <overWrite>true</overWrite>
-                                    <destFileName>cidsDataObjects.jar</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                            <!--
-                                de.cismet.cidsDistDir shall be defined in a user's settings.xml as an
-                                absolute path to the distribution where the artifact shall be copied
-                                without a trailing /
-                            -->
-                            <outputDirectory>/Users/mscholl/cvswork6/cidsABF/cidsDataObjects/release/modules/ext/</outputDirectory>
-                            <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>old-abf-copy</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- copy the jar to the old abf library wrapper after build -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-installed</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>${project.groupId}</groupId>
+                                            <artifactId>${project.artifactId}</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>${project.packaging}</type>
+                                            <overWrite>true</overWrite>
+                                            <destFileName>cidsDataObjects.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <!--
+                                        de.cismet.cidsDistDir shall be defined in a user's settings.xml as an
+                                        absolute path to the distribution where the artifact shall be copied
+                                        without a trailing /
+                                    -->
+                                    <outputDirectory>/Users/mscholl/cvswork6/cidsABF/cidsDataObjects/release/modules/ext/</outputDirectory>
+                                    <stripVersion>true</stripVersion>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
