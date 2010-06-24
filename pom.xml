@@ -116,7 +116,7 @@
                                     <!--
                                         de.cismet.cidsDistDir shall be defined in a user's settings.xml as an
                                         absolute path to the distribution where the artifact shall be copied
-                                        without a trailing /
+                                        without a trailing / 
                                     -->
                                     <outputDirectory>/Users/mscholl/cvswork6/cidsABF/cidsDataObjects/release/modules/ext/</outputDirectory>
                                     <stripVersion>true</stripVersion>
