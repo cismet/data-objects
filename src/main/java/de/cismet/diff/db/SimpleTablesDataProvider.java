@@ -68,11 +68,15 @@ public class SimpleTablesDataProvider {
         try {
             set = con.getMetaData().getTables(null, null, null, TYPES);
             while (set.next()) {
+                final String schema = set.getString(2);
                 final String table = set.getString(3);
                 if (!(table.startsWith("cs_")                           // NOI18N
                                 || table.equals("spatial_ref_sys")      // NOI18N
                                 || table.equals("geometry_columns"))) { // NOI18N
-                    names.add(table);
+                    if(schema == null || schema.isEmpty() || "public".equals(schema)) // NOI18N
+                        names.add(table);
+                    else
+                        names.add(schema + "." + table); // NOI18N
                 }
             }
             if (names.isEmpty()) {
@@ -102,14 +106,22 @@ public class SimpleTablesDataProvider {
         final LinkedList<String> keys = new LinkedList<String>();
         final LinkedList<TableColumn> columns = new LinkedList<TableColumn>();
         try {
-            // set = con.getMetaData().getPrimaryKeys(schema, schemaPattern, tableName);
-            set = con.getMetaData().getPrimaryKeys(null, null, tableName);
+            final String table;
+            final String schema;
+            final int index = tableName.indexOf('.');
+            if(index == -1){
+                schema = null;
+                table = tableName;
+            }else{
+                schema = tableName.substring(0, index);
+                table = tableName.substring(index + 1);
+            }
+            set = con.getMetaData().getPrimaryKeys(null, schema, table);
             // 4 = column name
             while (set.next()) {
                 keys.add(set.getString(4));
             }
-            // set = con.getMetaData().getColumns(schema, schemaPattern, tableName,null);
-            set = con.getMetaData().getColumns(null, null, tableName, null);
+            set = con.getMetaData().getColumns(null, schema, table, null);
             while (set.next()) {
                 // 4 = column name
                 // 6 = type name
