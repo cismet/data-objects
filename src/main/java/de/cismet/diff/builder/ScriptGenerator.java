@@ -337,8 +337,8 @@ public class ScriptGenerator {
                         // also add scale to parameter if present
                         if (current.getScale() != null) {
                             paramAttrType = paramAttrType + "("                                 // NOI18N
-                                + current.getPrecision() + ", "                                 // NOI18N
-                                + current.getScale() + ")";                                     // NOI18N
+                                        + current.getPrecision() + ", "                         // NOI18N
+                                        + current.getScale() + ")";                             // NOI18N
                         } else {
                             paramAttrType = paramAttrType + "(" + current.getPrecision() + ")"; // NOI18N
                         }
@@ -364,8 +364,8 @@ public class ScriptGenerator {
                                 t.getTableName(),
                                 attrName.toLowerCase(),
                                 "DEFAULT nextval('"
-                                + t.getTableName()
-                                + "_seq')") // NOI18N
+                                        + t.getTableName()
+                                        + "_seq')") // NOI18N
                         };
                     statementGroups.addLast(new StatementGroup(s, false));
                 } else if (current.getDefaultValue() != null) {
@@ -391,11 +391,11 @@ public class ScriptGenerator {
                                 t.getTableName(),
                                 attrName.toLowerCase(),
                                 "DEFAULT '"
-                                + current.getDefaultValue()
-                                + "'")      // NOI18N
+                                        + current.getDefaultValue()
+                                        + "'")      // NOI18N
                         };
                     statementGroups.addLast(new StatementGroup(s, false));
-                }                           // </editor-fold>
+                }                                   // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" set not null if needed ">
                 if (!current.isOptional()) {
                     // default value is valid if present due to check above
@@ -571,8 +571,8 @@ public class ScriptGenerator {
                                     t.getTableName(),
                                     attrName.toLowerCase(),
                                     "DEFAULT '"
-                                    + current.getDefaultValue()
-                                    + "'")                         // NOI18N
+                                            + current.getDefaultValue()
+                                            + "'")                 // NOI18N
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
                     }                                              // </editor-fold>
@@ -676,8 +676,8 @@ public class ScriptGenerator {
                                     t.getTableName(),
                                     attrName.toLowerCase(),
                                     "DEFAULT nextval('"
-                                    + t.getTableName()
-                                    + "_seq')")    // NOI18N
+                                            + t.getTableName()
+                                            + "_seq')") // NOI18N
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
                     }                              // </editor-fold>
@@ -818,7 +818,7 @@ public class ScriptGenerator {
                             null,
                             false,
                             c.getTableName().toLowerCase()
-                            + "_seq",                                                       // NOI18N
+                                    + "_seq",                                               // NOI18N
                             "1"));                                                          // NOI18N
                 }
             } else {
@@ -913,7 +913,7 @@ public class ScriptGenerator {
                                     null,
                                     false,
                                     table.getTableName()
-                                    + "_seq")); // NOI18N
+                                            + "_seq")); // NOI18N
                         }
                         statem.addFirst(new CodedStatement(
                                 CodedStatement.CODE_DROP_STANDARD,
@@ -940,7 +940,7 @@ public class ScriptGenerator {
                         null,
                         false,
                         table.getTableName()
-                        + "_seq")); // NOI18N
+                                + "_seq")); // NOI18N
             }
             statem.addFirst(new CodedStatement(CodedStatement.CODE_DROP_STANDARD, null, false, map));
             final Statement[] s = statem.toArray(new Statement[statem.size()]);
@@ -1008,8 +1008,8 @@ public class ScriptGenerator {
                     table.getTableName(),
                     TMP_COLUMN,
                     "DEFAULT '"
-                    + attr.getDefaultValue()
-                    + "'"));                                            // NOI18N
+                            + attr.getDefaultValue()
+                            + "'"));                                    // NOI18N
         }
         cstatem.addLast(
             new CodedStatement(
@@ -1114,7 +1114,7 @@ public class ScriptGenerator {
                             null,
                             false,
                             cidsClass.getTableName().toLowerCase()
-                            + "_seq",                                 // NOI18N
+                                    + "_seq",                         // NOI18N
                             "1"));                                    // NOI18N
                 } else {
                     codedStatements.addFirst(
@@ -1125,14 +1125,14 @@ public class ScriptGenerator {
                             cidsClass.getTableName().toLowerCase(),
                             cidsClass.getPrimaryKeyField().toLowerCase(),
                             cidsClass.getTableName().toLowerCase()
-                            + "_seq"));                               // NOI18N
+                                    + "_seq"));                       // NOI18N
                     codedStatements.addFirst(
                         new CodedStatement(
                             CodedStatement.CODE_CREATE_SEQUENCE,
                             null,
                             false,
                             cidsClass.getTableName().toLowerCase()
-                            + "_seq",                                 // NOI18N
+                                    + "_seq",                         // NOI18N
                             "1"));                                    // NOI18N
                 }
             }
@@ -1145,7 +1145,7 @@ public class ScriptGenerator {
                         false,
                         table.getTableName(),
                         table.getTableName()
-                        + "_pkey")); // NOI18N
+                                + "_pkey")); // NOI18N
                 codedStatements.addLast(
                     new CodedStatement(
                         CodedStatement.CODE_ALTER_ADD_PRIMARY,
@@ -1163,7 +1163,7 @@ public class ScriptGenerator {
                         false,
                         table.getTableName().toLowerCase(),
                         cidsClass.getPrimaryKeyField().toLowerCase()));
-            }                        // if key not equals, drop it create new
+            }                                // if key not equals, drop it create new
             else if (!table.getPrimaryKeyColumnNames()[0].equalsIgnoreCase(
                             cidsClass.getPrimaryKeyField())) {
                 codedStatements.addLast(
@@ -1173,7 +1173,7 @@ public class ScriptGenerator {
                         false,
                         table.getTableName(),
                         table.getTableName()
-                        + "_pkey")); // NOI18N
+                                + "_pkey")); // NOI18N
                 codedStatements.addLast(
                     new CodedStatement(
                         CodedStatement.CODE_ALTER_ADD_PRIMARY,

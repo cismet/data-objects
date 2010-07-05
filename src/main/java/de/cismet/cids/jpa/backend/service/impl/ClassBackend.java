@@ -167,18 +167,18 @@ public class ClassBackend implements ClassService {
         final String object = (url.getObjectName() == null) ? "" : url.getObjectName();                   // NOI18N
         final Query q = em.createQuery(
                 "FROM URL url "                                                                           // NOI18N
-                + "WHERE url.urlbase.protocolPrefix LIKE '%"
-                + protocol
-                + "%' "                                                                                   // NOI18N
-                + "AND url.urlbase.server LIKE '%"
-                + server
-                + "%' "                                                                                   // NOI18N
-                + "AND url.urlbase.path LIKE '%"
-                + path
-                + "%' "                                                                                   // NOI18N
-                + "AND url.objectName LIKE '%"
-                + object
-                + "%'");                                                                                  // NOI18N
+                        + "WHERE url.urlbase.protocolPrefix LIKE '%"
+                        + protocol
+                        + "%' "                                                                           // NOI18N
+                        + "AND url.urlbase.server LIKE '%"
+                        + server
+                        + "%' "                                                                           // NOI18N
+                        + "AND url.urlbase.path LIKE '%"
+                        + path
+                        + "%' "                                                                           // NOI18N
+                        + "AND url.objectName LIKE '%"
+                        + object
+                        + "%'");                                                                          // NOI18N
         return q.getResultList();
     }
 
@@ -210,15 +210,15 @@ public class ClassBackend implements ClassService {
         }
         final Query q = em.createQuery(
                 "FROM URLBase ub "                       // NOI18N
-                + "WHERE ub.protocolPrefix LIKE '"
-                + protocol
-                + "' "                                   // NOI18N
-                + "AND ub.server LIKE '"
-                + server
-                + "' "                                   // NOI18N
-                + "AND ub.path LIKE '"
-                + path
-                + "'");                                  // NOI18N
+                        + "WHERE ub.protocolPrefix LIKE '"
+                        + protocol
+                        + "' "                           // NOI18N
+                        + "AND ub.server LIKE '"
+                        + server
+                        + "' "                           // NOI18N
+                        + "AND ub.path LIKE '"
+                        + path
+                        + "'");                          // NOI18N
         try {
             url.setUrlbase((URLBase)q.getSingleResult());
             if (LOG.isDebugEnabled()) {
@@ -284,11 +284,11 @@ public class ClassBackend implements ClassService {
         final EntityManager em = provider.getEntityManager();
         final Query q = em.createQuery(                                             // NOI18N
                 "FROM URLBase ub "                                                  // NOI18N
-                + "WHERE ub.id = "
-                + urlbase.getId()
-                + " "                                                               // NOI18N
-                + "AND ub NOT IN "                                                  // NOI18N
-                + "(SELECT urlbase FROM URL)");                                     // NOI18N
+                        + "WHERE ub.id = "
+                        + urlbase.getId()
+                        + " "                                                       // NOI18N
+                        + "AND ub NOT IN "                                          // NOI18N
+                        + "(SELECT urlbase FROM URL)");                             // NOI18N
         try {
             if (q.getSingleResult() != null) {
                 if (LOG.isDebugEnabled()) {

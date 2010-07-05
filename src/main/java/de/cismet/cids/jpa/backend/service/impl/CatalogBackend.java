@@ -93,11 +93,11 @@ public class CatalogBackend implements CatalogService {
             con.setAutoCommit(false);
             stmt = con.createStatement();
             set = stmt.executeQuery(
-                    "SELECT * "                          // NOI18N
-                    + "FROM "
-                    + node.getCidsClass().getTableName() // NOI18N
-                    + " WHERE id = "
-                    + node.getObjectId());               // NOI18N
+                    "SELECT * "                                  // NOI18N
+                            + "FROM "
+                            + node.getCidsClass().getTableName() // NOI18N
+                            + " WHERE id = "
+                            + node.getObjectId());               // NOI18N
             while (set.next()) {
                 final Iterator<Entry<String, String>> entries = tmp.entrySet().iterator();
                 while (entries.hasNext()) {
@@ -244,9 +244,9 @@ public class CatalogBackend implements CatalogService {
         } else {
             final Query q = em.createQuery(
                     "FROM CatLink WHERE idFrom = "
-                    + oldParent.getId()
-                    + "AND idTo = "
-                    + node.getId());                                            // NOI18N
+                            + oldParent.getId()
+                            + "AND idTo = "
+                            + node.getId());                                    // NOI18N
             link = (CatLink)q.getSingleResult();
             if (isLeaf(oldParent, false)) {
                 oldParent.setIsLeaf(true);
@@ -270,9 +270,9 @@ public class CatalogBackend implements CatalogService {
         } else {
             final Query q = em.createQuery(
                     "FROM CatLink WHERE idFrom = "
-                    + oldParent.getId()
-                    + "AND idTo = "
-                    + node.getId());                                            // NOI18N
+                            + oldParent.getId()
+                            + "AND idTo = "
+                            + node.getId());                                    // NOI18N
             domainTo = ((CatLink)q.getSingleResult()).getDomainTo();
         }
         // TODO: will the child nodes be copied also or linked or just left out
@@ -347,9 +347,9 @@ public class CatalogBackend implements CatalogService {
         } else {
             final Query q = em.createQuery(
                     "FROM CatLink WHERE idFrom = "
-                    + oldParent.getId()
-                    + "AND idTo = "
-                    + node.getId());                                            // NOI18N
+                            + oldParent.getId()
+                            + "AND idTo = "
+                            + node.getId());                                    // NOI18N
             final CatLink link = (CatLink)q.getSingleResult();
             clone = link.clone();
         }

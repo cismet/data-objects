@@ -70,13 +70,14 @@ public class SimpleTablesDataProvider {
             while (set.next()) {
                 final String schema = set.getString(2);
                 final String table = set.getString(3);
-                if (!(table.startsWith("cs_")                           // NOI18N
-                                || table.equals("spatial_ref_sys")      // NOI18N
-                                || table.equals("geometry_columns"))) { // NOI18N
-                    if(schema == null || schema.isEmpty() || "public".equals(schema)) // NOI18N
+                if (!(table.startsWith("cs_")                                              // NOI18N
+                                || table.equals("spatial_ref_sys")                         // NOI18N
+                                || table.equals("geometry_columns"))) {                    // NOI18N
+                    if ((schema == null) || schema.isEmpty() || "public".equals(schema)) { // NOI18N
                         names.add(table);
-                    else
-                        names.add(schema + "." + table); // NOI18N
+                    } else {
+                        names.add(schema + "." + table);                                   // NOI18N
+                    }
                 }
             }
             if (names.isEmpty()) {
@@ -109,10 +110,10 @@ public class SimpleTablesDataProvider {
             final String table;
             final String schema;
             final int index = tableName.indexOf('.');
-            if(index == -1){
+            if (index == -1) {
                 schema = null;
                 table = tableName;
-            }else{
+            } else {
                 schema = tableName.substring(0, index);
                 table = tableName.substring(index + 1);
             }

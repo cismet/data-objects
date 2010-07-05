@@ -16,11 +16,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import de.cismet.cids.jpa.backend.core.*;
-import de.cismet.cids.jpa.backend.service.*;
+import de.cismet.cids.jpa.backend.core.PersistenceInterceptor;
+import de.cismet.cids.jpa.backend.core.PersistenceProvider;
+import de.cismet.cids.jpa.backend.service.CatalogService;
+import de.cismet.cids.jpa.backend.service.ClassService;
+import de.cismet.cids.jpa.backend.service.CommonService;
+import de.cismet.cids.jpa.backend.service.MetaService;
+import de.cismet.cids.jpa.backend.service.UserService;
 import de.cismet.cids.jpa.entity.catalog.CatNode;
-import de.cismet.cids.jpa.entity.cidsclass.*;
-import de.cismet.cids.jpa.entity.common.*;
+import de.cismet.cids.jpa.entity.cidsclass.Attribute;
+import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
+import de.cismet.cids.jpa.entity.cidsclass.Icon;
+import de.cismet.cids.jpa.entity.cidsclass.JavaClass;
+import de.cismet.cids.jpa.entity.cidsclass.Type;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
+import de.cismet.cids.jpa.entity.common.Domain;
+import de.cismet.cids.jpa.entity.common.URL;
+import de.cismet.cids.jpa.entity.common.URLBase;
 import de.cismet.cids.jpa.entity.user.User;
 
 import de.cismet.cids.util.ProgressListener;
@@ -31,7 +43,42 @@ import de.cismet.cids.util.ProgressListener;
  * @author   mscholl
  * @version  1.13
  */
+// The backend shall not be formatted automatically since jalopy messes everything up due to the netbeans editor folds
+//J-
 public final class Backend implements ClassService, UserService, CatalogService, MetaService, CommonService {
+    //~ Instance fields --------------------------------------------------------
+
+    private final transient ClassService cb;
+    private final transient UserService ub;
+    private final transient CatalogService catBackend;
+    private final transient MetaService metaBackend;
+    private final transient PersistenceProvider provider;
+    private final transient CommonService commonBackend;
+
+    //~ Constructors -----------------------------------------------------------
+
+    // <editor-fold defaultstate="collapsed" desc=" Part: Constructors ">
+    /**
+     * Creates a new instance of Backend.
+     *
+     * @param  properties  DOCUMENT ME!
+     */
+    public Backend(final Properties properties) {
+        provider = new PersistenceProvider(properties);
+        final ClassBackend classB = new ClassBackend(provider);
+        final UserBackend userB = new UserBackend(provider);
+        final CatalogBackend catB = new CatalogBackend(provider);
+        final MetaBackend metaB = new MetaBackend(properties);
+        final InterceptionBuilder builder = new InterceptionBuilder();
+        builder.always(new PersistenceInterceptor(provider));
+        final ProxyInjector injector = new ProxyInjector(builder.done());
+        cb = injector.wrapObject(ClassService.class, classB);
+        ub = injector.wrapObject(UserService.class, userB);
+        catBackend = injector.wrapObject(CatalogService.class, catB);
+        metaBackend = injector.wrapObject(MetaService.class, metaB);
+        commonBackend = injector.wrapObject(CommonService.class, provider);
+    }
+    // </editor-fold>
 
     //~ Methods ----------------------------------------------------------------
 
@@ -211,42 +258,6 @@ public final class Backend implements ClassService, UserService, CatalogService,
 
     // </editor-fold>
 
-    //~ Instance fields --------------------------------------------------------
-
-    private final transient ClassService cb;
-    private final transient UserService ub;
-    private final transient CatalogService catBackend;
-    private final transient MetaService metaBackend;
-    private final transient PersistenceProvider provider;
-    private final transient CommonService commonBackend;
-
-    //~ Constructors -----------------------------------------------------------
-
-    // <editor-fold defaultstate="collapsed" desc=" Part: Constructors ">
-    /**
-     * Creates a new instance of Backend.
-     *
-     * @param  properties  DOCUMENT ME!
-     */
-    public Backend(final Properties properties) {
-        provider = new PersistenceProvider(properties);
-        final ClassBackend classB = new ClassBackend(provider);
-        final UserBackend userB = new UserBackend(provider);
-        final CatalogBackend catB = new CatalogBackend(provider);
-        final MetaBackend metaB = new MetaBackend(properties);
-        final InterceptionBuilder builder = new InterceptionBuilder();
-        builder.always(new PersistenceInterceptor(provider));
-        final ProxyInjector injector = new ProxyInjector(builder.done());
-        cb = injector.wrapObject(ClassService.class, classB);
-        ub = injector.wrapObject(UserService.class, userB);
-        catBackend = injector.wrapObject(CatalogService.class, catB);
-        metaBackend = injector.wrapObject(MetaService.class, metaB);
-        commonBackend = injector.wrapObject(CommonService.class, provider);
-    }
-    // </editor-fold>
-
-    //~ Methods ----------------------------------------------------------------
-
     // <editor-fold defaultstate="collapsed" desc=" Part: Backend operations ">
     @Override
     public void close() throws Exception {
@@ -256,6 +267,7 @@ public final class Backend implements ClassService, UserService, CatalogService,
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc=" Part: ClassrBackend ">
     @Override
     public List<URL> getURLsLikeURL(final URL url) {
         return cb.getURLsLikeURL(url);
@@ -334,3 +346,4 @@ public final class Backend implements ClassService, UserService, CatalogService,
     }
     // </editor-fold>
 }
+//J+

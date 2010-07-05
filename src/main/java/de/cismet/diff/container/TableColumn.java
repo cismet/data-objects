@@ -141,23 +141,18 @@ public class TableColumn {
 
     @Override
     public String toString() {
-        final String colon = " : ";   // NOI18N
+        final String colon = " : ";      // NOI18N
         if (isPrimKey) {
-            return new String(
-                    columnName
-                    + colon
-                    + typeName
-                    + colon
-                    + defaultValue
-                    + colon
-                    + nullable
-                    + colon
-                    + "primary key"); // NOI18N
+            return columnName + colon
+                        + typeName + colon
+                        + defaultValue + colon
+                        + nullable + colon
+                        + "primary key"; // NOI18N
         } else {
-            return new String(columnName + colon
-                    + typeName + colon
-                    + defaultValue + colon
-                    + nullable);
+            return columnName + colon
+                        + typeName + colon
+                        + defaultValue + colon
+                        + nullable;
         }
     }
 }

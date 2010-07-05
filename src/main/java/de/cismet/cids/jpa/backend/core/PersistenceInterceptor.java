@@ -57,13 +57,13 @@ public class PersistenceInterceptor implements MethodInterceptor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(
                     "invokation started: " // NOI18N
-                    + "method="
-                    + method.getDeclaringClass().getCanonicalName()
-                    + "."
-                    + method.getName()
-                    + " | "                // NOI18N
-                    + "args="
-                    + argsToString(mi.getArguments())); // NOI18N
+                            + "method="
+                            + method.getDeclaringClass().getCanonicalName()
+                            + "."
+                            + method.getName()
+                            + " | "        // NOI18N
+                            + "args="
+                            + argsToString(mi.getArguments())); // NOI18N
             }
             if (!method.getDeclaringClass().isAssignableFrom(ClosableResource.class)) {
                 injectManager(method);
@@ -73,13 +73,13 @@ public class PersistenceInterceptor implements MethodInterceptor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(
                     "invokation succeeded: " // NOI18N
-                    + "method="
-                    + method.getDeclaringClass().getCanonicalName()
-                    + "."
-                    + method.getName()
-                    + " | "                // NOI18N
-                    + "args="
-                    + argsToString(mi.getArguments())); // NOI18N
+                            + "method="
+                            + method.getDeclaringClass().getCanonicalName()
+                            + "."
+                            + method.getName()
+                            + " | "        // NOI18N
+                            + "args="
+                            + argsToString(mi.getArguments())); // NOI18N
             }
             return ret;
         } catch (final Throwable t) {
@@ -96,24 +96,24 @@ public class PersistenceInterceptor implements MethodInterceptor {
             if (toThrow instanceof NoResultException) {
                 LOG.warn(
                     "invokation failed: " // NOI18N
-                    + "method="
-                    + method.getDeclaringClass().getCanonicalName()
-                    + "."
-                    + method.getName()
-                    + " | "               // NOI18N
-                    + "args="
-                    + argsToString(mi.getArguments()),
+                            + "method="
+                            + method.getDeclaringClass().getCanonicalName()
+                            + "."
+                            + method.getName()
+                            + " | "       // NOI18N
+                            + "args="
+                            + argsToString(mi.getArguments()),
                     toThrow);
             } else {
                 LOG.error(
                     "invokation failed: " // NOI18N
-                    + "method="
-                    + method.getDeclaringClass().getCanonicalName()
-                    + "."
-                    + method.getName()
-                    + " | "               // NOI18N
-                    + "args="
-                    + argsToString(mi.getArguments()), // NOI18N
+                            + "method="
+                            + method.getDeclaringClass().getCanonicalName()
+                            + "."
+                            + method.getName()
+                            + " | "       // NOI18N
+                            + "args="
+                            + argsToString(mi.getArguments()), // NOI18N
                     toThrow);
             }
             throw toThrow;

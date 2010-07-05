@@ -43,10 +43,10 @@ public final class ThreadUtil {
         if ((ste1 == null) || (ste2 == null)) {
             throw new IllegalArgumentException(
                 "equality check only allowed for non-null objects: ste1="
-                + ste1
-                + "||"
-                + "ste2="
-                + ste2);
+                        + ste1
+                        + "||"
+                        + "ste2="
+                        + ste2);
         }
         if (ste1.length != ste2.length) {
             return false;
@@ -79,10 +79,10 @@ public final class ThreadUtil {
         if ((ste1 == null) || (ste2 == null)) {
             throw new IllegalArgumentException(
                 "equality check only allowed for non-null objects: ste1="
-                + ste1
-                + "||"
-                + "ste2="
-                + ste2);
+                        + ste1
+                        + "||"
+                        + "ste2="
+                        + ste2);
         }
         if (lineNumbers) {
             return ste1.equals(ste2);

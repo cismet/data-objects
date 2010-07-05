@@ -5,14 +5,6 @@
 *              ... and it just works.
 *
 ****************************************************/
-/*
- * createDomainServerProject.java
- *
- * Created on 30. November 2007, 12:04
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
 package de.cismet.cids.jpa.backend.service.impl;
 
 import org.apache.log4j.Logger;
@@ -123,8 +115,8 @@ public class CreateDomainServerProject {
                         JOptionPane.showMessageDialog(
                             null,
                             "Die Sprache pgsql konnte nicht installiert werden.\n "
-                            + "\n\n\n"
-                            + ex.getStackTrace(),
+                                    + "\n\n\n"
+                                    + ex.getStackTrace(),
                             "Fehler",
                             JOptionPane.ERROR_MESSAGE);
                     }
@@ -166,17 +158,17 @@ public class CreateDomainServerProject {
                         JOptionPane.showMessageDialog(
                             null,
                             "Datenbank konnte nicht erstellt werden.\n "
-                            + "\nMögliche Ursachen:\n"
-                            + "\n-Ein Fehler im Connectionstring (falscher Host oder Port)."
-                            + "\n-Der Datenbankserver nimmt keine TCP/IP-Verbindungen an."
-                            + "\n-Es existiert bereits eine Datenbank mit dem Namen. "
-                            + dbName
-                            + " "
-                            + "\n-Der eingegebene Benutzername existiert nicht\n\t bzw "
-                            + "verfügt nicht über die benötigten Rechte\n"
-                            + "\nCreate Metasystem wird abgebrochen!"
-                            + "\n\n\n\n"
-                            + ex.getStackTrace(),
+                                    + "\nMögliche Ursachen:\n"
+                                    + "\n-Ein Fehler im Connectionstring (falscher Host oder Port)."
+                                    + "\n-Der Datenbankserver nimmt keine TCP/IP-Verbindungen an."
+                                    + "\n-Es existiert bereits eine Datenbank mit dem Namen. "
+                                    + dbName
+                                    + " "
+                                    + "\n-Der eingegebene Benutzername existiert nicht\n\t bzw "
+                                    + "verfügt nicht über die benötigten Rechte\n"
+                                    + "\nCreate Metasystem wird abgebrochen!"
+                                    + "\n\n\n\n"
+                                    + ex.getStackTrace(),
                             "Fehler",
                             JOptionPane.ERROR_MESSAGE);
                     }
@@ -250,7 +242,7 @@ public class CreateDomainServerProject {
 //            log.fatal("Wert von exists: "+exists);
             if (exists == 0) {
                 final String createHandler = "CREATE OR REPLACE FUNCTION plpgsql_call_handler() "
-                    + "RETURNS language_handler AS '$libdir/plpgsql' LANGUAGE C;";
+                            + "RETURNS language_handler AS '$libdir/plpgsql' LANGUAGE C;";
 
                 final Statement stmntCreateHandler = con.createStatement();
                 stmntCreateHandler.executeUpdate(createHandler);
@@ -258,7 +250,7 @@ public class CreateDomainServerProject {
 
                 final Statement stmntCreateLang = con.createStatement();
                 final String createLang = "CREATE TRUSTED PROCEDURAL LANGUAGE 'plpgsql' "
-                    + "HANDLER plpgsql_call_handler ;";
+                            + "HANDLER plpgsql_call_handler ;";
                 stmntCreateLang.executeUpdate(createLang);
                 stmntCreateLang.close();
                 if (log.isDebugEnabled()) {
@@ -275,7 +267,7 @@ public class CreateDomainServerProject {
         } catch (final SQLException ex) {
             ex.printStackTrace();
             log.error("Could not create Language + ErrorCode: "
-                + ex.getErrorCode(), ex);
+                        + ex.getErrorCode(), ex);
             EventQueue.invokeLater(new Runnable() {
 
                     @Override
@@ -283,8 +275,8 @@ public class CreateDomainServerProject {
                         JOptionPane.showMessageDialog(
                             null,
                             "Die Sprache pgsql konnte nicht installiert werden.\n "
-                            + "\n\n\n"
-                            + ex.getStackTrace(),
+                                    + "\n\n\n"
+                                    + ex.getStackTrace(),
                             "Fehler",
                             JOptionPane.ERROR_MESSAGE);
                     }
@@ -408,8 +400,8 @@ public class CreateDomainServerProject {
                         JOptionPane.showMessageDialog(
                             null,
                             "Die Die Skriptdatein konnten nicht ausgeführt werden.\n "
-                            + "\n\n\n"
-                            + ex.getStackTrace(),
+                                    + "\n\n\n"
+                                    + ex.getStackTrace(),
                             "Fehler",
                             JOptionPane.ERROR_MESSAGE);
                     }

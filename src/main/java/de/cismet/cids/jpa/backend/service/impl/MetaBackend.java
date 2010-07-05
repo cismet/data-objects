@@ -377,13 +377,13 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
                     final int rowcount = rs.getRow();
                     rs.beforeFirst();
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("fetched " + rowcount + " rows");                                                // NOI18N
+                        LOG.debug("fetched " + rowcount + " rows");                                   // NOI18N
                     }
                     fireStateChanged(
                         new ProgressState(
                             NbBundle.getMessage(
                                 MetaBackend.class,
-                                "MetaBackend.progress.createIndexForAttrOfClass",                                  // NOI18N
+                                "MetaBackend.progress.createIndexForAttrOfClass",                     // NOI18N
                                 attr.getName(),
                                 cidsClass.getName()),
                             rowcount));
@@ -391,7 +391,7 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
                     while (rs.next()) {
                         if (canceled) {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("canceled");                                                             // NOI18N
+                                LOG.debug("canceled");                                                // NOI18N
                             }
                             canceled = false;
                             return;
@@ -402,10 +402,12 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
                             final String attrTabName = attrClass.getTableName();
                             final String attrPKF = attrClass.getPrimaryKeyField();
                             final String attrFieldName = attr.getFieldName();
-                            final String selectObjectId = "SELECT " + tableName + "." + attrFieldName              // NOI18N
-                                + " FROM " + tableName + ", " + attrTabName                                        // NOI18N
-                                + " WHERE " + tableName + "." + classPrimaryKeyField + " = " + objectId            // NOI18N
-                                + " AND " + tableName + "." + attrFieldName + " = " + attrTabName + "." + attrPKF; // NOI18N
+                            final String selectObjectId = "SELECT " + tableName + "." + attrFieldName // NOI18N
+                                        + " FROM " + tableName + ", " + attrTabName                   // NOI18N
+                                        + " WHERE " + tableName + "." + classPrimaryKeyField + " = "
+                                        + objectId                                                    // NOI18N
+                                        + " AND " + tableName + "." + attrFieldName + " = " + attrTabName + "."
+                                        + attrPKF;                                                    // NOI18N
                             Statement stmt = null;
                             ResultSet rsObjectID = null;
                             try {
@@ -697,12 +699,12 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
         if (LOG.isDebugEnabled()) {
             LOG.debug(
                 "copied "
-                + rowCount
-                + " rows from '"
-                + ATTR_STRING_TEMP_TABLE
-                + "' to '"
-                + CS_ATTR_STRING_TABLE
-                + "'");                                                                                                  // NOI18N
+                        + rowCount
+                        + " rows from '"
+                        + ATTR_STRING_TEMP_TABLE
+                        + "' to '"
+                        + CS_ATTR_STRING_TABLE
+                        + "'");                                                                                          // NOI18N
         }
     }
 
