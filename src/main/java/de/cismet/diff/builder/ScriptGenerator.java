@@ -856,7 +856,7 @@ public class ScriptGenerator {
             }
             nameTypeEnum.append(", ");                                                           // NOI18N
         }
-        if (primarykeyFound) {
+        if (!primarykeyFound) {
             throw new ScriptGeneratorException(
                 exceptionBundle.getString(
                     DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_MISSING_PRIMKEY_FIELD),
