@@ -43,11 +43,6 @@ import de.cismet.cids.jpa.entity.user.User;
 @Table(name = "cs_query_store")
 public class QueryStore extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -8017940424122246463L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

@@ -29,11 +29,6 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Table(name = "cs_java_class")
 public class JavaClass extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 2507136394174051470L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

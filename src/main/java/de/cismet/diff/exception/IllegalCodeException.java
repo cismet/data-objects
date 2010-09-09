@@ -15,11 +15,6 @@ package de.cismet.diff.exception;
  */
 public class IllegalCodeException extends Exception {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 1124674320746339073L;
-
     //~ Instance fields --------------------------------------------------------
 
     private final transient String code;

@@ -23,11 +23,6 @@ package de.cismet.diff.exception;
  */
 public class ScriptGeneratorException extends java.lang.Exception {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 4948765347798120136L;
-
     //~ Instance fields --------------------------------------------------------
 
     private final transient String table;

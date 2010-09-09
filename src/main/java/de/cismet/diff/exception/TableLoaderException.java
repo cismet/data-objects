@@ -15,11 +15,6 @@ package de.cismet.diff.exception;
  */
 public class TableLoaderException extends Exception {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 3793694480957522189L;
-
     //~ Constructors -----------------------------------------------------------
 
     /**

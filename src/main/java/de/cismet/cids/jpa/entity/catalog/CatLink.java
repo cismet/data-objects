@@ -38,11 +38,6 @@ import de.cismet.cids.jpa.entity.common.Domain;
 @Table(name = "cs_cat_link")
 public class CatLink extends CommonEntity implements Serializable, Cloneable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -2802601812779960596L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

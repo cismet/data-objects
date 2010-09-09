@@ -45,11 +45,6 @@ import de.cismet.cids.jpa.entity.permission.Policy;
 @Table(name = "cs_attr")
 public class Attribute extends CommonEntity implements Serializable, PermissionAwareEntity {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -5403582658464679048L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

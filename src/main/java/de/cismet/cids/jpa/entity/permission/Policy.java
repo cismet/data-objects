@@ -29,9 +29,6 @@ public class Policy extends CommonEntity {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 7915079227556265514L;
-
     public static final Policy NO_POLICY;
 
     static {

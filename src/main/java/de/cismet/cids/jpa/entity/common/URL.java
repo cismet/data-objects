@@ -35,9 +35,6 @@ public class URL extends CommonEntity implements Serializable {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 7297019236106526247L;
-
     public static final URL NO_DESCRIPTION;
 
     static {

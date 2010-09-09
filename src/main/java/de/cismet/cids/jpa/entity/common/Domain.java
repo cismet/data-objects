@@ -27,11 +27,6 @@ import javax.persistence.Table;
 @Table(name = "cs_domain")
 public class Domain extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -6821668427120945252L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

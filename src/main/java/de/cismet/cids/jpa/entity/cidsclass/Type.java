@@ -36,11 +36,6 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Table(name = "cs_type")
 public class Type extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 1006299738110761595L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

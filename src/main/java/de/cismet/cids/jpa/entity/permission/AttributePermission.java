@@ -35,11 +35,6 @@ import de.cismet.cids.jpa.entity.cidsclass.Attribute;
 @Table(name = "cs_ug_attr_perm")
 public class AttributePermission extends AbstractPermission implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -930550218081211552L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

@@ -35,11 +35,6 @@ import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 @Table(name = "cs_ug_class_perm")
 public class ClassPermission extends AbstractPermission implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -8652050484599997723L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

@@ -29,11 +29,6 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Table(name = "cs_icon")
 public class Icon extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 1327324025915272180L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

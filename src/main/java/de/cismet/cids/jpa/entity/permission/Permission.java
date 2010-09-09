@@ -31,9 +31,6 @@ public class Permission extends CommonEntity implements Serializable {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -133598201451198769L;
-
     public static final Permission NO_PERMISSION;
 
     static {

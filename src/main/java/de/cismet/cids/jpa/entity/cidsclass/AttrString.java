@@ -29,11 +29,6 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Table(name = "cs_attr_string")
 public class AttrString extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 4625114499652288080L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

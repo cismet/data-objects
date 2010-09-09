@@ -41,11 +41,6 @@ import de.cismet.cids.jpa.entity.common.Domain;
 @Table(name = "cs_ug")
 public class UserGroup extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 2027747626400050699L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

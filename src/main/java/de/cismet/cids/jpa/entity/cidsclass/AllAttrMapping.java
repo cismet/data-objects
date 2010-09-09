@@ -29,11 +29,6 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Table(name = "cs_all_attr_mapping")
 public class AllAttrMapping extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -8132976524052091455L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

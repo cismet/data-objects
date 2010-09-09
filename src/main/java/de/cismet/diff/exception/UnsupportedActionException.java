@@ -15,11 +15,6 @@ package de.cismet.diff.exception;
  */
 public class UnsupportedActionException extends java.lang.Exception {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 7017975759536504408L;
-
     //~ Instance fields --------------------------------------------------------
 
     private final transient String desiredAction;

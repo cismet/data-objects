@@ -44,11 +44,6 @@ import de.cismet.cids.jpa.entity.permission.QueryPermission;
 @Table(name = "cs_query")
 public class Query extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -2691323217015981657L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

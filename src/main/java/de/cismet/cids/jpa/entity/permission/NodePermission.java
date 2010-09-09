@@ -35,11 +35,6 @@ import de.cismet.cids.jpa.entity.catalog.CatNode;
 @Table(name = "cs_ug_cat_node_perm")
 public class NodePermission extends AbstractPermission implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 8979072335365981306L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

@@ -35,11 +35,6 @@ import de.cismet.cids.jpa.entity.query.Query;
 @Table(name = "cs_query_ug_assoc")
 public class QueryPermission extends AbstractPermission implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 6089879678650053869L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

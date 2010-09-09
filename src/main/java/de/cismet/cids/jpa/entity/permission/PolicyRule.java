@@ -33,11 +33,6 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Table(name = "cs_policy_rule")
 public class PolicyRule extends CommonEntity {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 7222583952655634829L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

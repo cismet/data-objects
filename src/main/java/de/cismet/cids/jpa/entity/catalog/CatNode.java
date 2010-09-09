@@ -48,11 +48,6 @@ import de.cismet.cids.jpa.entity.permission.Policy;
 @Table(name = "cs_cat_node")
 public class CatNode extends CommonEntity implements Serializable, PermissionAwareEntity {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -6961431116342936141L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id

@@ -48,9 +48,6 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
 
     //~ Static fields/initializers ---------------------------------------------
 
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = -3015884328409627294L;
-
     public static final CidsClass NO_CLASS;
 
     static {

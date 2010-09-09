@@ -35,11 +35,6 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Table(name = "cs_query_parameter")
 public class QueryParameter extends CommonEntity implements Serializable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    /** Use serialVersionUID for interoperability. */
-    private static final long serialVersionUID = 1232476022819221221L;
-
     //~ Instance fields --------------------------------------------------------
 
     @Id
