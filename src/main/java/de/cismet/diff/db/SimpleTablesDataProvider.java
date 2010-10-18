@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.diff.db;
 
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,6 +32,8 @@ import de.cismet.diff.container.TableColumn;
 public class SimpleTablesDataProvider {
 
     //~ Static fields/initializers ---------------------------------------------
+
+    private static final transient Logger LOG = Logger.getLogger(SimpleTablesDataProvider.class);
 
     // default type of a table, will probably not have to be altered
     private static final String[] TYPES = { "TABLE" }; // NOI18N
@@ -124,32 +128,44 @@ public class SimpleTablesDataProvider {
             }
             set = con.getMetaData().getColumns(null, schema, table, null);
             while (set.next()) {
+                // 2 = table schema
                 // 4 = column name
                 // 6 = type name
                 // 7 = column size
                 // 9 = decimal digits
                 // 11 = nullable
                 // 13 = column default value (may be 'null')
-                if (keys.contains(set.getString(4))) {
-                    columns.add(
-                        new TableColumn(
-                            set.getString(4),
-                            set.getString(6),
-                            set.getInt(7),
-                            set.getInt(9),
-                            set.getString(13),
-                            set.getShort(11),
-                            true));
+                final String columnSchema = set.getString(2);
+                if ((schema == null) && ((columnSchema != null) && !"public".equals(columnSchema))) {
+                    // skip that column since we are searching for default (public) columns only if the table name is
+                    // not prefixed with a schema name
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("skipping column '" + set.getString(4) + "' of table '" + table // NOI18N
+                                    + "': schema differs: searching for '" + schema + "' but found '" // NOI18N
+                                    + columnSchema + "'"); // NOI18N
+                    }
                 } else {
-                    columns.add(
-                        new TableColumn(
-                            set.getString(4),
-                            set.getString(6),
-                            set.getInt(7),
-                            set.getInt(9),
-                            set.getString(13),
-                            set.getShort(11),
-                            false));
+                    if (keys.contains(set.getString(4))) {
+                        columns.add(
+                            new TableColumn(
+                                set.getString(4),
+                                set.getString(6),
+                                set.getInt(7),
+                                set.getInt(9),
+                                set.getString(13),
+                                set.getShort(11),
+                                true));
+                    } else {
+                        columns.add(
+                            new TableColumn(
+                                set.getString(4),
+                                set.getString(6),
+                                set.getInt(7),
+                                set.getInt(9),
+                                set.getString(13),
+                                set.getShort(11),
+                                false));
+                    }
                 }
             }
             if (columns.isEmpty()) {
