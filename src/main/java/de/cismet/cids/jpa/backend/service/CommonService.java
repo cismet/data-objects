@@ -43,6 +43,13 @@ public interface CommonService extends ClosableResource {
     void delete(final CommonEntity ce);
 
     /**
+     * Deletes all {@link CommonEntity}s in the list's order.
+     *
+     * @param  entities  the <code>CommonEntity</code>s to delete
+     */
+    void delete(final List<CommonEntity> entities);
+
+    /**
      * Retrieves the desired subtype of {@link CommonEntity} with the given <code>id</code>. If there is no entity of
      * the desired type and with the given <code>id</code> a {@link NoResultException} shall be thrown.
      *

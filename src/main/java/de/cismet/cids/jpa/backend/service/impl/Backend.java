@@ -21,6 +21,7 @@ import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.CatalogService;
 import de.cismet.cids.jpa.backend.service.ClassService;
 import de.cismet.cids.jpa.backend.service.CommonService;
+import de.cismet.cids.jpa.backend.service.ConfigAttrService;
 import de.cismet.cids.jpa.backend.service.MetaService;
 import de.cismet.cids.jpa.backend.service.UserService;
 import de.cismet.cids.jpa.entity.catalog.CatNode;
@@ -33,6 +34,10 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 import de.cismet.cids.jpa.entity.common.Domain;
 import de.cismet.cids.jpa.entity.common.URL;
 import de.cismet.cids.jpa.entity.common.URLBase;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrType;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrType.Types;
 import de.cismet.cids.jpa.entity.user.User;
 
 import de.cismet.cids.util.ProgressListener;
@@ -45,7 +50,14 @@ import de.cismet.cids.util.ProgressListener;
  */
 // The backend shall not be formatted automatically since jalopy messes everything up due to the netbeans editor folds
 //J-
-public final class Backend implements ClassService, UserService, CatalogService, MetaService, CommonService {
+public final class Backend implements
+        ClassService,
+        UserService,
+        CatalogService,
+        MetaService,
+        CommonService,
+        ConfigAttrService {
+
     //~ Instance fields --------------------------------------------------------
 
     private final transient ClassService cb;
@@ -54,6 +66,7 @@ public final class Backend implements ClassService, UserService, CatalogService,
     private final transient MetaService metaBackend;
     private final transient PersistenceProvider provider;
     private final transient CommonService commonBackend;
+    private final transient ConfigAttrService configAttrService;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -69,6 +82,7 @@ public final class Backend implements ClassService, UserService, CatalogService,
         final UserBackend userB = new UserBackend(provider);
         final CatalogBackend catB = new CatalogBackend(provider);
         final MetaBackend metaB = new MetaBackend(properties);
+        final ConfigAttrBackend configAttrB = new ConfigAttrBackend(provider);
         final InterceptionBuilder builder = new InterceptionBuilder();
         builder.always(new PersistenceInterceptor(provider));
         final ProxyInjector injector = new ProxyInjector(builder.done());
@@ -77,6 +91,7 @@ public final class Backend implements ClassService, UserService, CatalogService,
         catBackend = injector.wrapObject(CatalogService.class, catB);
         metaBackend = injector.wrapObject(MetaService.class, metaB);
         commonBackend = injector.wrapObject(CommonService.class, provider);
+        configAttrService = injector.wrapObject(ConfigAttrService.class, configAttrB);
     }
     // </editor-fold>
 
@@ -94,14 +109,17 @@ public final class Backend implements ClassService, UserService, CatalogService,
     }
 
     @Override
-    public <T extends CommonEntity> T getEntity(final Class<T> entity,
-            final int id) {
+    public void delete(List<CommonEntity> entities) {
+        commonBackend.delete(entities);
+    }
+
+    @Override
+    public <T extends CommonEntity> T getEntity(final Class<T> entity, final int id) {
         return commonBackend.getEntity(entity, id);
     }
 
     @Override
-    public <T extends CommonEntity> List<T> getAllEntities(
-            final Class<T> entity) {
+    public <T extends CommonEntity> List<T> getAllEntities(final Class<T> entity) {
         return commonBackend.getAllEntities(entity);
     }
 
@@ -115,8 +133,7 @@ public final class Backend implements ClassService, UserService, CatalogService,
      * @return  DOCUMENT ME!
      */
     @Override
-    public <T extends CommonEntity> T getEntity(final Class<T> entity,
-            final String name) {
+    public <T extends CommonEntity> T getEntity(final Class<T> entity, final String name) {
         return commonBackend.getEntity(entity, name);
     }
 
@@ -130,8 +147,7 @@ public final class Backend implements ClassService, UserService, CatalogService,
      * @return  DOCUMENT ME!
      */
     @Override
-    public <T extends CommonEntity> boolean contains(final Class<T> entity,
-            final String name) {
+    public <T extends CommonEntity> boolean contains(final Class<T> entity, final String name) {
         return commonBackend.contains(entity, name);
     }
     // </editor-fold>
@@ -261,9 +277,10 @@ public final class Backend implements ClassService, UserService, CatalogService,
     // <editor-fold defaultstate="collapsed" desc=" Part: Backend operations ">
     @Override
     public void close() throws Exception {
+        configAttrService.close();
+        metaBackend.close();
         // it should be enough to close the persistence provider
         provider.close();
-        metaBackend.close();
     }
     // </editor-fold>
 
@@ -344,6 +361,44 @@ public final class Backend implements ClassService, UserService, CatalogService,
     public User getUser(final String userName, final String password) {
         return ub.getUser(userName, password);
     }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc=" Part: ConfigAttrBackend ">
+    @Override
+    public List<ConfigAttrEntry> getEntries(final ConfigAttrKey key) {
+        return configAttrService.getEntries(key);
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final ConfigAttrKey key, final Types type){
+        return configAttrService.getEntries(key, type);
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final ConfigAttrType.Types type) {
+        return configAttrService.getEntries(type);
+    }
+
+    @Override
+    public ConfigAttrEntry storeEntry(final ConfigAttrEntry entry) {
+        return configAttrService.storeEntry(entry);
+    }
+
+    @Override
+    public void cleanAttributeTables() {
+        configAttrService.cleanAttributeTables();
+    }
+
+    @Override
+    public boolean contains(final ConfigAttrEntry entry) {
+        return configAttrService.contains(entry);
+    }
+
+    @Override
+    public boolean contains(final ConfigAttrKey key) {
+        return configAttrService.contains(key);
+    }
+
     // </editor-fold>
 }
 //J+

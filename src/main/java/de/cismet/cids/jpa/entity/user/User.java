@@ -10,6 +10,8 @@ package de.cismet.cids.jpa.entity.user;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import org.openide.util.NbBundle;
+
 import java.io.Serializable;
 
 import java.util.Date;
@@ -41,6 +43,17 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Entity
 @Table(name = "cs_usr")
 public class User extends CommonEntity implements Serializable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    public static final User NO_USER;
+
+    static {
+        NO_USER = new User();
+        NO_USER.setId(-1);
+        NO_USER.setLoginname(NbBundle.getMessage(User.class, "User.<clinit>.NO_USER.loginName")); // NOI18N
+        NO_USER.setAdmin(false);
+    }
 
     //~ Instance fields --------------------------------------------------------
 

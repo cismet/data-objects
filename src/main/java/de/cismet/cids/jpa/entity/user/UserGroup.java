@@ -10,6 +10,8 @@ package de.cismet.cids.jpa.entity.user;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import org.openide.util.NbBundle;
+
 import java.io.Serializable;
 
 import java.util.HashSet;
@@ -40,6 +42,19 @@ import de.cismet.cids.jpa.entity.common.Domain;
 @Entity
 @Table(name = "cs_ug")
 public class UserGroup extends CommonEntity implements Serializable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    public static final UserGroup NO_GROUP;
+
+    static {
+        NO_GROUP = new UserGroup();
+        NO_GROUP.setId(-1);
+        NO_GROUP.setName(NbBundle.getMessage(UserGroup.class, "UserGroup.<clinit>.NO_GROUP.name")); // NOI18N
+        final Domain domain = new Domain();
+        domain.setName("LOCAL");                                                                    // NOI18N
+        NO_GROUP.setDomain(domain);
+    }
 
     //~ Instance fields --------------------------------------------------------
 

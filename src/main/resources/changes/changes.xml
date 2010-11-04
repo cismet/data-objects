@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/plugins/maven-changes-plugin/xsd/changes-1.0.0.xsd">
     <body>
-        <release version="2.1" date="2010-06-07" description="Subsequent release" >
-            <action dev="Martin Scholl" type="update" issue="1526">first maven based release</action>
+        <release version="2.2" date="2010-07-05" description="Subsequent release" >
+            <action dev="Martin Scholl" type="update" issue="1547">update to cismet-parent 1.2.2</action>
+            <action dev="Martin Scholl" type="update" issue="1546">update hibernate core dependency</action>
+            <action dev="Martin Scholl" type="fix" issue="1545">Synchronisation cannot handle different schemas</action>
+            <action dev="Martin Scholl" type="fix" issue="1544">Synchronisation of primary key fails</action>
+            <action dev="Martin Scholl" type="fix" issue="1696">Table column data does not handle schemas correctly</action>
         </release>
     </body>
 </document>

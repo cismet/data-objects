@@ -7,14 +7,14 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.core;
 
-import com.mchange.v1.util.ClosableResource;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Method;
+
+import java.sql.SQLException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -57,29 +57,29 @@ public class PersistenceInterceptor implements MethodInterceptor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(
                     "invokation started: " // NOI18N
-                            + "method="
+                            + "method="    // NOI18N
                             + method.getDeclaringClass().getCanonicalName()
-                            + "."
+                            + "."          // NOI18N
                             + method.getName()
                             + " | "        // NOI18N
-                            + "args="
-                            + argsToString(mi.getArguments())); // NOI18N
+                            + "args="      // NOI18N
+                            + argsToString(mi.getArguments()));
             }
-            if (!method.getDeclaringClass().isAssignableFrom(ClosableResource.class)) {
-                injectManager(method);
-            }
+
+            injectManager(method);
+
             final Object ret = method.invoke(mi.getThis(), mi.getArguments());
             cleanup(method, null);
             if (LOG.isDebugEnabled()) {
                 LOG.debug(
                     "invokation succeeded: " // NOI18N
-                            + "method="
+                            + "method="      // NOI18N
                             + method.getDeclaringClass().getCanonicalName()
-                            + "."
+                            + "."            // NOI18N
                             + method.getName()
-                            + " | "        // NOI18N
-                            + "args="
-                            + argsToString(mi.getArguments())); // NOI18N
+                            + " | "          // NOI18N
+                            + "args="        // NOI18N
+                            + argsToString(mi.getArguments()));
             }
             return ret;
         } catch (final Throwable t) {
@@ -91,30 +91,38 @@ public class PersistenceInterceptor implements MethodInterceptor {
                 cleanup(method, toThrow);
             } catch (final Throwable ex) {
                 // do nothing since cleanup already handles logging
-                LOG.warn("An error occured during cleanup operation", ex);
+                LOG.warn("An error occured during cleanup operation", ex); // NOI18N
             }
             if (toThrow instanceof NoResultException) {
                 LOG.warn(
-                    "invokation failed: " // NOI18N
-                            + "method="
+                    "invokation failed: "                                  // NOI18N
+                            + "method="                                    // NOI18N
                             + method.getDeclaringClass().getCanonicalName()
-                            + "."
+                            + "."                                          // NOI18N
                             + method.getName()
-                            + " | "       // NOI18N
-                            + "args="
+                            + " | "                                        // NOI18N
+                            + "args="                                      // NOI18N
                             + argsToString(mi.getArguments()),
                     toThrow);
             } else {
                 LOG.error(
-                    "invokation failed: " // NOI18N
-                            + "method="
+                    "invokation failed: "                                  // NOI18N
+                            + "method="                                    // NOI18N
                             + method.getDeclaringClass().getCanonicalName()
-                            + "."
+                            + "."                                          // NOI18N
                             + method.getName()
-                            + " | "       // NOI18N
-                            + "args="
-                            + argsToString(mi.getArguments()), // NOI18N
+                            + " | "                                        // NOI18N
+                            + "args="                                      // NOI18N
+                            + argsToString(mi.getArguments()),
                     toThrow);
+                Throwable cause = toThrow;
+                while (cause != null) {
+                    if (cause instanceof SQLException) {
+                        final SQLException e = (SQLException)cause;
+                        LOG.error("next Exception: " + e.getNextException(), e.getNextException()); // NOI18N
+                    }
+                    cause = cause.getCause();
+                }
             }
             throw toThrow;
         }
@@ -187,6 +195,14 @@ public class PersistenceInterceptor implements MethodInterceptor {
             }
         } catch (final Throwable tw) {
             LOG.error("cleanup failed: method=" + m.getDeclaringClass().getCanonicalName() + "." + m.getName(), tw); // NOI18N
+            Throwable cause = tw;
+            while (cause != null) {
+                if (cause instanceof SQLException) {
+                    final SQLException e = (SQLException)cause;
+                    LOG.error("next Exception: " + e.getNextException(), e.getNextException());                      // NOI18N
+                }
+                cause = cause.getCause();
+            }
             throw tw;
         } finally {
             em.clear();

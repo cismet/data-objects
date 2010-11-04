@@ -212,6 +212,13 @@ public final class PersistenceProvider implements CommonService {
         e.remove(toDelete);
     }
 
+    @Override
+    public void delete(final List<CommonEntity> entities) {
+        for (final CommonEntity ce : entities) {
+            delete(ce);
+        }
+    }
+
     /**
      * Retrieves the desired subtype of {@link CommonEntity} with the given <code>id</code> using the
      * {@link EntityManager} of the current thread. If there is no entity of the desired type and with the given <code>
