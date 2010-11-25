@@ -108,6 +108,10 @@
                     <targetJdk>1.6</targetJdk>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-scm-plugin</artifactId>
+                <version>1.4</version>
+            </plugin>
         </plugins>
     </build>
 
