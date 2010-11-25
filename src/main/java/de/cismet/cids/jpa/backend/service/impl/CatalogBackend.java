@@ -49,6 +49,11 @@ public class CatalogBackend implements CatalogService {
 
     private static final transient Logger LOG = Logger.getLogger(CatalogBackend.class);
 
+    private static final String Q_PARAM_IDFROM = "idFrom";                                                    // NOI18N
+    private static final String Q_PARAM_IDTO = "idTo";                                                        // NOI18N
+    private static final String Q_FROM_CATLINK_IDFROM_IDTO = "FROM CatLink WHERE idFrom = :" + Q_PARAM_IDFROM // NOI18N
+                + " AND idTo = :" + Q_PARAM_IDTO;                                                             // NOI18N
+
     //~ Instance fields --------------------------------------------------------
 
     private final transient PersistenceProvider provider;
@@ -208,7 +213,7 @@ public class CatalogBackend implements CatalogService {
             }
         }
         q = em.createQuery("FROM CatLink c WHERE c.idTo = " + node.getId());                                           // NOI18N
-        if (q.getResultList().size() == 0) {
+        if (q.getResultList().isEmpty()) {
             q = em.createQuery("FROM CatLink c WHERE c.idFrom = " + node.getId());                                     // NOI18N
             final Iterator<CatLink> lit = q.getResultList().iterator();
             while (lit.hasNext()) {
@@ -236,17 +241,16 @@ public class CatalogBackend implements CatalogService {
         final EntityManager em = provider.getEntityManager();
         final CatLink link;
         if (oldParent == null) {
-            final Query q = em.createQuery("FROM Domain WHERE name = 'LOCAL'"); // NOI18N
-            final Domain domain = (Domain)q.getSingleResult();                  // NOI18N
+            final Query q = em.createQuery("FROM Domain WHERE name = 'LOCAL'");
+            final Domain domain = (Domain)q.getSingleResult();
             link = new CatLink();
             link.setIdTo(node.getId());
             link.setDomainTo(domain);
         } else {
-            final Query q = em.createQuery(
-                    "FROM CatLink WHERE idFrom = "
-                            + oldParent.getId()
-                            + "AND idTo = "
-                            + node.getId());                                    // NOI18N
+            final Query q = em.createQuery(Q_FROM_CATLINK_IDFROM_IDTO);
+            q.setParameter(Q_PARAM_IDFROM, oldParent.getId());
+            q.setParameter(Q_PARAM_IDTO, node.getId());
+
             link = (CatLink)q.getSingleResult();
             if (isLeaf(oldParent, false)) {
                 oldParent.setIsLeaf(true);
@@ -339,7 +343,7 @@ public class CatalogBackend implements CatalogService {
         final EntityManager em = provider.getEntityManager();
         final CatLink clone;
         if (oldParent == null) {
-            final Query q = em.createQuery("FROM Domain WHERE name = 'LOCAL'"); // NOI18N
+            final Query q = em.createQuery("FROM Domain WHERE name = 'LOCAL'");    // NOI18N
             final Domain domain = (Domain)q.getSingleResult();
             clone = new CatLink();
             clone.setDomainTo(domain);
@@ -349,9 +353,13 @@ public class CatalogBackend implements CatalogService {
                     "FROM CatLink WHERE idFrom = "
                             + oldParent.getId()
                             + "AND idTo = "
-                            + node.getId());                                    // NOI18N
+                            + node.getId());                                       // NOI18N
             final CatLink link = (CatLink)q.getSingleResult();
-            clone = link.clone();
+            try {
+                clone = link.clone();
+            } catch (final CloneNotSupportedException ex) {
+                throw new IllegalStateException("cannot clone link: " + link, ex); // NOI18N
+            }
         }
 
         clone.setIdFrom(newParent.getId());
@@ -396,7 +404,7 @@ public class CatalogBackend implements CatalogService {
         final Query q = em.createQuery("select id from CatLink link where link.idFrom = :id"); // NOI18N
         q.setParameter("id", id);                                                              // NOI18N
         q.setMaxResults(1);
-        return q.getResultList().size() == 0;
+        return q.getResultList().isEmpty();
     }
 
     @Override
@@ -445,6 +453,7 @@ public class CatalogBackend implements CatalogService {
             closeStatement(stmt);
             closeConnection(con);
         }
+
         return nonLeafCache = ret;
     }
 

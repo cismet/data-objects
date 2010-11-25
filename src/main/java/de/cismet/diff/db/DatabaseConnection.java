@@ -145,14 +145,14 @@ public class DatabaseConnection {
             try {
                 con.close();
             } catch (final SQLException e) {
-                // maybe log some day ...
+                LOG.warn("could not close connection: " + con, e); // NOI18N
             }
         }
         for (final Connection con : CON_HASH_UPDATE.values()) {
             try {
                 con.close();
             } catch (final SQLException e) {
-                // maybe log some day ...
+                LOG.warn("could not close connection: " + con, e); // NOI18N
             }
         }
         CON_HASH_EXEC.clear();

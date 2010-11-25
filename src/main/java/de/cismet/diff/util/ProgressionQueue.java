@@ -24,7 +24,7 @@ public class ProgressionQueue implements Cloneable {
 
     //~ Instance fields --------------------------------------------------------
 
-    private final transient LinkedList<Action> actionList;
+    private final transient List<Action> actionList;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -43,7 +43,7 @@ public class ProgressionQueue implements Cloneable {
      * @param  action  DOCUMENT ME!
      */
     public void putAction(final Action action) {
-        actionList.addLast(action);
+        actionList.add(action);
     }
 
     /**
@@ -105,6 +105,7 @@ public class ProgressionQueue implements Cloneable {
                 ret.addLast(a);
             }
         }
+
         return (ret.isEmpty()) ? null : ret;
     }
 
@@ -120,15 +121,17 @@ public class ProgressionQueue implements Cloneable {
         if (actions == null) {
             return null;
         }
+
         return actions.toArray(new Action[actions.size()]);
     }
 
     @Override
-    public ProgressionQueue clone() {
-        final ProgressionQueue clone = new ProgressionQueue();
+    public ProgressionQueue clone() throws CloneNotSupportedException {
+        final ProgressionQueue clone = (ProgressionQueue)super.clone();
         for (final Action action : actionList) {
             clone.putAction(action);
         }
+
         return clone;
     }
 }

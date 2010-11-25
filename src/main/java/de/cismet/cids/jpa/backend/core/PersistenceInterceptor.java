@@ -16,6 +16,8 @@ import java.lang.reflect.Method;
 
 import java.sql.SQLException;
 
+import java.text.MessageFormat;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
@@ -30,6 +32,10 @@ public class PersistenceInterceptor implements MethodInterceptor {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final transient Logger LOG = Logger.getLogger(PersistenceInterceptor.class);
+
+    private static final String INV_FAIL_TEMPLATE = "invokation failed: method={0}.{1} | args={2}";     // NOI18N
+    private static final String INV_SUCC_TEMPLATE = "invokation succeeded: method={0}.{1} | args={2}";  // NOI18N
+    private static final String INV_STARTED_TEMPLATE = "invokation started: method={0}.{1} | args={2}"; // NOI18N
 
     //~ Instance fields --------------------------------------------------------
 
@@ -55,15 +61,12 @@ public class PersistenceInterceptor implements MethodInterceptor {
         final Method method = mi.getMethod();
         try {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                    "invokation started: " // NOI18N
-                            + "method="    // NOI18N
-                            + method.getDeclaringClass().getCanonicalName()
-                            + "."          // NOI18N
-                            + method.getName()
-                            + " | "        // NOI18N
-                            + "args="      // NOI18N
-                            + argsToString(mi.getArguments()));
+                final String message = MessageFormat.format(
+                        INV_STARTED_TEMPLATE,
+                        method.getDeclaringClass().getCanonicalName(),
+                        method.getName(),
+                        argsToString(mi.getArguments()));
+                LOG.debug(message);
             }
 
             injectManager(method);
@@ -71,15 +74,12 @@ public class PersistenceInterceptor implements MethodInterceptor {
             final Object ret = method.invoke(mi.getThis(), mi.getArguments());
             cleanup(method, null);
             if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                    "invokation succeeded: " // NOI18N
-                            + "method="      // NOI18N
-                            + method.getDeclaringClass().getCanonicalName()
-                            + "."            // NOI18N
-                            + method.getName()
-                            + " | "          // NOI18N
-                            + "args="        // NOI18N
-                            + argsToString(mi.getArguments()));
+                final String message = MessageFormat.format(
+                        INV_SUCC_TEMPLATE,
+                        method.getDeclaringClass().getCanonicalName(),
+                        method.getName(),
+                        argsToString(mi.getArguments()));
+                LOG.debug(message);
             }
             return ret;
         } catch (final Throwable t) {
@@ -93,28 +93,15 @@ public class PersistenceInterceptor implements MethodInterceptor {
                 // do nothing since cleanup already handles logging
                 LOG.warn("An error occured during cleanup operation", ex); // NOI18N
             }
+            final String message = MessageFormat.format(
+                    INV_FAIL_TEMPLATE,
+                    method.getDeclaringClass().getCanonicalName(),
+                    method.getName(),
+                    argsToString(mi.getArguments()));
             if (toThrow instanceof NoResultException) {
-                LOG.warn(
-                    "invokation failed: "                                  // NOI18N
-                            + "method="                                    // NOI18N
-                            + method.getDeclaringClass().getCanonicalName()
-                            + "."                                          // NOI18N
-                            + method.getName()
-                            + " | "                                        // NOI18N
-                            + "args="                                      // NOI18N
-                            + argsToString(mi.getArguments()),
-                    toThrow);
+                LOG.warn(message, toThrow);
             } else {
-                LOG.error(
-                    "invokation failed: "                                  // NOI18N
-                            + "method="                                    // NOI18N
-                            + method.getDeclaringClass().getCanonicalName()
-                            + "."                                          // NOI18N
-                            + method.getName()
-                            + " | "                                        // NOI18N
-                            + "args="                                      // NOI18N
-                            + argsToString(mi.getArguments()),
-                    toThrow);
+                LOG.error(message, toThrow);
                 Throwable cause = toThrow;
                 while (cause != null) {
                     if (cause instanceof SQLException) {
@@ -188,10 +175,10 @@ public class PersistenceInterceptor implements MethodInterceptor {
         provider.em.set(null);
         methodHolder.set(null);
         try {
-            if (t != null) {
-                em.getTransaction().rollback();
-            } else {
+            if (t == null) {
                 em.getTransaction().commit();
+            } else {
+                em.getTransaction().rollback();
             }
         } catch (final Throwable tw) {
             LOG.error("cleanup failed: method=" + m.getDeclaringClass().getCanonicalName() + "." + m.getName(), tw); // NOI18N

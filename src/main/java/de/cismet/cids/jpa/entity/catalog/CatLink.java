@@ -10,8 +10,6 @@ package de.cismet.cids.jpa.entity.catalog;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import org.openide.util.Exceptions;
-
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -107,16 +105,12 @@ public class CatLink extends CommonEntity implements Serializable, Cloneable {
     }
 
     @Override
-    public CatLink clone() {
-        final CatLink link;
-        try {
-            link = (CatLink)super.clone();
-        } catch (final CloneNotSupportedException ex) {
-            throw new IllegalStateException("could not clone catlink", ex); // NOI18N
-        }
+    public CatLink clone() throws CloneNotSupportedException {
+        final CatLink link = (CatLink)super.clone();
         link.idFrom = getIdFrom();
         link.idTo = getIdTo();
         link.domainTo = getDomainTo();
+
         return link;
     }
 

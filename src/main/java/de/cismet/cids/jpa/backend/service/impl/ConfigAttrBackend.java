@@ -121,6 +121,9 @@ public final class ConfigAttrBackend implements ConfigAttrService {
 
                 key = existing;
             } catch (final NoResultException e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("key does not exist, using transient instance: " + key, e); // NOI18N
+                }
                 // skip
             }
         }
@@ -142,6 +145,9 @@ public final class ConfigAttrBackend implements ConfigAttrService {
 
                 value = existing;
             } catch (final NoResultException e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("value does not exist, using transient instance: " + value, e); // NOI18N
+                }
                 // skip
             }
         }

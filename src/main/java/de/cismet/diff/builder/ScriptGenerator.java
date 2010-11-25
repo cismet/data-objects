@@ -19,6 +19,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -62,16 +64,16 @@ public class ScriptGenerator {
     private final transient String TMP_COLUMN = "swapper_tmp_" + System.currentTimeMillis(); // NOI18N
 
     private transient Table[] allTables;
-    private transient LinkedList<Table> tables;
-    private transient LinkedList<CidsClass> classes;
-    private transient LinkedList<CidsClass> classesDone;
+    private transient List<Table> tables;
+    private transient List<CidsClass> classes;
+    private transient List<CidsClass> classesDone;
 
-    private transient LinkedList<String> callStack;
+    private transient List<String> callStack;
 
-    private transient LinkedList<StatementGroup> statements;
+    private transient List<StatementGroup> statements;
     private transient PSQLStatementGroup[] psqlStatementGroups;
-    private transient HashMap<String, String> typemapCidsToPSQL;
-    private transient HashMap<String, String> typemapPSQLtoCids;
+    private transient Map<String, String> typemapCidsToPSQL;
+    private transient Map<String, String> typemapPSQLtoCids;
     private transient ProgressionQueue queue;
     private transient Properties runtime;
 
@@ -171,9 +173,9 @@ public class ScriptGenerator {
      *
      * @return  DOCUMENT ME!
      */
-    private HashMap<String, String> getTypeMap(final boolean directionTo) {
+    private Map<String, String> getTypeMap(final boolean directionTo) {
         final ResourceBundle bundle = ResourceBundle.getBundle("de.cismet.diff.resource.typemap"); // NOI18N
-        final HashMap<String, String> map = new HashMap<String, String>();
+        final Map<String, String> map = new HashMap<String, String>();
         final Enumeration<String> keys = bundle.getKeys();
         while (keys.hasMoreElements()) {
             final String key = keys.nextElement();
@@ -184,6 +186,7 @@ public class ScriptGenerator {
                 map.put(bundle.getString(key), key);
             }
         }
+
         return map;
     }
 
@@ -200,22 +203,22 @@ public class ScriptGenerator {
         }
         while (!classes.isEmpty()) {
             callStack.clear();
-            final LinkedList<StatementGroup> s = createStatements(classes.getFirst());
+            final List<StatementGroup> s = createStatements(classes.get(0));
             if (s != null) {
                 statements.addAll(s);
             }
         }
         while (!tables.isEmpty()) {
             callStack.clear();
-            final StatementGroup s = create_DROP_statement(tables.getFirst());
+            final StatementGroup s = create_DROP_statement(tables.get(0));
             if (s != null) {
-                statements.addLast(s);
+                statements.add(s);
             }
         }
         final LinkedList<PSQLStatementGroup> psql = new LinkedList<PSQLStatementGroup>();
         try {
             while (!statements.isEmpty()) {
-                final StatementGroup current = statements.removeFirst();
+                final StatementGroup current = statements.remove(0);
                 if (current != null) {
                     psql.addLast(new PSQLStatementGroup(current));
                 }
@@ -241,7 +244,7 @@ public class ScriptGenerator {
      *
      * @throws  ScriptGeneratorException  DOCUMENT ME!
      */
-    private LinkedList<StatementGroup> createStatements(final CidsClass c) throws ScriptGeneratorException {
+    private List<StatementGroup> createStatements(final CidsClass c) throws ScriptGeneratorException {
         if (c == null) {
             return null;
         }
@@ -262,7 +265,7 @@ public class ScriptGenerator {
      *
      * @throws  ScriptGeneratorException  DOCUMENT ME!
      */
-    private LinkedList<StatementGroup> create_ALTER_Statements(final CidsClass c, final Table t)
+    private List<StatementGroup> create_ALTER_Statements(final CidsClass c, final Table t)
             throws ScriptGeneratorException {
         final Iterator<Attribute> it = c.getAttributes().iterator();
         final LinkedList<TableColumn> tableColumns = new LinkedList<TableColumn>();
@@ -299,7 +302,7 @@ public class ScriptGenerator {
                     if (!(classesDone.contains(attrType.getCidsClass())
                                     || callStack.contains(attrType.getName()))) {
                         callStack.add(attrType.getName());
-                        final LinkedList<StatementGroup> s = createStatements(attrType.getCidsClass());
+                        final List<StatementGroup> s = createStatements(attrType.getCidsClass());
                         if (s != null) {
                             statementGroups.addAll(s);
                         }
@@ -451,7 +454,7 @@ public class ScriptGenerator {
                     if (!(classesDone.contains(attrType.getCidsClass())
                                     || callStack.contains(attrType.getName()))) {
                         callStack.add(attrType.getName());
-                        final LinkedList<StatementGroup> s = createStatements(attrType.getCidsClass());
+                        final List<StatementGroup> s = createStatements(attrType.getCidsClass());
                         if (s != null) {
                             statementGroups.addAll(s);
                         }
@@ -720,7 +723,7 @@ public class ScriptGenerator {
      *
      * @throws  ScriptGeneratorException  DOCUMENT ME!
      */
-    private LinkedList<StatementGroup> create_CREATE_Statement(final CidsClass c) throws ScriptGeneratorException {
+    private List<StatementGroup> create_CREATE_Statement(final CidsClass c) throws ScriptGeneratorException {
         // is name valid
         if (c.getTableName().contains(" ")) { // NOI18N
             throw new ScriptGeneratorException(
@@ -766,7 +769,7 @@ public class ScriptGenerator {
                 if (!(classesDone.contains(type.getCidsClass())
                                 || callStack.contains(type.getName()))) {
                     callStack.add(type.getName());
-                    final LinkedList<StatementGroup> s = createStatements(type.getCidsClass());
+                    final List<StatementGroup> s = createStatements(type.getCidsClass());
                     if (s != null) {
                         statements.addAll(s);
                     }

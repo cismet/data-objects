@@ -136,7 +136,6 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
             "DELETE FROM " + ATTR_STRING_TEMP_TABLE;                                                // NOI18N
 
     private static final String NULL_STRING = "NULL";                                               // NOI18N
-    private static final int NULL_INT = -1;
     //J+
 
     //~ Instance fields --------------------------------------------------------
