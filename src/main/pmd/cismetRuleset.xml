@@ -6,7 +6,7 @@
         xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
    
     <rule ref="rulesets/unusedcode.xml"/>
-<!--    <rule ref="rulesets/strings.xml"/>-->
+    <rule ref="rulesets/strings.xml"/>
     <rule ref="rulesets/basic.xml"/>
     <rule ref="rulesets/braces.xml"/>
     <rule ref="rulesets/clone.xml"/>
@@ -18,8 +18,6 @@
     <rule ref="rulesets/imports.xml"/>
 <!--    <rule ref="rulesets/naming.xml"/>-->
     <rule ref="rulesets/optimizations.xml">
-        <!-- in most cases this rule detects special cases where arraycopy cannot be used -->
-        <exclude name="AvoidArrayLoops"/>
         <!-- detects too many cases where instantiating is the only purpose of the loop -->
         <exclude name="AvoidInstantiatingObjectsInLoops"/>
     </rule>

@@ -32,6 +32,8 @@ import de.cismet.cids.jpa.entity.configattr.ConfigAttrValue;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
+// many logging and sql here
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public final class ConfigAttrBackend implements ConfigAttrService {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -183,6 +185,8 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         }
     }
 
+    // there is no choice but to obay the interface specification
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     @Override
     public void close() throws Exception {
         cleanAttributeTables();

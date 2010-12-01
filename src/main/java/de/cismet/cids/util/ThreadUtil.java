@@ -108,6 +108,8 @@ public final class ThreadUtil {
      *
      * @return  DOCUMENT ME!
      */
+    // special array loop here
+    @SuppressWarnings("PMD.AvoidArrayLoops")
     public static StackTraceElement[] truncateCommon(final StackTraceElement[] ste) {
         if (ste.length < 2) {
             return null;
@@ -126,6 +128,8 @@ public final class ThreadUtil {
      *
      * @return  DOCUMENT ME!
      */
+    // special array loop here
+    @SuppressWarnings("PMD.AvoidArrayLoops")
     public static StackTraceElement[] getCallerTrace(final StackTraceElement[] ste) {
         if (ste.length < 3) {
             return null;

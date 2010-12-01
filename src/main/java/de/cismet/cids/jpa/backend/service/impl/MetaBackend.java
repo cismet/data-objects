@@ -42,6 +42,8 @@ import de.cismet.diff.db.DatabaseConnection;
  * @author   cschmidt
  * @version  $Revision$, $Date$
  */
+// many sql here
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class MetaBackend extends AbstractProgressObservable implements MetaService {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -182,6 +184,8 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
      *
      * @throws  Exception  DOCUMENT ME!
      */
+    // there is no choice but to obay the interface specification
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     @Override
     public void close() throws Exception {
         if (closed) {

@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -169,37 +168,37 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "cidsClass"
+        mappedBy = "cidsClass", // NOPMD
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<Attribute> attributes;
 
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "cidsClass"
+        mappedBy = "cidsClass", // NOPMD
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<ClassAttribute> classAttributes;
 
     @OneToOne(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "cidsClass"
+        mappedBy = "cidsClass", // NOPMD
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Type type;
 
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "cidsClass"
+        mappedBy = "cidsClass", // NOPMD
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<ClassPermission> classPermissions;
 
     //~ Constructors -----------------------------------------------------------

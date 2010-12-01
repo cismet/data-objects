@@ -58,7 +58,11 @@ public class ScriptGenerator {
 
     //~ Static fields/initializers ---------------------------------------------
 
+    private static final String INTEGER = "INTEGER";
+
     private static final transient Logger LOG = Logger.getLogger(ScriptGenerator.class);
+    private static final String NOT_NULL = "NOT NULL";
+    private static final String SEQ_SUFFIX = "_seq";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -127,6 +131,8 @@ public class ScriptGenerator {
      *
      * @throws  IllegalArgumentException  DOCUMENT ME!
      */
+    // pmd complains about the classes array but it is not stored directly at all. this seems to be a bug
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public ScriptGenerator(
             final Properties runtime,
             final Table[] tables,
@@ -326,10 +332,10 @@ public class ScriptGenerator {
                                 false,
                                 t.getTableName(),
                                 attrName.toLowerCase(),
-                                "INTEGER") // NOI18N
+                                INTEGER) // NOI18N
                         };
                     statementGroups.addLast(new StatementGroup(s, false));
-                }                          // </editor-fold>
+                }                        // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal type ">
                 else {
                     // add precision to parameter if present
@@ -425,7 +431,7 @@ public class ScriptGenerator {
                                     false,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    "NOT NULL") // NOI18N
+                                    NOT_NULL)
                             };
                         final StatementGroup group = new StatementGroup(s, true);
                         final MessageFormat descform = new MessageFormat(
@@ -444,11 +450,11 @@ public class ScriptGenerator {
                                     true,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    "NOT NULL") // NOI18N
+                                    NOT_NULL) // NOI18N
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
                     }
-                }                               // </editor-fold>
+                }                             // </editor-fold>
                 // column present, look for differences
             } else {
                 // <editor-fold defaultstate="collapsed" desc=" handle complex type ">
@@ -480,7 +486,7 @@ public class ScriptGenerator {
                         statementGroups.addLast(createTypeConversionStatements(
                                 t,
                                 current,
-                                "INTEGER"));                              // NOI18N
+                                INTEGER));                                // NOI18N
                     }
                 }                                                         // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal type ">
@@ -552,8 +558,8 @@ public class ScriptGenerator {
                     // <editor-fold defaultstate="collapsed" desc=" set default value ">
                     String defaultVal = t.getDefaultValue(attrName);
                     if (defaultVal != null) {
-                        final int i = defaultVal.indexOf("'") + 1; // NOI18N
-                        final int j = defaultVal.lastIndexOf("'"); // NOI18N
+                        final int i = defaultVal.indexOf('\'') + 1; // NOI18N
+                        final int j = defaultVal.lastIndexOf('\''); // NOI18N
                         if ((i > 0) && (j > i)) {
                             defaultVal = defaultVal.substring(i, j);
                         }
@@ -583,10 +589,10 @@ public class ScriptGenerator {
                                     attrName.toLowerCase(),
                                     "DEFAULT '"
                                             + current.getDefaultValue()
-                                            + "'")                 // NOI18N
+                                            + "'")                  // NOI18N
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
-                    }                                              // </editor-fold>
+                    }                                               // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" alter column to 'optional' ">
                     if (current.isOptional() && !(column.getNullable()
                                     == DatabaseMetaData.attributeNullable)) {
@@ -605,10 +611,10 @@ public class ScriptGenerator {
                                     false,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    "NOT NULL") // NOI18N
+                                    NOT_NULL) // NOI18N
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
-                    }                           // </editor-fold>
+                    }                         // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" alter column to 'required' ">
                     if (!current.isOptional() && !(column.getNullable()
                                     == DatabaseMetaData.attributeNoNulls)) {
@@ -641,7 +647,7 @@ public class ScriptGenerator {
                                         false,
                                         t.getTableName(),
                                         attrName.toLowerCase(),
-                                        "NOT NULL") // NOI18N
+                                        NOT_NULL) // NOI18N
                                 };
                             final StatementGroup group = new StatementGroup(s, true);
                             final MessageFormat descform = new MessageFormat(
@@ -660,12 +666,12 @@ public class ScriptGenerator {
                                         true,
                                         t.getTableName(),
                                         attrName.toLowerCase(),
-                                        "NOT NULL") // NOI18N
+                                        NOT_NULL) // NOI18N
                                 };
                             statementGroups.addLast(new StatementGroup(s, false));
                         }
-                    }                               // </editor-fold>
-                }                                   // </editor-fold>
+                    }                             // </editor-fold>
+                }                                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle primary key ">
                 else {
                     final String defVal = column.getDefaultValue();
@@ -808,7 +814,7 @@ public class ScriptGenerator {
                         c.getPrimaryKeyField().toLowerCase(),
                         null);
                 }
-                if (!type.getName().equalsIgnoreCase("INTEGER")) {                          // NOI18N
+                if (!type.getName().equalsIgnoreCase(INTEGER)) {                            // NOI18N
                     throw new ScriptGeneratorException(
                         exceptionBundle.getString(
                             DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_NOT_INTEGER),
@@ -817,9 +823,8 @@ public class ScriptGenerator {
                         type.getName(),
                         null);
                 }
-                nameTypeEnum.append(name).append(" INTEGER");                               // NOI18N
-                nameTypeEnum.append(" PRIMARY KEY DEFAULT nextval('")                       // NOI18N
-                .append(c.getTableName().toLowerCase()).append("_seq')");                   // NOI18N
+                nameTypeEnum.append(name).append(" INTEGER PRIMARY KEY DEFAULT nextval('"); // NOI18N
+                nameTypeEnum.append(c.getTableName().toLowerCase()).append("_seq')");       // NOI18N
                 if (!sequenceExists(c.getTableName())) {
                     statem.addFirst(
                         new CodedStatement(
@@ -827,7 +832,7 @@ public class ScriptGenerator {
                             null,
                             false,
                             c.getTableName().toLowerCase()
-                                    + "_seq",                                               // NOI18N
+                                    + SEQ_SUFFIX,                                           // NOI18N
                             "1"));                                                          // NOI18N
                 }
             } else {
@@ -861,9 +866,9 @@ public class ScriptGenerator {
                         name,
                         null);
                 }
-                nameTypeEnum.append(" DEFAULT '").append(current.getDefaultValue()).append("'"); // NOI18N
+                nameTypeEnum.append(" DEFAULT '").append(current.getDefaultValue()).append('\''); // NOI18N
             }
-            nameTypeEnum.append(", ");                                                           // NOI18N
+            nameTypeEnum.append(", ");                                                            // NOI18N
         }
         if (!primarykeyFound) {
             throw new ScriptGeneratorException(
@@ -922,7 +927,7 @@ public class ScriptGenerator {
                                     null,
                                     false,
                                     table.getTableName()
-                                            + "_seq")); // NOI18N
+                                            + SEQ_SUFFIX)); // NOI18N
                         }
                         statem.addFirst(new CodedStatement(
                                 CodedStatement.CODE_DROP_STANDARD,
@@ -949,7 +954,7 @@ public class ScriptGenerator {
                         null,
                         false,
                         table.getTableName()
-                                + "_seq")); // NOI18N
+                                + SEQ_SUFFIX)); // NOI18N
             }
             statem.addFirst(new CodedStatement(CodedStatement.CODE_DROP_STANDARD, null, false, map));
             final Statement[] s = statem.toArray(new Statement[statem.size()]);
@@ -1039,7 +1044,7 @@ public class ScriptGenerator {
                     false,
                     table.getTableName(),
                     TMP_COLUMN,
-                    "NOT NULL")); // NOI18N
+                    NOT_NULL)); // NOI18N
         }
         cstatem.addLast(
             new CodedStatement(
@@ -1122,7 +1127,7 @@ public class ScriptGenerator {
                 cidsClass.getPrimaryKeyField().toLowerCase(),
                 null);
         }
-        if (!sequenceExists(cidsClass.getTableName() + "_seq")) { // NOI18N
+        if (!sequenceExists(cidsClass.getTableName() + SEQ_SUFFIX)) { // NOI18N
             if (isTableEmpty(cidsClass.getTableName())) {
                 codedStatements.addFirst(
                     new CodedStatement(
@@ -1130,8 +1135,8 @@ public class ScriptGenerator {
                         null,
                         false,
                         cidsClass.getTableName().toLowerCase()
-                                + "_seq",                         // NOI18N
-                        "1"));                                    // NOI18N
+                                + SEQ_SUFFIX,                         // NOI18N
+                        "1"));                                        // NOI18N
             } else {
                 codedStatements.addFirst(
                     new CodedStatement(
@@ -1141,15 +1146,15 @@ public class ScriptGenerator {
                         cidsClass.getTableName().toLowerCase(),
                         cidsClass.getPrimaryKeyField().toLowerCase(),
                         cidsClass.getTableName().toLowerCase()
-                                + "_seq"));                       // NOI18N
+                                + SEQ_SUFFIX));                       // NOI18N
                 codedStatements.addFirst(
                     new CodedStatement(
                         CodedStatement.CODE_CREATE_SEQUENCE,
                         null,
                         false,
                         cidsClass.getTableName().toLowerCase()
-                                + "_seq",                         // NOI18N
-                        "1"));                                    // NOI18N
+                                + SEQ_SUFFIX,                         // NOI18N
+                        "1"));                                        // NOI18N
             }
         }
         // composite primary key, drop it and create new
@@ -1275,7 +1280,7 @@ public class ScriptGenerator {
         while (it.hasNext()) {
             final Attribute current = it.next();
             if (current.getFieldName().equalsIgnoreCase(cidsClass.getPrimaryKeyField())) {
-                return current.getType().getName().equalsIgnoreCase("INTEGER") ? true : false; // NOI18N
+                return current.getType().getName().equalsIgnoreCase(INTEGER) ? true : false; // NOI18N
             }
         }
         return false;

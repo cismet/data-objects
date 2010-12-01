@@ -29,6 +29,8 @@ import de.cismet.cids.jpa.entity.common.URLBase;
  * @author   $Author: mscholl $
  * @version  $Revision: 1.6 $ tag $Name: $ date $Date: 2009/10/29 14:24:52 $
  */
+// many logging and sql here
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class ClassBackend implements ClassService {
 
     //~ Static fields/initializers ---------------------------------------------

@@ -50,6 +50,8 @@ import de.cismet.cids.util.ProgressListener;
  */
 // The backend shall not be formatted automatically since jalopy messes everything up due to the netbeans editor folds
 //J-
+// This is an Accessor/Facade class so there simply are many imports
+@SuppressWarnings("PMD.ExcessiveImports")
 public final class Backend implements
         ClassService,
         UserService,
@@ -276,6 +278,8 @@ public final class Backend implements
 
     // <editor-fold defaultstate="collapsed" desc=" Part: Backend operations ">
     @Override
+    // there is no choice but to obay the interface specification
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     public void close() throws Exception {
         configAttrService.close();
         metaBackend.close();
