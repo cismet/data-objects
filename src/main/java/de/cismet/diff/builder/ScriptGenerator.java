@@ -14,6 +14,7 @@ import java.sql.SQLException;
 
 import java.text.MessageFormat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -141,25 +142,27 @@ public class ScriptGenerator {
                 exceptionBundle.getString(
                     DiffAccessor.ILLEGAL_ARGUMENT_EXCEPTION_CLASSES_NULL_OR_EMPTY));
         }
-        this.allTables = tables;
-        this.tables = new LinkedList<Table>();
-        for (final Table t : tables) {
+        this.allTables = Arrays.copyOf(tables, tables.length);
+        this.tables = new ArrayList<Table>(allTables.length);
+        for (final Table t : allTables) {
             if (t != null) {
                 this.tables.add(t);
             }
         }
-        this.classes = new LinkedList<CidsClass>();
-        for (final CidsClass c : classes) {
+
+        final CidsClass[] intClasses = Arrays.copyOf(classes, classes.length);
+        this.classes = new ArrayList<CidsClass>(intClasses.length);
+        for (final CidsClass c : intClasses) {
             if (c != null) {
                 this.classes.add(c);
             }
         }
-        classesDone = new LinkedList<CidsClass>();
+        classesDone = new ArrayList<CidsClass>(this.classes.size());
         typemapCidsToPSQL = getTypeMap(true);
         typemapPSQLtoCids = getTypeMap(false);
-        statements = new LinkedList<StatementGroup>();
+        statements = new ArrayList<StatementGroup>();
         this.queue = storage;
-        this.callStack = new LinkedList<String>();
+        this.callStack = new ArrayList<String>();
         psqlStatementGroups = null;
         this.runtime = runtime;
     }
@@ -330,21 +333,26 @@ public class ScriptGenerator {
                 // <editor-fold defaultstate="collapsed" desc=" handle normal type ">
                 else {
                     // add precision to parameter if present
-                    String paramAttrType = attrTypeName;
+                    final StringBuilder paramAttrType;
+
                     // bpchar is just internal and cannot be used to create new columns :(
                     // --> remapping to char
-                    if ("bpchar".equals(paramAttrType)) { // NOI18N
-                        paramAttrType = "char";           // NOI18N
+                    if ("bpchar".equals(attrTypeName)) {           // NOI18N
+                        paramAttrType = new StringBuilder("char"); // NOI18N
+                    } else {
+                        paramAttrType = new StringBuilder(attrTypeName);
                     }
                     if (current.getPrecision() != null) {
+                        paramAttrType.append('(');
                         // also add scale to parameter if present
                         if (current.getScale() != null) {
-                            paramAttrType = paramAttrType + "("                                 // NOI18N
-                                        + current.getPrecision() + ", "                         // NOI18N
-                                        + current.getScale() + ")";                             // NOI18N
+                            paramAttrType.append(current.getPrecision());
+                            paramAttrType.append(',');
+                            paramAttrType.append(current.getScale());
                         } else {
-                            paramAttrType = paramAttrType + "(" + current.getPrecision() + ")"; // NOI18N
+                            paramAttrType.append(current.getPrecision()); // NOI18N
                         }
+                        paramAttrType.append(')');
                     }
                     final Statement[] s = {
                             new CodedStatement(
@@ -353,10 +361,10 @@ public class ScriptGenerator {
                                 false,
                                 t.getTableName(),
                                 attrName,
-                                paramAttrType)
+                                paramAttrType.toString())
                         };
                     statementGroups.addLast(new StatementGroup(s, false));
-                }                                                                               // </editor-fold>
+                }                                                         // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" add default if present ">
                 if (current.getFieldName().equalsIgnoreCase(c.getPrimaryKeyField())) {
                     final Statement[] s = {
@@ -733,20 +741,18 @@ public class ScriptGenerator {
                 null);
         }
         // is primary key present and valid
-        try {
-            if (c.getPrimaryKeyField().isEmpty()) {
-                throw new ScriptGeneratorException(
-                    exceptionBundle.getString(
-                        DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_EMPTY_PRIMKEY_FIELD),
-                    c.getTableName(),
-                    null);
-            }
-        } catch (final NullPointerException npe) {
+        if (c.getPrimaryKeyField() == null) {
             throw new ScriptGeneratorException(
                 exceptionBundle.getString(
                     DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_MISSING_PRIMKEY_FIELD),
                 c.getTableName(),
-                npe);
+                null);
+        } else if (c.getPrimaryKeyField().isEmpty()) {
+            throw new ScriptGeneratorException(
+                exceptionBundle.getString(
+                    DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_EMPTY_PRIMKEY_FIELD),
+                c.getTableName(),
+                null);
         }
         final LinkedList<Statement> statem = new LinkedList<Statement>();
         final HashMap<String, String> map = new HashMap<String, String>();
@@ -972,16 +978,16 @@ public class ScriptGenerator {
         final LinkedList<CodedStatement> cstatem = new LinkedList<CodedStatement>();
         final String attrTypeName = attr.getType().getName().toUpperCase();
         final String warning = CodedStatement.WARNING_TYPE_MISMATCH;
-        String newTypeName = null;
+        final StringBuilder newTypeName = new StringBuilder(attrTypeName);
         if (typeToConvertIn == null) {
-            if (attr.getPrecision() == null) {
-                newTypeName = attrTypeName;
-            } else {
-                newTypeName = attrTypeName + "(" + attr.getPrecision(); // NOI18N
+            if (attr.getPrecision() != null) {
+                newTypeName.append('(');
+                newTypeName.append(attr.getPrecision());
                 if (attr.getScale() != null) {
-                    newTypeName += ", " + attr.getScale();              // NOI18N
+                    newTypeName.append(',');
+                    newTypeName.append(attr.getScale());
                 }
-                newTypeName += ")";                                     // NOI18N
+                newTypeName.append(')');
             }
             cstatem.addLast(
                 new CodedStatement(
@@ -990,7 +996,7 @@ public class ScriptGenerator {
                     false,
                     table.getTableName(),
                     TMP_COLUMN,
-                    newTypeName));
+                    newTypeName.toString()));
         } else {
             cstatem.addLast(
                 new CodedStatement(
@@ -1000,7 +1006,8 @@ public class ScriptGenerator {
                     table.getTableName(),
                     TMP_COLUMN,
                     typeToConvertIn.toUpperCase()));
-            newTypeName = typeToConvertIn.toUpperCase();
+            newTypeName.delete(0, newTypeName.length());
+            newTypeName.append(typeToConvertIn.toUpperCase());
         }
         if (attr.getDefaultValue() != null) {
             cstatem.addLast(
@@ -1012,7 +1019,7 @@ public class ScriptGenerator {
                     TMP_COLUMN,
                     "DEFAULT '"
                             + attr.getDefaultValue()
-                            + "'"));                                    // NOI18N
+                            + "'")); // NOI18N
         }
         cstatem.addLast(
             new CodedStatement(
@@ -1060,7 +1067,7 @@ public class ScriptGenerator {
                 table.getTableName(),
                 attr.getFieldName().toLowerCase(),
                 table.getTableColumn(attr.getFieldName()).getTypeName().toUpperCase(),
-                newTypeName
+                newTypeName.toString()
             };
         group.setDescription(descform.format(args));
         group.setWarning(descBundle.getString(StatementGroup.WARNING_CONVERT_ERROR_ON_TYPE_MISMATCH));
@@ -1084,127 +1091,124 @@ public class ScriptGenerator {
         StatementGroup createGroup = null;
         // check for primary key
         // eventually drop existing and/or create new one
-        try {
-            if (!containsPrimkeyAttr(cidsClass)) {
-                throw new ScriptGeneratorException(
-                    exceptionBundle.getString(
-                        DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NOT_FOUND),
-                    table.getTableName(),
-                    cidsClass.getPrimaryKeyField().toLowerCase(),
-                    null);
-            }
-            if (isPrimkeyAttrOptional(cidsClass)) {
-                throw new ScriptGeneratorException(
-                    exceptionBundle.getString(
-                        DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NOT_NULL),
-                    table.getTableName(),
-                    cidsClass.getPrimaryKeyField().toLowerCase(),
-                    null);
-            }
-            if (!isPrimkeyAttrInteger(cidsClass)) {
-                throw new ScriptGeneratorException(
-                    exceptionBundle.getString(
-                        DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_NOT_INTEGER),
-                    table.getTableName(),
-                    cidsClass.getPrimaryKeyField().toLowerCase(),
-                    null);
-            }
-            if (!sequenceExists(cidsClass.getTableName() + "_seq")) { // NOI18N
-                if (isTableEmpty(cidsClass.getTableName())) {
-                    codedStatements.addFirst(
-                        new CodedStatement(
-                            CodedStatement.CODE_CREATE_SEQUENCE,
-                            null,
-                            false,
-                            cidsClass.getTableName().toLowerCase()
-                                    + "_seq",                         // NOI18N
-                            "1"));                                    // NOI18N
-                } else {
-                    codedStatements.addFirst(
-                        new CodedStatement(
-                            CodedStatement.CODE_SELECT_SETVAL_MAX,
-                            null,
-                            false,
-                            cidsClass.getTableName().toLowerCase(),
-                            cidsClass.getPrimaryKeyField().toLowerCase(),
-                            cidsClass.getTableName().toLowerCase()
-                                    + "_seq"));                       // NOI18N
-                    codedStatements.addFirst(
-                        new CodedStatement(
-                            CodedStatement.CODE_CREATE_SEQUENCE,
-                            null,
-                            false,
-                            cidsClass.getTableName().toLowerCase()
-                                    + "_seq",                         // NOI18N
-                            "1"));                                    // NOI18N
-                }
-            }
-            // composite primary key, drop it and create new
-            if (table.getPrimaryKeyColumnNames().length > 1) {
-                codedStatements.addLast(
-                    new CodedStatement(
-                        CodedStatement.CODE_ALTER_DROP_CONSTRAINT,
-                        null,
-                        false,
-                        table.getTableName(),
-                        table.getTableName()
-                                + "_pkey")); // NOI18N
-                codedStatements.addLast(
-                    new CodedStatement(
-                        CodedStatement.CODE_ALTER_ADD_PRIMARY,
-                        null,
-                        false,
-                        table.getTableName().toLowerCase(),
-                        cidsClass.getPrimaryKeyField().toLowerCase()));
-            }
-            // no primary key, create new
-            else if (table.getPrimaryKeyColumnNames().length < 1) {
-                codedStatements.addLast(
-                    new CodedStatement(
-                        CodedStatement.CODE_ALTER_ADD_PRIMARY,
-                        null,
-                        false,
-                        table.getTableName().toLowerCase(),
-                        cidsClass.getPrimaryKeyField().toLowerCase()));
-            }                                // if key not equals, drop it create new
-            else if (!table.getPrimaryKeyColumnNames()[0].equalsIgnoreCase(
-                            cidsClass.getPrimaryKeyField())) {
-                codedStatements.addLast(
-                    new CodedStatement(
-                        CodedStatement.CODE_ALTER_DROP_CONSTRAINT,
-                        CodedStatement.WARNING_DROP_PRIMARY_KEY,
-                        false,
-                        table.getTableName(),
-                        table.getTableName()
-                                + "_pkey")); // NOI18N
-                codedStatements.addLast(
-                    new CodedStatement(
-                        CodedStatement.CODE_ALTER_ADD_PRIMARY,
-                        CodedStatement.WARNING_NEW_PRIMARY_KEY,
-                        false,
-                        table.getTableName().toLowerCase(),
-                        cidsClass.getPrimaryKeyField().toLowerCase()));
-            }
-            if (!codedStatements.isEmpty()) {
-                final Statement[] stmts = codedStatements.toArray(new Statement[codedStatements.size()]);
-                createGroup = new StatementGroup(stmts, true);
-                createGroup.setDescription(
-                    MessageFormat.format(
-                        descBundle.getString(StatementGroup.GROUP_DESC_PRIM_KEY_FIT),
-                        table.getTableName()));
-                createGroup.setTableName(table.getTableName());
-                createGroup.setColumnName(cidsClass.getPrimaryKeyField().toLowerCase());
-            }
-        }
-        // npe is thrown when c.getPrimaryKeyField() returns null and method will be
-        // accessed from returning value. So then the primary key is missing
-        catch (final NullPointerException npe) {
+        if (cidsClass.getPrimaryKeyField() == null) {
             throw new ScriptGeneratorException(
                 exceptionBundle.getString(
                     DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_MISSING_PRIMKEY_FIELD),
                 cidsClass.getTableName(),
-                npe);
+                null);
         }
+        if (!containsPrimkeyAttr(cidsClass)) {
+            throw new ScriptGeneratorException(
+                exceptionBundle.getString(
+                    DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NOT_FOUND),
+                table.getTableName(),
+                cidsClass.getPrimaryKeyField().toLowerCase(),
+                null);
+        }
+        if (isPrimkeyAttrOptional(cidsClass)) {
+            throw new ScriptGeneratorException(
+                exceptionBundle.getString(
+                    DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NOT_NULL),
+                table.getTableName(),
+                cidsClass.getPrimaryKeyField().toLowerCase(),
+                null);
+        }
+        if (!isPrimkeyAttrInteger(cidsClass)) {
+            throw new ScriptGeneratorException(
+                exceptionBundle.getString(
+                    DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_NOT_INTEGER),
+                table.getTableName(),
+                cidsClass.getPrimaryKeyField().toLowerCase(),
+                null);
+        }
+        if (!sequenceExists(cidsClass.getTableName() + "_seq")) { // NOI18N
+            if (isTableEmpty(cidsClass.getTableName())) {
+                codedStatements.addFirst(
+                    new CodedStatement(
+                        CodedStatement.CODE_CREATE_SEQUENCE,
+                        null,
+                        false,
+                        cidsClass.getTableName().toLowerCase()
+                                + "_seq",                         // NOI18N
+                        "1"));                                    // NOI18N
+            } else {
+                codedStatements.addFirst(
+                    new CodedStatement(
+                        CodedStatement.CODE_SELECT_SETVAL_MAX,
+                        null,
+                        false,
+                        cidsClass.getTableName().toLowerCase(),
+                        cidsClass.getPrimaryKeyField().toLowerCase(),
+                        cidsClass.getTableName().toLowerCase()
+                                + "_seq"));                       // NOI18N
+                codedStatements.addFirst(
+                    new CodedStatement(
+                        CodedStatement.CODE_CREATE_SEQUENCE,
+                        null,
+                        false,
+                        cidsClass.getTableName().toLowerCase()
+                                + "_seq",                         // NOI18N
+                        "1"));                                    // NOI18N
+            }
+        }
+        // composite primary key, drop it and create new
+        if (table.getPrimaryKeyColumnNames().length > 1) {
+            codedStatements.addLast(
+                new CodedStatement(
+                    CodedStatement.CODE_ALTER_DROP_CONSTRAINT,
+                    null,
+                    false,
+                    table.getTableName(),
+                    table.getTableName()
+                            + "_pkey")); // NOI18N
+            codedStatements.addLast(
+                new CodedStatement(
+                    CodedStatement.CODE_ALTER_ADD_PRIMARY,
+                    null,
+                    false,
+                    table.getTableName().toLowerCase(),
+                    cidsClass.getPrimaryKeyField().toLowerCase()));
+        }
+        // no primary key, create new
+        else if (table.getPrimaryKeyColumnNames().length < 1) {
+            codedStatements.addLast(
+                new CodedStatement(
+                    CodedStatement.CODE_ALTER_ADD_PRIMARY,
+                    null,
+                    false,
+                    table.getTableName().toLowerCase(),
+                    cidsClass.getPrimaryKeyField().toLowerCase()));
+        }                                // if key not equals, drop it create new
+        else if (!table.getPrimaryKeyColumnNames()[0].equalsIgnoreCase(
+                        cidsClass.getPrimaryKeyField())) {
+            codedStatements.addLast(
+                new CodedStatement(
+                    CodedStatement.CODE_ALTER_DROP_CONSTRAINT,
+                    CodedStatement.WARNING_DROP_PRIMARY_KEY,
+                    false,
+                    table.getTableName(),
+                    table.getTableName()
+                            + "_pkey")); // NOI18N
+            codedStatements.addLast(
+                new CodedStatement(
+                    CodedStatement.CODE_ALTER_ADD_PRIMARY,
+                    CodedStatement.WARNING_NEW_PRIMARY_KEY,
+                    false,
+                    table.getTableName().toLowerCase(),
+                    cidsClass.getPrimaryKeyField().toLowerCase()));
+        }
+        if (!codedStatements.isEmpty()) {
+            final Statement[] stmts = codedStatements.toArray(new Statement[codedStatements.size()]);
+            createGroup = new StatementGroup(stmts, true);
+            createGroup.setDescription(
+                MessageFormat.format(
+                    descBundle.getString(StatementGroup.GROUP_DESC_PRIM_KEY_FIT),
+                    table.getTableName()));
+            createGroup.setTableName(table.getTableName());
+            createGroup.setColumnName(cidsClass.getPrimaryKeyField().toLowerCase());
+        }
+
         return createGroup;
     }
 

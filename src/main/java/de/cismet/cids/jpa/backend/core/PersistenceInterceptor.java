@@ -82,14 +82,14 @@ public class PersistenceInterceptor implements MethodInterceptor {
                 LOG.debug(message);
             }
             return ret;
-        } catch (final Throwable t) {
+        } catch (final Exception e) {
             // retrieve wrapped exception
-            final Throwable toThrow = (t.getCause() == null) ? t : t.getCause();
+            final Throwable toThrow = (e.getCause() == null) ? e : e.getCause();
             // TODO: maybe do not log with level ERROR if t is instance of
             // NoResultException
             try {
                 cleanup(method, toThrow);
-            } catch (final Throwable ex) {
+            } catch (final Exception ex) {
                 // do nothing since cleanup already handles logging
                 LOG.warn("An error occured during cleanup operation", ex); // NOI18N
             }
@@ -105,8 +105,8 @@ public class PersistenceInterceptor implements MethodInterceptor {
                 Throwable cause = toThrow;
                 while (cause != null) {
                     if (cause instanceof SQLException) {
-                        final SQLException e = (SQLException)cause;
-                        LOG.error("next Exception: " + e.getNextException(), e.getNextException()); // NOI18N
+                        final SQLException sqle = (SQLException)cause;
+                        LOG.error("next Exception: " + sqle.getNextException(), sqle.getNextException()); // NOI18N
                     }
                     cause = cause.getCause();
                 }
@@ -180,17 +180,17 @@ public class PersistenceInterceptor implements MethodInterceptor {
             } else {
                 em.getTransaction().rollback();
             }
-        } catch (final Throwable tw) {
-            LOG.error("cleanup failed: method=" + m.getDeclaringClass().getCanonicalName() + "." + m.getName(), tw); // NOI18N
-            Throwable cause = tw;
+        } catch (final Exception e) {
+            LOG.error("cleanup failed: method=" + m.getDeclaringClass().getCanonicalName() + "." + m.getName(), e); // NOI18N
+            Throwable cause = e;
             while (cause != null) {
                 if (cause instanceof SQLException) {
-                    final SQLException e = (SQLException)cause;
-                    LOG.error("next Exception: " + e.getNextException(), e.getNextException());                      // NOI18N
+                    final SQLException sqle = (SQLException)cause;
+                    LOG.error("next Exception: " + sqle.getNextException(), sqle.getNextException());               // NOI18N
                 }
                 cause = cause.getCause();
             }
-            throw tw;
+            throw e;
         } finally {
             em.clear();
             em.close();

@@ -28,14 +28,14 @@ import javax.persistence.Query;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.CatalogService;
-import de.cismet.cids.jpa.entity.catalog.*;
+import de.cismet.cids.jpa.entity.catalog.CatLink;
+import de.cismet.cids.jpa.entity.catalog.CatNode;
 import de.cismet.cids.jpa.entity.cidsclass.Attribute;
-import de.cismet.cids.jpa.entity.common.*;
+import de.cismet.cids.jpa.entity.common.CommonEntity;
+import de.cismet.cids.jpa.entity.common.Domain;
 import de.cismet.cids.jpa.entity.permission.NodePermission;
 
 import de.cismet.diff.db.DatabaseConnection;
-
-import static de.cismet.diff.db.DatabaseConnection.*;
 
 /**
  * DOCUMENT ME!
@@ -129,9 +129,9 @@ public class CatalogBackend implements CatalogService {
                 }
             }
         } finally {
-            closeResultSet(set);
-            closeStatement(stmt);
-            closeConnection(con);
+            DatabaseConnection.closeResultSet(set);
+            DatabaseConnection.closeStatement(stmt);
+            DatabaseConnection.closeConnection(con);
         }
         return null;
     }
@@ -429,14 +429,14 @@ public class CatalogBackend implements CatalogService {
         Statement stmt = null;
         ResultSet set = null;
         try {
-            con = getConnection(provider.getRuntimeProperties());
+            con = DatabaseConnection.getConnection(provider.getRuntimeProperties());
             stmt = con.createStatement();
             set = stmt.executeQuery("SELECT DISTINCT id_from FROM cs_cat_link"); // NOI18N
         } catch (final Exception ex) {
             LOG.error("could not fetch nonLeafCache", ex);                       // NOI18N
-            closeResultSet(set);
-            closeStatement(stmt);
-            closeConnection(con);
+            DatabaseConnection.closeResultSet(set);
+            DatabaseConnection.closeStatement(stmt);
+            DatabaseConnection.closeConnection(con);
             return null;
         }
 
@@ -449,9 +449,9 @@ public class CatalogBackend implements CatalogService {
             LOG.error("could not build non leaf node id cache", ex); // NOI18N
             return null;
         } finally {
-            closeResultSet(set);
-            closeStatement(stmt);
-            closeConnection(con);
+            DatabaseConnection.closeResultSet(set);
+            DatabaseConnection.closeStatement(stmt);
+            DatabaseConnection.closeConnection(con);
         }
 
         return nonLeafCache = ret;

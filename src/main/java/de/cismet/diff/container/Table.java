@@ -7,6 +7,7 @@
 ****************************************************/
 package de.cismet.diff.container;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 
@@ -46,7 +47,7 @@ public class Table {
                 exceptionBundle.getString(DiffAccessor.ILLEGAL_ARGUMENT_EXCEPTION_COLUMNS_NULL_OR_EMPTY));
         }
         this.tableName = tableName;
-        this.columns = columns;
+        this.columns = Arrays.copyOf(columns, columns.length);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -66,7 +67,7 @@ public class Table {
      * @return  DOCUMENT ME!
      */
     public TableColumn[] getColumns() {
-        return columns;
+        return Arrays.copyOf(columns, columns.length);
     }
 
     /**

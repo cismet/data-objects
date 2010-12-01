@@ -109,7 +109,7 @@ public final class Backend implements
     }
 
     @Override
-    public void delete(List<CommonEntity> entities) {
+    public void delete(final List<CommonEntity> entities) {
         commonBackend.delete(entities);
     }
 

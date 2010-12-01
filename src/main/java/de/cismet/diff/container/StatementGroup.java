@@ -45,7 +45,7 @@ public class StatementGroup {
      */
     public StatementGroup(final Statement[] statements, final boolean transaction) {
         this.transaction = transaction;
-        this.statements = statements;
+        this.statements = Arrays.copyOf(statements, statements.length);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -65,7 +65,7 @@ public class StatementGroup {
      * @param  statements  DOCUMENT ME!
      */
     public void setStatements(final Statement[] statements) {
-        this.statements = statements;
+        this.statements = Arrays.copyOf(statements, statements.length);
     }
 
     /**
