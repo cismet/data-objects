@@ -7,12 +7,15 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.core;
 
+import com.mchange.v1.util.ClosableResource;
+
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -42,6 +45,9 @@ public final class PersistenceProvider implements CommonService {
     private final transient Properties runtimeProperties;
     private transient boolean closed;
 
+    // the lock shall be used to synchronize the closed state
+    private final transient ReentrantReadWriteLock rwLock;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -52,6 +58,8 @@ public final class PersistenceProvider implements CommonService {
      * @throws  IllegalArgumentException  if the runtime properties are null or some essential properties are missing
      */
     public PersistenceProvider(final Properties runtimeProperties) {
+        rwLock = new ReentrantReadWriteLock();
+
         closed = false;
         if (runtimeProperties == null) {
             throw new IllegalArgumentException("properties may not be null");                                 // NOI18N
@@ -71,10 +79,66 @@ public final class PersistenceProvider implements CommonService {
      */
     @Override
     public void close() {
-        closed = true;
-        emf.close();
-        if (LOG.isInfoEnabled()) {
-            LOG.info("PersistenceProvider closed: " + this); // NOI18N
+        rwLock.readLock().lock();
+        if (closed) {
+            rwLock.readLock().unlock();
+            return;
+        } else {
+            rwLock.readLock().unlock();
+            rwLock.writeLock().lock();
+            try {
+                closed = true;
+                emf.close();
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("PersistenceProvider closed: " + this); // NOI18N
+                }
+            } finally {
+                rwLock.writeLock().unlock();
+            }
+        }
+    }
+
+    /**
+     * This method shall be used to close resources that depend on the opened state of this provider.
+     *
+     * @param   resource  the resource to be closed
+     *
+     * @throws  Exception              any exception that occurs during the close operation of the given resource
+     * @throws  IllegalStateException  if the provider is already closed
+     */
+    // there is no choice but to obay the interface specification
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
+    public void monitorClose(final ClosableResource resource) throws Exception {
+        rwLock.readLock().lock();
+
+        try {
+            if (closed) {
+                throw new IllegalStateException("provider already closed, cannot monitor close resource: " + resource); // NOI18N
+            }
+
+            // we won't close ourself
+            if (resource == this) {
+                return;
+            } else {
+                resource.close();
+            }
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean isClosed() {
+        try {
+            rwLock.readLock().lock();
+
+            return closed;
+        } finally {
+            rwLock.readLock().unlock();
         }
     }
 
@@ -96,11 +160,17 @@ public final class PersistenceProvider implements CommonService {
      *                                 call to {@link #close()}).
      */
     public EntityManager getEntityManager() {
-        if (closed) {
-            throw new IllegalStateException("Provider already closed"); // NOI18N
-        }
+        try {
+            rwLock.readLock().lock();
 
-        return em.get();
+            if (closed) {
+                throw new IllegalStateException("Provider already closed"); // NOI18N
+            }
+
+            return em.get();
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
     /**
@@ -151,24 +221,26 @@ public final class PersistenceProvider implements CommonService {
 
             // TODO: move to runtime.properties
             map.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider"); // NOI18N
-            map.put("c3p0.initialPoolSize", "10");                                                             // NOI18N
-            map.put("c3p0.minPoolSize", "5");                                                                  // NOI18N
-            map.put("c3p0.maxPoolSize", "50");                                                                 // NOI18N
-            map.put("c3p0.checkoutTimeout", "1000");                                                           // NOI18N
-            map.put("c3p0.maxStatements", "500");                                                              // NOI18N
-            map.put("c3p0.maxIdleTimeExcessConnections", "30");                                                // NOI18N
-            map.put("c3p0.idleConnectionTestPeriod", "300");                                                   // NOI18N
-            map.put("c3p0.acquireIncrement", "5");                                                             // NOI18N
-            map.put("c3p0.numHelperThreads", "5");                                                             // NOI18N
-            map.put("hibernate.show_sql", "false");                                                            // NOI18N
+            map.put("c3p0.initialPoolSize", "5");                                                              // NOI18N
+//            map.put("c3p0.minPoolSize", "5");                                                                  // NOI18N
+            map.put("c3p0.min_size", "5"); // NOI18N
+//            map.put("c3p0.maxPoolSize", "10");                                                                 // NOI18N
+            map.put("c3p0.max_size", "10");                                                                 // NOI18N
+            map.put("c3p0.checkoutTimeout", "1000");                                                        // NOI18N
+            map.put("c3p0.maxStatements", "500");                                                           // NOI18N
+            map.put("c3p0.maxIdleTimeExcessConnections", "5");                                              // NOI18N
+            map.put("c3p0.idleConnectionTestPeriod", "300");                                                // NOI18N
+            map.put("c3p0.acquireIncrement", "2");                                                          // NOI18N
+            map.put("c3p0.numHelperThreads", "5");                                                          // NOI18N
+            map.put("hibernate.show_sql", "false");                                                         // NOI18N
             if (LOG.isDebugEnabled()) {
-                LOG.debug("building property map: end");                                                       // NOI18N
+                LOG.debug("building property map: end");                                                    // NOI18N
             }
             return map;
         } catch (final Exception e) {
-            LOG.error("could not set property hibernate.connection.url, will use environment settings", e);    // NOI18N
+            LOG.error("could not set property hibernate.connection.url, will use environment settings", e); // NOI18N
             throw new IllegalArgumentException(
-                "connection properties could not be set, probably erroneous runtime properties",               // NOI18N
+                "connection properties could not be set, probably erroneous runtime properties",            // NOI18N
                 e);
         }
     }

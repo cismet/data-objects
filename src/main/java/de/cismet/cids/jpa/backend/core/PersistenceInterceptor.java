@@ -56,6 +56,8 @@ public class PersistenceInterceptor implements MethodInterceptor {
 
     //~ Methods ----------------------------------------------------------------
 
+    // it is only thrown for tracing purposes
+    @SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
     @Override
     public Object invoke(final MethodInvocation mi) throws Throwable {
         final Method method = mi.getMethod();
@@ -66,7 +68,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
                         method.getDeclaringClass().getCanonicalName(),
                         method.getName(),
                         argsToString(mi.getArguments()));
-                LOG.debug(message);
+                LOG.debug(message, new Throwable("trace")); // NOI18N
             }
 
             injectManager(method);

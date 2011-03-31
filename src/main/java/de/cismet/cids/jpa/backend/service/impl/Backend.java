@@ -281,8 +281,8 @@ public final class Backend implements
     // there is no choice but to obay the interface specification
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     public void close() throws Exception {
-        configAttrService.close();
-        metaBackend.close();
+        provider.monitorClose(configAttrService);
+        provider.monitorClose(metaBackend);
         // it should be enough to close the persistence provider
         provider.close();
     }

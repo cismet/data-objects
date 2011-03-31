@@ -78,10 +78,11 @@ public class MaintenanceBackend {
         }
         Connection con = null;
         ResultSet set = null;
+        SimpleTablesDataProvider provider = null;
         try {
             con = DatabaseConnection.getConnection(properties);
             final DefaultInspectionResult result = new DefaultInspectionResult();
-            final SimpleTablesDataProvider provider = new SimpleTablesDataProvider(properties);
+            provider = new SimpleTablesDataProvider(properties);
             // first columnname then name of the table the key possibly points at
             final Map<String, String> param = new HashMap<String, String>();
             final List<String> colnames = new ArrayList<String>();
@@ -168,13 +169,22 @@ public class MaintenanceBackend {
                             "MaintenanceBackend.resultmessage.columnsWithFKWithoutErrorsFound")); // NOI18N
                 }
             }
+
             return result;
         } catch (final SQLException ex) {
-            LOG.error("error while investigating database", ex);                                  // NOI18N
+            LOG.error("error while investigating database", ex);                       // NOI18N
         } finally {
             DatabaseConnection.closeResultSet(set);
             DatabaseConnection.closeConnection(con);
+            if (provider != null) {
+                try {
+                    provider.close();
+                } catch (final Exception e) {
+                    LOG.warn("cannot close SimpleTablesDataProvider: " + provider, e); // NOI18N
+                }
+            }
         }
+
         return null;
     }
 }
