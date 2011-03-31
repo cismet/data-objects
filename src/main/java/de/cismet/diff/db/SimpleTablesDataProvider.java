@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.diff.db;
 
+import com.mchange.v1.util.ClosableResource;
+
 import org.apache.log4j.Logger;
 
 import java.sql.Connection;
@@ -29,7 +31,7 @@ import de.cismet.diff.container.TableColumn;
  * @author   Martin Scholl
  * @version  1.0 2007-03-08
  */
-public class SimpleTablesDataProvider {
+public class SimpleTablesDataProvider implements ClosableResource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -178,5 +180,12 @@ public class SimpleTablesDataProvider {
                 set.close();
             }
         }
+    }
+
+    // there is no choice but to obay the interface specification
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
+    @Override
+    public void close() throws Exception {
+        DatabaseConnection.closeConnection(con);
     }
 }

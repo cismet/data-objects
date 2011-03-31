@@ -78,6 +78,7 @@ public class CatalogBackend implements CatalogService {
         if (!node.getNodeType().equals(CatNode.Type.OBJECT.getType())) {
             return null;
         }
+
         final Map<String, String> objInfo = new HashMap<String, String>();
         final Map<String, String> tmp = new HashMap<String, String>();
         try {
@@ -118,6 +119,7 @@ public class CatalogBackend implements CatalogService {
 
             set.close();
             con.commit();
+
             return objInfo;
         } catch (final SQLException ex) {
             LOG.error("error during object information fetching", ex); // NOI18N
@@ -133,6 +135,7 @@ public class CatalogBackend implements CatalogService {
             DatabaseConnection.closeStatement(stmt);
             DatabaseConnection.closeConnection(con);
         }
+
         return null;
     }
 

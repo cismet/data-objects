@@ -162,18 +162,31 @@ public class DiffAccessor {
      * @throws  ScriptGeneratorException  if statements could not be generated for any reason
      */
     public PSQLStatementGroup[] getStatementGroups() throws TableLoaderException, ScriptGeneratorException {
-        long time1 = System.currentTimeMillis();
-        final TableLoader t = new TableLoader(runtime, backend);
-        time1 = System.currentTimeMillis() - time1;
-        long time2 = System.currentTimeMillis();
-        final ScriptGenerator sg = new ScriptGenerator(runtime, t, storage);
-        final PSQLStatementGroup[] s = sg.getStatementGroups();
-        time2 = System.currentTimeMillis() - time2;
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Loaded tables in '" + time1 + "' ms.");        // NOI18N
-            LOG.info("Generated statements in '" + time2 + "' ms."); // NOI18N
+        TableLoader t = null;
+        try {
+            long time1 = System.currentTimeMillis();
+            t = new TableLoader(runtime, backend);
+            time1 = System.currentTimeMillis() - time1;
+            long time2 = System.currentTimeMillis();
+            final ScriptGenerator sg = new ScriptGenerator(runtime, t, storage);
+            final PSQLStatementGroup[] s = sg.getStatementGroups();
+            time2 = System.currentTimeMillis() - time2;
+
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Loaded tables in '" + time1 + "' ms.");        // NOI18N
+                LOG.info("Generated statements in '" + time2 + "' ms."); // NOI18N
+            }
+
+            return s;
+        } finally {
+            if (t != null) {
+                try {
+                    t.close();
+                } catch (final Exception e) {
+                    LOG.warn("cannot close tableloader: " + t, e); // NOI18N
+                }
+            }
         }
-        return s;
     }
 
     /**

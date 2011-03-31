@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.diff.builder;
 
+import com.mchange.v1.util.ClosableResource;
+
 import java.sql.SQLException;
 
 import java.util.Arrays;
@@ -32,16 +34,16 @@ import de.cismet.diff.exception.TableLoaderException;
  * @author   Martin Scholl
  * @version  1.0 2007-03-13
  */
-public class TableLoader {
+public class TableLoader implements ClosableResource {
 
     //~ Instance fields --------------------------------------------------------
 
     private transient CidsClass[] classes;
     private transient Table[] tables;
 
-    private transient Backend b;
-    private transient Properties runtime;
-    private transient SimpleTablesDataProvider data;
+    private final transient Backend backend;
+    private final transient Properties runtime;
+    private final transient SimpleTablesDataProvider data;
 
     private final transient ResourceBundle exceptionBundle = ResourceBundle.getBundle(
             DiffAccessor.EXCEPTION_RESOURCE_BASE_NAME);
@@ -70,7 +72,7 @@ public class TableLoader {
      *                                tables
      */
     public TableLoader(final Properties runtime, final Backend b) throws TableLoaderException {
-        this.b = b;
+        this.backend = b;
         this.runtime = runtime;
         try {
             data = new SimpleTablesDataProvider(runtime);
@@ -140,23 +142,28 @@ public class TableLoader {
     /**
      * Loads the classes entries in the "cs_class" system table of the database specified in the runtime properties. If
      * the backend has not been set while instatiation, a new <code>de.cismet.cids.dataobjects.dbbackend.Backend</code>
-     * instance will be created using the "runtime.properties".
+     * instance will be created using the "runtime.properties". The created backend instance will be closed again
+     * immediately.
      *
      * @throws  TableLoaderException  DOCUMENT ME!
      */
     private void loadClasses() throws TableLoaderException {
         try {
-            if (b == null) {
-                b = new Backend(runtime);
+            final List<CidsClass> l;
+            if (backend == null) {
+                final Backend b = new Backend(runtime);
+                l = b.getAllEntities(CidsClass.class);
+                b.close();
+            } else {
+                l = backend.getAllEntities(CidsClass.class);
             }
-            final List<CidsClass> l = b.getAllEntities(CidsClass.class);
+
             classes = new CidsClass[l.size()];
             classes = l.toArray(classes);
         } catch (final Exception ex) {
             classes = null;
             throw new TableLoaderException(
-                exceptionBundle.getString(
-                    DiffAccessor.TABLE_LOADER_EXCPETION_TABLE_LOAD_FAILED),
+                exceptionBundle.getString(DiffAccessor.TABLE_LOADER_EXCPETION_TABLE_LOAD_FAILED),
                 ex);
         }
     }
@@ -176,8 +183,7 @@ public class TableLoader {
         } catch (final SQLException ex) {
             tables = null;
             throw new TableLoaderException(
-                exceptionBundle.getString(
-                    DiffAccessor.TABLE_LOADER_EXCPETION_TABLE_LOAD_FAILED),
+                exceptionBundle.getString(DiffAccessor.TABLE_LOADER_EXCPETION_TABLE_LOAD_FAILED),
                 ex);
         }
     }
@@ -189,5 +195,12 @@ public class TableLoader {
      */
     public void reload() throws TableLoaderException {
         load();
+    }
+
+    // there is no choice but to obay the interface specification
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
+    @Override
+    public void close() throws Exception {
+        data.close();
     }
 }
