@@ -18,6 +18,7 @@ import java.util.Properties;
 
 import de.cismet.cids.jpa.backend.core.PersistenceInterceptor;
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
+import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.backend.service.CatalogService;
 import de.cismet.cids.jpa.backend.service.ClassService;
 import de.cismet.cids.jpa.backend.service.CommonService;
@@ -52,13 +53,7 @@ import de.cismet.cids.util.ProgressListener;
 //J-
 // This is an Accessor/Facade class so there simply are many imports
 @SuppressWarnings("PMD.ExcessiveImports")
-public final class Backend implements
-        ClassService,
-        UserService,
-        CatalogService,
-        MetaService,
-        CommonService,
-        ConfigAttrService {
+public final class BackendImpl implements Backend {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -74,11 +69,11 @@ public final class Backend implements
 
     // <editor-fold defaultstate="collapsed" desc=" Part: Constructors ">
     /**
-     * Creates a new instance of Backend.
+     * Creates a new instance of BackendImpl.
      *
      * @param  properties  DOCUMENT ME!
      */
-    public Backend(final Properties properties) {
+    public BackendImpl(final Properties properties) {
         provider = new PersistenceProvider(properties);
         final ClassBackend classB = new ClassBackend(provider);
         final UserBackend userB = new UserBackend(provider);
@@ -276,7 +271,7 @@ public final class Backend implements
 
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc=" Part: Backend operations ">
+    // <editor-fold defaultstate="collapsed" desc=" Part: BackendImpl operations ">
     @Override
     // there is no choice but to obay the interface specification
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")

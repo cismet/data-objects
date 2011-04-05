@@ -7,6 +7,7 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
+import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrValue;
@@ -63,7 +64,7 @@ public class ConfigAttrBackendTest {
     public static void setUpClass() throws Exception {
         runtimeProperties = new Properties();
         runtimeProperties.load(ConfigAttrBackendTest.class.getResourceAsStream("runtime.properties")); // NOI18N
-        backend = new Backend(runtimeProperties);
+        backend = BackendFactory.getInstance().getBackend(runtimeProperties);
     }
 
     /**

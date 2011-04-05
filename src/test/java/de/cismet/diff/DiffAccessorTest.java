@@ -11,6 +11,8 @@
  */
 package de.cismet.diff;
 
+import de.cismet.cids.jpa.backend.service.Backend;
+import de.cismet.cids.jpa.backend.service.impl.BackendFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -23,7 +25,6 @@ import java.io.FileInputStream;
 
 import java.util.Properties;
 
-import de.cismet.cids.jpa.backend.service.impl.Backend;
 
 import de.cismet.diff.container.PSQLStatementGroup;
 
@@ -126,7 +127,7 @@ public class DiffAccessorTest {
                     new FileInputStream(
                         "/Users/mscholl/cvswork6/testauslieferung/"
                         + "cidsDistribution/abf_dev_20090320/runtime.properties")));
-            final Backend b = new Backend(prop);
+            final Backend b = BackendFactory.getInstance().getBackend(prop);
             final DiffAccessor da = new DiffAccessor(prop, b);
             final PSQLStatementGroup[] grp = da.getStatementGroups();
             System.out.println(grp.length);

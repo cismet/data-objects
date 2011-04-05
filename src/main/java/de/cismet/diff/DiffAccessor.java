@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import java.util.Properties;
 
-import de.cismet.cids.jpa.backend.service.impl.Backend;
+import de.cismet.cids.jpa.backend.service.Backend;
 
 import de.cismet.diff.builder.ScriptGenerator;
 import de.cismet.diff.builder.TableLoader;
@@ -101,7 +101,7 @@ public class DiffAccessor {
 
     /**
      * Creates a new instance of DiffAccessor by calling the constructor with 'null' as <code>
-     * de.cismet.cids.dataobjects.dbbackend.Backend</code> b.
+     * de.cismet.cids.dataobjects.dbbackend.BackendImpl</code> b.
      *
      * @param  runtime  DOCUMENT ME!
      */
@@ -110,14 +110,14 @@ public class DiffAccessor {
     }
 
     /**
-     * Creates a new instance of DiffAccessor. The Backend b shall be an instance of <code>
-     * de.cismet.cids.dataobjects.dbbackend.Backend</code>. It is used to load several data to provide the desired
-     * functionality. If you pass 'null' as an argument, a new Backend instance will be created, when needed. If you
-     * already use a Backend instance, you should provide it, because creating a new one will take several seconds an so
-     * decreases speed of some methods.
+     * Creates a new instance of DiffAccessor. The BackendImpl b shall be an instance of <code>
+     * de.cismet.cids.dataobjects.dbbackend.BackendImpl</code>. It is used to load several data to provide the desired
+     * functionality. If you pass 'null' as an argument, a new BackendImpl instance will be created, when needed. If you
+     * already use a BackendImpl instance, you should provide it, because creating a new one will take several seconds
+     * an so decreases speed of some methods.
      *
      * @param   runtime  DOCUMENT ME!
-     * @param   b        <code>de.cismet.cids.dataobjects.dbbackend.Backend</code> instance may be null
+     * @param   b        <code>de.cismet.cids.dataobjects.dbbackend.BackendImpl</code> instance may be null
      *
      * @throws  IllegalArgumentException  NullPointerException DOCUMENT ME!
      */

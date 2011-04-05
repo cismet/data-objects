@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/plugins/maven-changes-plugin/xsd/changes-1.0.0.xsd">
     <body>
-        <release version="2.3" date="2011-03-31" description="Subsequent release" >
-            <action dev="Martin Scholl" type="fix" issue="2023">Connection leak in data objects</action>
-            <action dev="Martin Scholl" type="fix" issue="2024">Unreliable cleanup for config attr service</action>
-            <action dev="Martin Scholl" type="update" issue="2025">pom update</action>
+        <release version="2.4" date="future" description="Subsequent release" >
+            <action dev="Martin Scholl" type="update" issue="2037">Extract Backend interface</action>
         </release>
     </body>
 </document>

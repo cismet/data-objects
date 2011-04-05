@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import de.cismet.cids.jpa.backend.service.impl.Backend;
+import de.cismet.cids.jpa.backend.service.Backend;
+import de.cismet.cids.jpa.backend.service.impl.BackendFactory;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 
 import de.cismet.diff.DiffAccessor;
@@ -29,7 +30,7 @@ import de.cismet.diff.exception.TableLoaderException;
 
 /**
  * This class allows you to retrieve <code>Table</code> and <code>CidsClass</code> instances from the database the
- * underlying <code>SimpleTablesDataProvider</code> and <code>Backend</code> use.
+ * underlying <code>SimpleTablesDataProvider</code> and <code>BackendImpl</code> use.
  *
  * @author   Martin Scholl
  * @version  1.0 2007-03-13
@@ -141,9 +142,9 @@ public class TableLoader implements ClosableResource {
 
     /**
      * Loads the classes entries in the "cs_class" system table of the database specified in the runtime properties. If
-     * the backend has not been set while instatiation, a new <code>de.cismet.cids.dataobjects.dbbackend.Backend</code>
-     * instance will be created using the "runtime.properties". The created backend instance will be closed again
-     * immediately.
+     * the backend has not been set while instatiation, a new <code>
+     * de.cismet.cids.dataobjects.dbbackend.BackendImpl</code> instance will be created using the "runtime.properties".
+     * The created backend instance will be closed again immediately.
      *
      * @throws  TableLoaderException  DOCUMENT ME!
      */
@@ -151,7 +152,7 @@ public class TableLoader implements ClosableResource {
         try {
             final List<CidsClass> l;
             if (backend == null) {
-                final Backend b = new Backend(runtime);
+                final Backend b = BackendFactory.getInstance().getBackend(runtime);
                 l = b.getAllEntities(CidsClass.class);
                 b.close();
             } else {
