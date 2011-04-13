@@ -33,13 +33,13 @@ public class PersistenceInterceptor implements MethodInterceptor {
 
     private static final transient Logger LOG = Logger.getLogger(PersistenceInterceptor.class);
 
-    private static final String INV_FAIL_TEMPLATE = "invokation failed: method={0}.{1} | args={2}";     // NOI18N
-    private static final String INV_SUCC_TEMPLATE = "invokation succeeded: method={0}.{1} | args={2}";  // NOI18N
-    private static final String INV_STARTED_TEMPLATE = "invokation started: method={0}.{1} | args={2}"; // NOI18N
+    public static final String INV_FAIL_TEMPLATE = "invokation failed: method={0}.{1} | args={2}";     // NOI18N
+    public static final String INV_SUCC_TEMPLATE = "invokation succeeded: method={0}.{1} | args={2}";  // NOI18N
+    public static final String INV_STARTED_TEMPLATE = "invokation started: method={0}.{1} | args={2}"; // NOI18N
 
     //~ Instance fields --------------------------------------------------------
 
-    private final transient PersistenceProvider provider;
+    private final transient PersistenceProviderImpl provider;
     private final transient ThreadLocal<Method> methodHolder;
 
     //~ Constructors -----------------------------------------------------------
@@ -49,7 +49,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
      *
      * @param  provider  DOCUMENT ME!
      */
-    public PersistenceInterceptor(final PersistenceProvider provider) {
+    public PersistenceInterceptor(final PersistenceProviderImpl provider) {
         this.provider = provider;
         this.methodHolder = new ThreadLocal<Method>();
     }
@@ -73,7 +73,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
 
             injectManager(method);
 
-            final Object ret = method.invoke(mi.getThis(), mi.getArguments());
+            final Object ret = mi.proceed();
             cleanup(method, null);
             if (LOG.isDebugEnabled()) {
                 final String message = MessageFormat.format(
@@ -83,6 +83,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
                         argsToString(mi.getArguments()));
                 LOG.debug(message);
             }
+
             return ret;
         } catch (final Exception e) {
             // retrieve wrapped exception
@@ -124,7 +125,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
      *
      * @return  DOCUMENT ME!
      */
-    private String argsToString(final Object[] args) {
+    public static String argsToString(final Object[] args) {
         if ((args == null) || (args.length == 0)) {
             return ""; // NOI18N
         }
