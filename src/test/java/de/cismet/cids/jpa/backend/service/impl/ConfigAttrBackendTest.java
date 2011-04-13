@@ -7,10 +7,6 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
-import de.cismet.cids.jpa.backend.service.Backend;
-import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
-import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
-import de.cismet.cids.jpa.entity.configattr.ConfigAttrValue;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -22,13 +18,17 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import java.util.List;
 import java.util.Properties;
+
+import de.cismet.cids.jpa.backend.service.Backend;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrValue;
 
 import de.cismet.diff.db.DatabaseConnection;
 
 import de.cismet.tools.ScriptRunner;
-
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -62,9 +62,20 @@ public class ConfigAttrBackendTest {
      */
     @BeforeClass
     public static void setUpClass() throws Exception {
+        final Properties p = new Properties();
+        p.put("log4j.appender.Remote", "org.apache.log4j.net.SocketAppender");
+        p.put("log4j.appender.Remote.remoteHost", "localhost");
+        p.put("log4j.appender.Remote.port", "4445");
+        p.put("log4j.appender.Remote.locationInfo", "true");
+        p.put("log4j.rootLogger", "ALL,Remote");
+        p.put("log4j.logger.org.hibernate", "WARN,Remote");
+        p.put("log4j.logger.com.mchange.v2", "WARN,Remote");
+        p.put("log4j.logger.net.sf.ehcache", "WARN,Remote");
+        org.apache.log4j.PropertyConfigurator.configure(p);
+
         runtimeProperties = new Properties();
         runtimeProperties.load(ConfigAttrBackendTest.class.getResourceAsStream("runtime.properties")); // NOI18N
-        backend = BackendFactory.getInstance().getBackend(runtimeProperties);
+        backend = BackendFactory.getInstance().getBackend(runtimeProperties, false);
     }
 
     /**
@@ -149,9 +160,12 @@ public class ConfigAttrBackendTest {
         assertTrue(values.size() == 15);
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     @Ignore
     @Test
-    public void testContains(){
+    public void testContains() {
         System.out.println("TEST " + getCurrentMethodName());
         final List<ConfigAttrEntry> entries = backend.getAllEntities(ConfigAttrEntry.class);
         assertTrue(backend.contains(entries.get(0)));

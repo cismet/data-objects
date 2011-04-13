@@ -7,6 +7,7 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
+import net.sf.ehcache.CacheManager;
 import net.sf.tie.ProxyInjector;
 import net.sf.tie.ext.InterceptionBuilder;
 
@@ -18,10 +19,10 @@ import java.util.Properties;
 
 import de.cismet.cids.jpa.backend.core.PersistenceInterceptor;
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
+import de.cismet.cids.jpa.backend.core.PersistenceProviderImpl;
 import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.backend.service.CatalogService;
 import de.cismet.cids.jpa.backend.service.ClassService;
-import de.cismet.cids.jpa.backend.service.CommonService;
 import de.cismet.cids.jpa.backend.service.ConfigAttrService;
 import de.cismet.cids.jpa.backend.service.MetaService;
 import de.cismet.cids.jpa.backend.service.UserService;
@@ -62,8 +63,8 @@ public final class BackendImpl implements Backend {
     private final transient CatalogService catBackend;
     private final transient MetaService metaBackend;
     private final transient PersistenceProvider provider;
-    private final transient CommonService commonBackend;
     private final transient ConfigAttrService configAttrService;
+    private final transient boolean caching;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -73,22 +74,22 @@ public final class BackendImpl implements Backend {
      *
      * @param  properties  DOCUMENT ME!
      */
-    public BackendImpl(final Properties properties) {
-        provider = new PersistenceProvider(properties);
-        final ClassBackend classB = new ClassBackend(provider);
-        final UserBackend userB = new UserBackend(provider);
-        final CatalogBackend catB = new CatalogBackend(provider);
-        final MetaBackend metaB = new MetaBackend(properties);
-        final ConfigAttrBackend configAttrB = new ConfigAttrBackend(provider);
+    public BackendImpl(final Properties properties, final boolean caching) {
+        this.caching = caching;
+
+        final PersistenceProviderImpl p = new PersistenceProviderImpl(properties, caching);
+
         final InterceptionBuilder builder = new InterceptionBuilder();
-        builder.always(new PersistenceInterceptor(provider));
+        builder.always(new PersistenceInterceptor(p));
+
         final ProxyInjector injector = new ProxyInjector(builder.done());
-        cb = injector.wrapObject(ClassService.class, classB);
-        ub = injector.wrapObject(UserService.class, userB);
-        catBackend = injector.wrapObject(CatalogService.class, catB);
-        metaBackend = injector.wrapObject(MetaService.class, metaB);
-        commonBackend = injector.wrapObject(CommonService.class, provider);
-        configAttrService = injector.wrapObject(ConfigAttrService.class, configAttrB);
+        provider = injector.wrapObject(PersistenceProvider.class, p);
+
+        cb = injector.wrapObject(ClassService.class, new ClassBackend(provider));
+        ub = injector.wrapObject(UserService.class, new UserBackend(provider));
+        catBackend = injector.wrapObject(CatalogService.class, new CatalogBackend(provider));
+        metaBackend = injector.wrapObject(MetaService.class, new MetaBackend(properties));
+        configAttrService = injector.wrapObject(ConfigAttrService.class, new ConfigAttrBackend(provider));
     }
     // </editor-fold>
 
@@ -97,27 +98,27 @@ public final class BackendImpl implements Backend {
     // <editor-fold defaultstate="collapsed" desc=" Part: CommonService">
     @Override
     public <T extends CommonEntity> T store(final T entity) {
-        return commonBackend.store(entity);
+        return provider.store(entity);
     }
 
     @Override
     public void delete(final CommonEntity ce) {
-        commonBackend.delete(ce);
+        provider.delete(ce);
     }
 
     @Override
     public void delete(final List<CommonEntity> entities) {
-        commonBackend.delete(entities);
+        provider.delete(entities);
     }
 
     @Override
     public <T extends CommonEntity> T getEntity(final Class<T> entity, final int id) {
-        return commonBackend.getEntity(entity, id);
+        return provider.getEntity(entity, id);
     }
 
     @Override
     public <T extends CommonEntity> List<T> getAllEntities(final Class<T> entity) {
-        return commonBackend.getAllEntities(entity);
+        return provider.getAllEntities(entity);
     }
 
     /**
@@ -131,7 +132,7 @@ public final class BackendImpl implements Backend {
      */
     @Override
     public <T extends CommonEntity> T getEntity(final Class<T> entity, final String name) {
-        return commonBackend.getEntity(entity, name);
+        return provider.getEntity(entity, name);
     }
 
     /**
@@ -145,7 +146,7 @@ public final class BackendImpl implements Backend {
      */
     @Override
     public <T extends CommonEntity> boolean contains(final Class<T> entity, final String name) {
-        return commonBackend.contains(entity, name);
+        return provider.contains(entity, name);
     }
     // </editor-fold>
 
@@ -281,6 +282,17 @@ public final class BackendImpl implements Backend {
         // it should be enough to close the persistence provider
         provider.close();
     }
+
+    public boolean isCaching() {
+        return caching;
+    }
+
+    public void flushCache(){
+        if(caching){
+            CacheManager.getInstance().clearAll();
+        }
+    }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" Part: ClassrBackend ">

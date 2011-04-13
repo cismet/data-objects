@@ -13,8 +13,6 @@ import java.util.List;
 
 import javax.persistence.NoResultException;
 
-import de.cismet.cids.jpa.backend.core.CacheType;
-import de.cismet.cids.jpa.backend.core.Cached;
 import de.cismet.cids.jpa.entity.common.CommonEntity;
 
 /**
@@ -35,7 +33,6 @@ public interface CommonService extends ClosableResource {
      *
      * @return  the now stored subtype of <code>CommonEntity</code>
      */
-    @Cached(type = CacheType.PUT)
     <T extends CommonEntity> T store(final T entity);
 
     /**
@@ -43,7 +40,6 @@ public interface CommonService extends ClosableResource {
      *
      * @param  ce  the <code>CommonEntity</code> to delete
      */
-    @Cached(type = CacheType.DEL)
     void delete(final CommonEntity ce);
 
     /**
@@ -51,7 +47,6 @@ public interface CommonService extends ClosableResource {
      *
      * @param  entities  the <code>CommonEntity</code>s to delete
      */
-    @Cached(type = CacheType.DEL)
     void delete(final List<CommonEntity> entities);
 
     /**
@@ -66,7 +61,6 @@ public interface CommonService extends ClosableResource {
      *
      * @throws  NoResultException  if no entity of the desired type and with the given <code>id</code> is present
      */
-    @Cached
     <T extends CommonEntity> T getEntity(final Class<T> entity, final int id) throws NoResultException;
 
     /**
@@ -78,7 +72,6 @@ public interface CommonService extends ClosableResource {
      *
      * @return  a <code>List</code> containing all entities of type <code>T</code>, never null.
      */
-    @Cached
     <T extends CommonEntity> List<T> getAllEntities(final Class<T> entity);
 
     /**
@@ -93,7 +86,6 @@ public interface CommonService extends ClosableResource {
      *
      * @throws  NoResultException  if no entity of the desired type and with the given <code>name</code> can be found
      */
-    @Cached
     <T extends CommonEntity> T getEntity(final Class<T> entity, final String name) throws NoResultException;
 
     /**
@@ -105,6 +97,5 @@ public interface CommonService extends ClosableResource {
      *
      * @return  true if an entity of type <code>T</code> with the given <code>name</code> exists, false otherwise
      */
-    @Cached
     <T extends CommonEntity> boolean contains(final Class<T> entity, final String name);
 }

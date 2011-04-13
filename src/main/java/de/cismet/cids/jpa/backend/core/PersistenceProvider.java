@@ -53,6 +53,6 @@ public interface PersistenceProvider extends CommonService {
      *
      * @throws  Exception  any exception that occurs during the close operation of the given resource
      */
-    @SuppressWarnings(value = "PMD.SignatureDeclareThrowsException")
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void monitorClose(final ClosableResource resource) throws Exception;
 }

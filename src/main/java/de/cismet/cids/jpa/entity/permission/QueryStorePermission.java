@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -33,6 +35,7 @@ import de.cismet.cids.jpa.entity.query.QueryStore;
  */
 @Entity
 @Table(name = "cs_query_store_ug_assoc")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class QueryStorePermission extends AbstractPermission implements Serializable {
 
     //~ Instance fields --------------------------------------------------------
@@ -59,6 +62,7 @@ public class QueryStorePermission extends AbstractPermission implements Serializ
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private QueryStore queryStore;
 
     //~ Methods ----------------------------------------------------------------

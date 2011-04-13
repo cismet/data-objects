@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -27,6 +30,7 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
  */
 @Entity
 @Table(name = "cs_java_class")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class JavaClass extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------

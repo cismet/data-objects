@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.query;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -33,6 +35,7 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
  */
 @Entity
 @Table(name = "cs_query_parameter")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class QueryParameter extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------
@@ -75,6 +78,7 @@ public class QueryParameter extends CommonEntity implements Serializable {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Query query;
 
     //~ Methods ----------------------------------------------------------------

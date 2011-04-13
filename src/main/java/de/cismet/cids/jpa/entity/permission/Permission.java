@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -27,6 +30,7 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
  */
 @Entity
 @Table(name = "cs_permission")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Permission extends CommonEntity implements Serializable {
 
     //~ Static fields/initializers ---------------------------------------------

@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.catalog;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -46,6 +48,7 @@ import de.cismet.cids.jpa.entity.permission.Policy;
  */
 @Entity
 @Table(name = "cs_cat_node")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CatNode extends CommonEntity implements Serializable, PermissionAwareEntity {
 
     //~ Instance fields --------------------------------------------------------

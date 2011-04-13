@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -34,6 +36,7 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
  */
 @Entity
 @Table(name = "cs_type")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Type extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------
@@ -64,6 +67,7 @@ public class Type extends CommonEntity implements Serializable {
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private CidsClass cidsClass;
 
     @Column(name = "complex_type")
@@ -81,6 +85,7 @@ public class Type extends CommonEntity implements Serializable {
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private JavaClass editor;
 
     @ManyToOne(
@@ -92,6 +97,7 @@ public class Type extends CommonEntity implements Serializable {
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private JavaClass renderer;
 
     //~ Methods ----------------------------------------------------------------

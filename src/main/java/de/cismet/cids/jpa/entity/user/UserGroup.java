@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.user;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -41,6 +43,7 @@ import de.cismet.cids.jpa.entity.common.Domain;
  */
 @Entity
 @Table(name = "cs_ug")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class UserGroup extends CommonEntity implements Serializable {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -85,6 +88,7 @@ public class UserGroup extends CommonEntity implements Serializable {
         name = "domain",
         nullable = false
     )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Domain domain;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -94,6 +98,7 @@ public class UserGroup extends CommonEntity implements Serializable {
         inverseJoinColumns = { @JoinColumn(name = "usr_id") }
     )
     @Fetch(FetchMode.SUBSELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<User> users;
 
     //~ Constructors -----------------------------------------------------------

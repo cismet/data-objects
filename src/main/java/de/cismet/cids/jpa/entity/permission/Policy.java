@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,6 +28,7 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
  */
 @Entity
 @Table(name = "cs_policy")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Policy extends CommonEntity {
 
     //~ Static fields/initializers ---------------------------------------------

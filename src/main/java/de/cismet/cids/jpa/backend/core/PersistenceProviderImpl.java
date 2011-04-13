@@ -53,19 +53,20 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
      * Creates a new instance of PersistenceProviderImpl.
      *
      * @param   runtimeProperties  the domainservers runtime properties
+     * @param   caching            DOCUMENT ME!
      *
      * @throws  IllegalArgumentException  if the runtime properties are null or some essential properties are missing
      */
-    public PersistenceProviderImpl(final Properties runtimeProperties) {
+    public PersistenceProviderImpl(final Properties runtimeProperties, final boolean caching) {
         rwLock = new ReentrantReadWriteLock();
 
         closed = false;
         if (runtimeProperties == null) {
-            throw new IllegalArgumentException("properties may not be null");                                 // NOI18N
+            throw new IllegalArgumentException("properties may not be null");                                          // NOI18N
         }
         this.runtimeProperties = runtimeProperties;
         this.em = new ThreadLocal<EntityManager>();
-        emf = Persistence.createEntityManagerFactory("cidsDataObjectsPU", getPropertyMap(runtimeProperties)); // NOI18N
+        emf = Persistence.createEntityManagerFactory("cidsDataObjectsPU", getPropertyMap(runtimeProperties, caching)); // NOI18N
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -106,8 +107,8 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
      * @throws  IllegalStateException  if the provider is already closed
      */
     // there is no choice but to obay the interface specification
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     @Override
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     public void monitorClose(final ClosableResource resource) throws Exception {
         rwLock.readLock().lock();
 
@@ -179,13 +180,14 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
     /**
      * Creates a property map containing connection related information.
      *
-     * @param   p  the properties from which the info is extracted
+     * @param   p        the properties from which the info is extracted
+     * @param   caching  DOCUMENT ME!
      *
      * @return  a map containing (hibernate, c3p0,...) key value pairs
      *
      * @throws  IllegalArgumentException  if an essential property is missing
      */
-    private Map getPropertyMap(final Properties p) {
+    private Map getPropertyMap(final Properties p, final boolean caching) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("building property map: start"); // NOI18N
         }
@@ -225,22 +227,27 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
             // TODO: move to runtime.properties
             map.put("hibernate.connection.provider_class", "org.hibernate.connection.C3P0ConnectionProvider"); // NOI18N
             map.put("c3p0.initialPoolSize", "5");                                                              // NOI18N
-//            map.put("c3p0.minPoolSize", "5");                                                                  // NOI18N
-            map.put("c3p0.min_size", "5"); // NOI18N
-//            map.put("c3p0.maxPoolSize", "10");                                                                 // NOI18N
-            map.put("c3p0.max_size", "10");                    // NOI18N
-            map.put("c3p0.checkoutTimeout", "2000");           // NOI18N
-            map.put("c3p0.maxStatements", "500");              // NOI18N
-            map.put("c3p0.maxIdleTimeExcessConnections", "5"); // NOI18N
-            map.put("c3p0.idleConnectionTestPeriod", "300");   // NOI18N
-            map.put("c3p0.acquireIncrement", "2");             // NOI18N
-            map.put("c3p0.numHelperThreads", "5");             // NOI18N
+            map.put("c3p0.min_size", "5");                                                                     // NOI18N
+            map.put("c3p0.max_size", "10");                                                                    // NOI18N
+            map.put("c3p0.checkoutTimeout", "2000");                                                           // NOI18N
+            map.put("c3p0.maxStatements", "500");                                                              // NOI18N
+            map.put("c3p0.maxIdleTimeExcessConnections", "5");                                                 // NOI18N
+            map.put("c3p0.idleConnectionTestPeriod", "300");                                                   // NOI18N
+            map.put("c3p0.acquireIncrement", "2");                                                             // NOI18N
+            map.put("c3p0.numHelperThreads", "5");                                                             // NOI18N
 
-            // cache properties
-            map.put("hibernate.cache.region.factory_class", "net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory"); // NOI18N
-            map.put("hibernate.cache.use_second_level_cache", "true");                                                 // NOI18N
-            map.put("hibernate.cache.use_query_cache", "true");                                                        // NOI18N
-            map.put("net.sf.ehcache.configurationResourceName", "/de/cismet/cids/jpa/backend/core/ehcache.xml");       // NOI18N
+            if (caching) {
+                // cache properties
+                map.put(
+                    "hibernate.cache.region.factory_class",
+                    "net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory");                                       // NOI18N
+                map.put("hibernate.cache.use_second_level_cache", "true");                                           // NOI18N
+                map.put("hibernate.cache.use_query_cache", "true");                                                  // NOI18N
+                map.put("net.sf.ehcache.configurationResourceName", "/de/cismet/cids/jpa/backend/core/ehcache.xml"); // NOI18N
+            } else {
+                map.put("hibernate.cache.use_second_level_cache", "false");                                          // NOI18N
+                map.put("hibernate.cache.use_query_cache", "false");                                                 // NOI18N
+            }
 
             map.put("hibernate.show_sql", "false");      // NOI18N
             if (LOG.isDebugEnabled()) {

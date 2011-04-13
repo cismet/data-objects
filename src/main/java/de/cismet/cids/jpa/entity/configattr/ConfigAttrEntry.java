@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.configattr;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -36,6 +38,7 @@ import de.cismet.cids.jpa.entity.user.UserGroup;
  */
 @Entity
 @Table(name = "cs_config_attr_jt")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ConfigAttrEntry extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------
@@ -56,11 +59,13 @@ public class ConfigAttrEntry extends CommonEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "usr_id")
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "ug_id")
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private UserGroup usergroup;
 
     @ManyToOne(optional = false)
@@ -69,6 +74,7 @@ public class ConfigAttrEntry extends CommonEntity implements Serializable {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Domain domain;
 
     @ManyToOne(
@@ -80,6 +86,7 @@ public class ConfigAttrEntry extends CommonEntity implements Serializable {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private ConfigAttrKey key;
 
     @ManyToOne(
@@ -91,6 +98,7 @@ public class ConfigAttrEntry extends CommonEntity implements Serializable {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private ConfigAttrValue value;
 
     @ManyToOne(optional = false)
@@ -99,6 +107,7 @@ public class ConfigAttrEntry extends CommonEntity implements Serializable {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private ConfigAttrType type;
 
     //~ Methods ----------------------------------------------------------------

@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.permission;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -31,6 +33,7 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
  */
 @Entity
 @Table(name = "cs_policy_rule")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PolicyRule extends CommonEntity {
 
     //~ Instance fields --------------------------------------------------------
@@ -57,6 +60,7 @@ public class PolicyRule extends CommonEntity {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Policy policy;
 
     @ManyToOne(
@@ -68,6 +72,7 @@ public class PolicyRule extends CommonEntity {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Permission permission;
 
     @Column(name = "default_value")

@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.catalog;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -34,6 +36,7 @@ import de.cismet.cids.jpa.entity.common.Domain;
  */
 @Entity
 @Table(name = "cs_cat_link")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CatLink extends CommonEntity implements Serializable, Cloneable {
 
     //~ Instance fields --------------------------------------------------------

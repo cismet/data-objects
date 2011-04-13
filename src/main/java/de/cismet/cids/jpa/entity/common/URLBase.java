@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.common;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -25,6 +28,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "url_base")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class URLBase extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------

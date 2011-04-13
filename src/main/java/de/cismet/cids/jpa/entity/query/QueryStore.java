@@ -7,7 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.query;
 
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -41,6 +42,7 @@ import de.cismet.cids.jpa.entity.user.User;
  */
 @Entity
 @Table(name = "cs_query_store")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class QueryStore extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------
@@ -67,6 +69,7 @@ public class QueryStore extends CommonEntity implements Serializable {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private User user;
 
     @Column(name = "name")
@@ -78,10 +81,11 @@ public class QueryStore extends CommonEntity implements Serializable {
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "queryStore"
+        mappedBy = "queryStore",
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<QueryStorePermission> queryStorePermissions;
 
     //~ Constructors -----------------------------------------------------------

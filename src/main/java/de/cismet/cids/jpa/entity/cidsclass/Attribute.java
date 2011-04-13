@@ -7,7 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -43,6 +44,7 @@ import de.cismet.cids.jpa.entity.permission.Policy;
  */
 @Entity
 @Table(name = "cs_attr")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Attribute extends CommonEntity implements Serializable, PermissionAwareEntity {
 
     //~ Instance fields --------------------------------------------------------
@@ -80,6 +82,7 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Type type;
 
     @Column(name = "name")
@@ -121,6 +124,7 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private JavaClass editor;
 
     @ManyToOne(
@@ -132,6 +136,7 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private JavaClass toString;
 
     @ManyToOne(
@@ -143,6 +148,7 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private JavaClass complexEditor;
 
     @Column(name = "optional")
@@ -165,10 +171,11 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "attribute"
+        mappedBy = "attribute",
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<AttributePermission> attributePermissions;
 
     //~ Constructors -----------------------------------------------------------

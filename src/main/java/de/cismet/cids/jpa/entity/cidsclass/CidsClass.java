@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.cidsclass;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -43,6 +45,7 @@ import de.cismet.cids.jpa.entity.permission.Policy;
  */
 @Entity
 @Table(name = "cs_class")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CidsClass extends CommonEntity implements Serializable, PermissionAwareEntity {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -85,6 +88,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Icon classIcon;
 
     @ManyToOne(
@@ -96,6 +100,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Icon objectIcon;
 
     @Column(name = "table_name")
@@ -116,6 +121,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private JavaClass toString;
 
     @ManyToOne(
@@ -127,6 +133,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private JavaClass editor;
 
     @ManyToOne(
@@ -149,6 +156,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Policy policy;
 
     @ManyToOne(
@@ -160,6 +168,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         nullable = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Policy attributePolicy;
 
     @Column(name = "array_link")
@@ -172,6 +181,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Attribute> attributes;
 
     @OneToMany(
@@ -181,6 +191,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<ClassAttribute> classAttributes;
 
     @OneToOne(
@@ -190,6 +201,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         orphanRemoval = true
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Type type;
 
     @OneToMany(
@@ -199,6 +211,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
         orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<ClassPermission> classPermissions;
 
     //~ Constructors -----------------------------------------------------------

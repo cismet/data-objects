@@ -7,7 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.query;
 
-import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -42,6 +43,7 @@ import de.cismet.cids.jpa.entity.permission.QueryPermission;
  */
 @Entity
 @Table(name = "cs_query")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Query extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------
@@ -92,19 +94,21 @@ public class Query extends CommonEntity implements Serializable {
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "query"
+        mappedBy = "query",
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<QueryParameter> queryParameters;
 
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "query"
+        mappedBy = "query",
+        orphanRemoval = true
     )
     @Fetch(FetchMode.SUBSELECT)
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<QueryPermission> queryPermissions;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -114,6 +118,7 @@ public class Query extends CommonEntity implements Serializable {
         inverseJoinColumns = { @JoinColumn(name = "query_id") }
     )
     @Fetch(FetchMode.SUBSELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<CidsClass> cidsClasses;
 
     //~ Constructors -----------------------------------------------------------

@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.jpa.entity.common;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -31,6 +33,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "url")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class URL extends CommonEntity implements Serializable {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -75,6 +78,7 @@ public class URL extends CommonEntity implements Serializable {
         nullable = false
     )
     @Fetch(FetchMode.SELECT)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private URLBase urlbase;
 
     //~ Methods ----------------------------------------------------------------

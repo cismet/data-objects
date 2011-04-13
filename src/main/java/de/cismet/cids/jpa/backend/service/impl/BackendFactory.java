@@ -47,15 +47,9 @@ public final class BackendFactory {
      * @param   caching            DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
-     *
-     * @throws  UnsupportedOperationException  DOCUMENT ME!
      */
     public Backend getBackend(final Properties runtimeProperties, final boolean caching) {
-        if (caching) {
-            throw new UnsupportedOperationException("caching backend not available yet"); // NOI18N
-        } else {
-            return new BackendImpl(runtimeProperties);
-        }
+        return new BackendImpl(runtimeProperties, caching);
     }
 
     /**
@@ -68,7 +62,26 @@ public final class BackendFactory {
      * @throws  UnsupportedOperationException  DOCUMENT ME!
      */
     public boolean isCaching(final Backend backend) {
-        throw new UnsupportedOperationException("backend caching check not available yet");
+        if (backend instanceof BackendImpl) {
+            return ((BackendImpl)backend).isCaching();
+        }
+
+        throw new UnsupportedOperationException("unknown backend implementation: " + backend); // NOI18N
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   backend  DOCUMENT ME!
+     *
+     * @throws  UnsupportedOperationException  DOCUMENT ME!
+     */
+    public void flushCache(final Backend backend) {
+        if (backend instanceof BackendImpl) {
+            ((BackendImpl)backend).flushCache();
+        }
+
+        throw new UnsupportedOperationException("unknown backend implementation: " + backend); // NOI18N
     }
 
     /**
