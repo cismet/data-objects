@@ -115,30 +115,4 @@ public class Icon extends CommonEntity implements Serializable {
     public void setId(final Integer id) {
         this.id = id;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(final Object o) {
-        if (!(o instanceof Icon)) {
-            return false;
-        }
-        final Icon i = (Icon)o;
-        return this.getId().equals(i.getId())
-                    && this.getName().equals(i.getName())
-                    && this.getFileName().equals(i.getFileName());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = (29 * hash) + ((this.id != null) ? this.id.hashCode() : 0);
-        hash = (29 * hash) + ((this.name != null) ? this.name.hashCode() : 0);
-        hash = (29 * hash) + ((this.fileName != null) ? this.fileName.hashCode() : 0);
-        return hash;
-    }
 }

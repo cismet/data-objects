@@ -114,6 +114,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
                     cause = cause.getCause();
                 }
             }
+
             throw toThrow;
         }
     }

@@ -41,6 +41,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
 
     final transient EntityManagerFactory emf;
     final transient ThreadLocal<EntityManager> em;
+    
     private final transient Properties runtimeProperties;
     private transient boolean closed;
 
@@ -243,7 +244,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
                     "net.sf.ehcache.hibernate.SingletonEhCacheRegionFactory");                                       // NOI18N
                 map.put("hibernate.cache.use_second_level_cache", "true");                                           // NOI18N
                 map.put("hibernate.cache.use_query_cache", "true");                                                  // NOI18N
-                map.put("net.sf.ehcache.configurationResourceName", "/de/cismet/cids/jpa/backend/core/ehcache.xml"); // NOI18N
+                map.put("net.sf.ehcache.configurationResourceName", "de/cismet/cids/jpa/backend/core/ehcache.xml"); // NOI18N
             } else {
                 map.put("hibernate.cache.use_second_level_cache", "false");                                          // NOI18N
                 map.put("hibernate.cache.use_query_cache", "false");                                                 // NOI18N
