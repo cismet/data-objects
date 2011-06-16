@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/plugins/maven-changes-plugin/xsd/changes-1.0.0.xsd">
     <body>
-        <release version="2.4.1" date="2011-05-27" description="Subsequent release" >
-            <action dev="Martin Scholl" type="fix" issue="2098">Icon entity needs correct hashcode and equals</action>
+        <release version="2.4.2" date="2011-06-16" description="Subsequent release" >
+            <action dev="Martin Scholl" type="fix" issue="2129">EHCache messes up object of different databases</action>
         </release>
     </body>
 </document>
