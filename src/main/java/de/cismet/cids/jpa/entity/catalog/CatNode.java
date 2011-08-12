@@ -9,7 +9,6 @@ package de.cismet.cids.jpa.entity.catalog;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -137,9 +136,9 @@ public class CatNode extends CommonEntity implements Serializable, PermissionAwa
     @OneToMany(
         cascade = CascadeType.ALL,
         fetch = FetchType.EAGER,
-        mappedBy = "node"
+        mappedBy = "node",
+        orphanRemoval = true
     )
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     private Set<NodePermission> nodePermissions;
 
     private transient boolean leaf;
@@ -433,6 +432,52 @@ public class CatNode extends CommonEntity implements Serializable, PermissionAwa
      */
     public String getIcon() {
         return icon;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (!super.equals(o)) {
+            return false;
+        } else if (o instanceof CatNode) {
+            final CatNode other = (CatNode)o;
+
+            return equals(getCidsClass(), other.getCidsClass())
+                        && equals(getDerivePermFromClass(), other.getDerivePermFromClass())
+                        && equals(getDynamicChildren(), other.getDynamicChildren())
+                        && equals(getIcon(), other.getIcon())
+                        && equals(getIconFactory(), other.getIconFactory())
+                        && equals(getIsRoot(), other.getIsRoot())
+                        && equals(getName(), other.getName())
+                        && equals(getNodePermissions(), other.getNodePermissions())
+                        && equals(getNodeType(), other.getNodeType())
+                        && equals(getObjectId(), other.getObjectId())
+                        && equals(getPolicy(), other.getPolicy())
+                        && equals(getSqlSort(), other.getSqlSort())
+                        && equals(getUrl(), other.getUrl());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = (59 * hash) + ((this.id != null) ? this.id.hashCode() : 0);
+        hash = (59 * hash) + ((this.name != null) ? this.name.hashCode() : 0);
+        hash = (59 * hash) + ((this.url != null) ? this.url.hashCode() : 0);
+        hash = (59 * hash) + ((this.cidsClass != null) ? this.cidsClass.hashCode() : 0);
+        hash = (59 * hash) + ((this.policy != null) ? this.policy.hashCode() : 0);
+        hash = (59 * hash) + ((this.derivePermFromClass != null) ? this.derivePermFromClass.hashCode() : 0);
+        hash = (59 * hash) + ((this.iconFactory != null) ? this.iconFactory.hashCode() : 0);
+        hash = (59 * hash) + ((this.objectId != null) ? this.objectId.hashCode() : 0);
+        hash = (59 * hash) + ((this.nodeType != null) ? this.nodeType.hashCode() : 0);
+        hash = (59 * hash) + ((this.isRoot != null) ? this.isRoot.hashCode() : 0);
+        hash = (59 * hash) + ((this.sqlSort != null) ? this.sqlSort.hashCode() : 0);
+        hash = (59 * hash) + ((this.dynamicChildren != null) ? this.dynamicChildren.hashCode() : 0);
+        hash = (59 * hash) + ((this.icon != null) ? this.icon.hashCode() : 0);
+        hash = (59 * hash) + ((this.nodePermissions != null) ? this.nodePermissions.hashCode() : 0);
+
+        return hash;
     }
 
     /**
