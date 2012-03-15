@@ -58,6 +58,16 @@
             <artifactId>c3p0</artifactId>
             <version>0.9.1</version>
         </dependency>
+        <!-- 
+            we need a driver that includes the schema information in a sequence name so that the sync implementation
+            supports usage of multiple schemas correctly. 8.4 jdbc4 does.
+        -->
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>8.4-701.jdbc4</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
