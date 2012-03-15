@@ -88,6 +88,7 @@ public class DiffAccessor {
         "SQLException_JDBCinstantiationIllegalAccess";                                                                   // NOI18N
     public static final String UNSUPPORTED_ACTION_EXCEPTION_ACTION_NOT_SUPPORTED =
         "UnsupportedActionException_actionNotSupported";                                                                 // NOI18N
+    public static final String PROP_DROP_COLUMNS = "abf.sync.dropColumns";                                               // NOI18N
 
     private static final Logger LOG = Logger.getLogger(DiffAccessor.class);
 

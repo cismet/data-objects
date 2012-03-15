@@ -178,6 +178,9 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<AttributePermission> attributePermissions;
 
+    @Column(name = "extension_attr")
+    private Boolean extensionAttr;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -606,5 +609,23 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
     @Override
     public Policy getPolicy() {
         return getCidsClass().getAttributePolicy();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Boolean isExtensionAttr() {
+        return extensionAttr;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  extensionAttr  DOCUMENT ME!
+     */
+    public void setExtensionAttr(final Boolean extensionAttr) {
+        this.extensionAttr = extensionAttr;
     }
 }

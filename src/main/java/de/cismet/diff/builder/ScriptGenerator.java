@@ -67,6 +67,8 @@ public class ScriptGenerator {
     //~ Instance fields --------------------------------------------------------
 
     private final transient String TMP_COLUMN = "swapper_tmp_" + System.currentTimeMillis(); // NOI18N
+    // drop columns if they're not persistent columns defined in the cids metadata tables (cs_attr)
+    private final transient boolean dropColumns;
 
     private transient Table[] allTables;
     private transient List<Table> tables;
@@ -163,14 +165,19 @@ public class ScriptGenerator {
                 this.classes.add(c);
             }
         }
-        classesDone = new ArrayList<CidsClass>(this.classes.size());
-        typemapCidsToPSQL = getTypeMap(true);
-        typemapPSQLtoCids = getTypeMap(false);
-        statements = new ArrayList<StatementGroup>();
+        this.classesDone = new ArrayList<CidsClass>(this.classes.size());
+        this.typemapCidsToPSQL = getTypeMap(true);
+        this.typemapPSQLtoCids = getTypeMap(false);
+        this.statements = new ArrayList<StatementGroup>();
         this.queue = storage;
         this.callStack = new ArrayList<String>();
-        psqlStatementGroups = null;
+        this.psqlStatementGroups = null;
         this.runtime = runtime;
+
+        final String propDropColumnsValue = runtime.getProperty(DiffAccessor.PROP_DROP_COLUMNS);
+        // for backwards compatibility the default value is true, so we check if the property is explicitly set to
+        // false, we can thus not rely on the default Boolean.valueOf() operation
+        dropColumns = !"false".equalsIgnoreCase(propDropColumnsValue); // NOI18N
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -298,6 +305,15 @@ public class ScriptGenerator {
             }
             // column is present?
             final TableColumn column = t.getTableColumn(attrName);
+
+            // extension attributes get special treatment: they will completely be left alone. However, if 'drop
+            // columns' is activated, we still don't have to do anything but to go to the next object of the iterator,
+            // because the default cleanup facilities will take care. So be careful when cleanup mechanism shall be
+            // changed.
+            if (Boolean.TRUE.equals(current.isExtensionAttr())) {
+                continue;
+            }
+
             // column not present, create new column
             if (column == null) {
                 // <editor-fold defaultstate="collapsed" desc=" handle complex type ">
@@ -501,18 +517,20 @@ public class ScriptGenerator {
                         // handles columns, that are of type int or bigint and have not null
                         // constraint as well as a sequence as their default value, as
                         // serial types. serial types basically are integers
-                        if ((attrTypeName.equalsIgnoreCase("int4")                         // NOI18N
-                                        || attrTypeName.equalsIgnoreCase("int8"))          // NOI18N
-                                                                                           // it is already interpreted
-                                                                                           // as
-                                                                                           // serial if there is a
-                                                                                           // sequence
-                                                                                           // present, maybe I
-                                                                                           // misunderstood the
-                                                                                           // description..... -.-
-                                                                                           // column.getNullable() ==
-                                                                                           // DatabaseMetaData.attributeNoNulls
-                                                                                           // &&
+                        if ((attrTypeName.equalsIgnoreCase("int4")                // NOI18N
+                                        || attrTypeName.equalsIgnoreCase("int8")) // NOI18N
+
+
+                                    // it is already interpreted
+                                    // as
+                                    // serial if there is a
+                                    // sequence
+                                    // present, maybe I
+                                    // misunderstood the
+                                    // description..... -.-
+                                    // column.getNullable() ==
+                                    // DatabaseMetaData.attributeNoNulls
+                                    // &&
                                     && (column.getDefaultValue() != null)
                                     && column.getDefaultValue().startsWith("nextval")) {   // NOI18N
                             if (attrTypeName.equalsIgnoreCase("int4")) {                   // NOI18N
@@ -674,17 +692,16 @@ public class ScriptGenerator {
                 }                                 // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle primary key ">
                 else {
+                    //J-
                     final String defVal = column.getDefaultValue();
                     // <editor-fold defaultstate="collapsed" desc=" set default 'nextval' ">
                     if ((defVal == null)
                                 || !(
                                     // this string represents postgres jdbc 7 drivers
-                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() // NOI18N
-                                        + "_seq'::text)") // NOI18N // this string represents postgres jdbc 8 drivers
-                                    || defVal.equalsIgnoreCase(
-                                        "nextval('"
-                                        + t.getTableName() // NOI18N
-                                        + "_seq'::regclass)"))) { // NOI18N
+                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::text)") // NOI18N
+                                    ||
+                                    // this string represents postgres jdbc 8 drivers
+                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::regclass)"))) { // NOI18N
                         final Statement[] s = {
                                 new CodedStatement(
                                     CodedStatement.CODE_ALTER_COLUMN_SET,
@@ -692,35 +709,37 @@ public class ScriptGenerator {
                                     false,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    "DEFAULT nextval('"
-                                            + t.getTableName()
-                                            + "_seq')") // NOI18N
+                                    "DEFAULT nextval('" + t.getTableName() + "_seq')") // NOI18N
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
                     }                              // </editor-fold>
-                }                                  // </editor-fold>
+                    //J+
+                } // </editor-fold>
                 tableColumns.remove(column);
             }
         }
         // <editor-fold defaultstate="collapsed" desc=" drop columns that are not in "cs_attr" anymore ">
-        while (tableColumns.size() > 0) {
-            if (tableColumns.getFirst().getColumnName().equalsIgnoreCase(c.getPrimaryKeyField())) {
-                throw new ScriptGeneratorException(
-                    exceptionBundle.getString(
-                        DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NO_DROP),
-                    t.getTableName(),
-                    c.getPrimaryKeyField(),
-                    null);
-            }
-            final Statement[] s = {
-                    new CodedStatement(
-                        CodedStatement.CODE_ALTER_DROP_COLUMN,
-                        null,
-                        false,
+        // we only drop columns if 'drop columns' is activated
+        if (dropColumns) {
+            while (tableColumns.size() > 0) {
+                if (tableColumns.getFirst().getColumnName().equalsIgnoreCase(c.getPrimaryKeyField())) {
+                    throw new ScriptGeneratorException(
+                        exceptionBundle.getString(
+                            DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NO_DROP),
                         t.getTableName(),
-                        tableColumns.removeFirst().getColumnName())
-                };
-            statementGroups.addLast(new StatementGroup(s, false));
+                        c.getPrimaryKeyField(),
+                        null);
+                }
+                final Statement[] s = {
+                        new CodedStatement(
+                            CodedStatement.CODE_ALTER_DROP_COLUMN,
+                            null,
+                            false,
+                            t.getTableName(),
+                            tableColumns.removeFirst().getColumnName())
+                    };
+                statementGroups.addLast(new StatementGroup(s, false));
+            }
         } // </editor-fold>
         tables.remove(t);
         classes.remove(c);
@@ -769,106 +788,109 @@ public class ScriptGenerator {
         boolean primarykeyFound = false;
         while (it.hasNext()) {
             final Attribute current = it.next();
-            final String name = current.getFieldName().toLowerCase();
-            final Type type = current.getType();
-            if (type.isComplexType()) {
-                // checks whether this type is already present or tries to create it
-                // by calling the createStatements method with the name of the type as
-                // param. the name is also added to a call stack to prevent endless
-                // loops in case of cyclic relation between two or more classes.
-                // type is still not present after creation try, a
-                // ScriptGeneratorException will be thrown.
-                if (!(classesDone.contains(type.getCidsClass())
-                                || callStack.contains(type.getName()))) {
-                    callStack.add(type.getName());
-                    final List<StatementGroup> s = createStatements(type.getCidsClass());
-                    if (s != null) {
-                        statements.addAll(s);
+            // extension attributes shall be ignored
+            if (!Boolean.TRUE.equals(current.isExtensionAttr())) {
+                final String name = current.getFieldName().toLowerCase();
+                final Type type = current.getType();
+                if (type.isComplexType()) {
+                    // checks whether this type is already present or tries to create it
+                    // by calling the createStatements method with the name of the type as
+                    // param. the name is also added to a call stack to prevent endless
+                    // loops in case of cyclic relation between two or more classes.
+                    // type is still not present after creation try, a
+                    // ScriptGeneratorException will be thrown.
+                    if (!(classesDone.contains(type.getCidsClass())
+                                    || callStack.contains(type.getName()))) {
+                        callStack.add(type.getName());
+                        final List<StatementGroup> s = createStatements(type.getCidsClass());
+                        if (s != null) {
+                            statements.addAll(s);
+                        }
+                        if (!classesDone.contains(type.getCidsClass())) {
+                            throw new ScriptGeneratorException(
+                                exceptionBundle.getString(
+                                    DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_MISSING_COMP_TYPE),
+                                c.getTableName().toLowerCase(),
+                                name,
+                                type.getName(),
+                                null);
+                        }
                     }
-                    if (!classesDone.contains(type.getCidsClass())) {
+                    if (current.isOptional()) {
+                        nameTypeEnum.append(name).append(" INTEGER NULL");     // NOI18N
+                    } else {
+                        nameTypeEnum.append(name).append(" INTEGER NOT NULL"); // NOI18N
+                    }
+                }
+                // handle primary key
+                // primary key is always integer and has a sequence as default value
+                // the sequence will be created and is named: '<tablename>_seq'
+                else if (name.equalsIgnoreCase(c.getPrimaryKeyField())) {
+                    primarykeyFound = true;
+                    if (current.isOptional()) {
                         throw new ScriptGeneratorException(
                             exceptionBundle.getString(
-                                DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_MISSING_COMP_TYPE),
+                                DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NOT_NULL),
+                            c.getTableName().toLowerCase(),
+                            c.getPrimaryKeyField().toLowerCase(),
+                            null);
+                    }
+                    if (!type.getName().equalsIgnoreCase(INTEGER)) {                            // NOI18N
+                        throw new ScriptGeneratorException(
+                            exceptionBundle.getString(
+                                DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_NOT_INTEGER),
                             c.getTableName().toLowerCase(),
                             name,
                             type.getName(),
                             null);
                     }
-                }
-                if (current.isOptional()) {
-                    nameTypeEnum.append(name).append(" INTEGER NULL");     // NOI18N
-                } else {
-                    nameTypeEnum.append(name).append(" INTEGER NOT NULL"); // NOI18N
-                }
-            }
-            // handle primary key
-            // primary key is always integer and has a sequence as default value
-            // the sequence will be created and is named: '<tablename>_seq'
-            else if (name.equalsIgnoreCase(c.getPrimaryKeyField())) {
-                primarykeyFound = true;
-                if (current.isOptional()) {
-                    throw new ScriptGeneratorException(
-                        exceptionBundle.getString(
-                            DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_ATTR_NOT_NULL),
-                        c.getTableName().toLowerCase(),
-                        c.getPrimaryKeyField().toLowerCase(),
-                        null);
-                }
-                if (!type.getName().equalsIgnoreCase(INTEGER)) {                            // NOI18N
-                    throw new ScriptGeneratorException(
-                        exceptionBundle.getString(
-                            DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_NOT_INTEGER),
-                        c.getTableName().toLowerCase(),
-                        name,
-                        type.getName(),
-                        null);
-                }
-                nameTypeEnum.append(name).append(" INTEGER PRIMARY KEY DEFAULT nextval('"); // NOI18N
-                nameTypeEnum.append(c.getTableName().toLowerCase()).append("_seq')");       // NOI18N
-                if (!sequenceExists(c.getTableName())) {
-                    statem.addFirst(
-                        new CodedStatement(
-                            CodedStatement.CODE_CREATE_SEQUENCE,
-                            null,
-                            false,
-                            c.getTableName().toLowerCase()
-                                    + SEQ_SUFFIX,                                           // NOI18N
-                            "1"));                                                          // NOI18N
-                }
-            } else {
-                nameTypeEnum.append(name).append(' ').append(type.getName().toUpperCase()); // NOI18N
-                if (current.getPrecision() != null) {
-                    nameTypeEnum.append('(').append(current.getPrecision());                // NOI18N
-                    if (current.getScale() != null) {
-                        nameTypeEnum.append(", ").append(current.getScale());               // NOI18N
+                    nameTypeEnum.append(name).append(" INTEGER PRIMARY KEY DEFAULT nextval('"); // NOI18N
+                    nameTypeEnum.append(c.getTableName().toLowerCase()).append("_seq')");       // NOI18N
+                    if (!sequenceExists(c.getTableName())) {
+                        statem.addFirst(
+                            new CodedStatement(
+                                CodedStatement.CODE_CREATE_SEQUENCE,
+                                null,
+                                false,
+                                c.getTableName().toLowerCase()
+                                        + SEQ_SUFFIX,                                           // NOI18N
+                                "1"));                                                          // NOI18N
                     }
-                    nameTypeEnum.append(')');                                               // NOI18N
+                } else {
+                    nameTypeEnum.append(name).append(' ').append(type.getName().toUpperCase()); // NOI18N
+                    if (current.getPrecision() != null) {
+                        nameTypeEnum.append('(').append(current.getPrecision());                // NOI18N
+                        if (current.getScale() != null) {
+                            nameTypeEnum.append(", ").append(current.getScale());               // NOI18N
+                        }
+                        nameTypeEnum.append(')');                                               // NOI18N
+                    }
+                    if (!current.isOptional()) {
+                        nameTypeEnum.append(" NOT");                                            // NOI18N
+                    }
+                    nameTypeEnum.append(" NULL");                                               // NOI18N
                 }
-                if (!current.isOptional()) {
-                    nameTypeEnum.append(" NOT");                                            // NOI18N
+                // append default value if exists
+                if ((current.getDefaultValue() != null) && !name.equalsIgnoreCase(
+                                c.getPrimaryKeyField())) {
+                    if (
+                        !isDefaultValueValid(
+                                    name,
+                                    type.getName(),
+                                    current.getPrecision(),
+                                    current.getScale(),
+                                    current.getDefaultValue())) {
+                        throw new ScriptGeneratorException(
+                            exceptionBundle.getString(
+                                DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_DEF_TYPE_MISMATCH),
+                            c.getTableName().toLowerCase(),
+                            name,
+                            null);
+                    }
+                    nameTypeEnum.append(" DEFAULT '").append(current.getDefaultValue()).append('\''); // NOI18N
                 }
-                nameTypeEnum.append(" NULL");                                               // NOI18N
+                nameTypeEnum.append(", ");                                                            // NOI18N
             }
-            // append default value if exists
-            if ((current.getDefaultValue() != null) && !name.equalsIgnoreCase(
-                            c.getPrimaryKeyField())) {
-                if (
-                    !isDefaultValueValid(
-                                name,
-                                type.getName(),
-                                current.getPrecision(),
-                                current.getScale(),
-                                current.getDefaultValue())) {
-                    throw new ScriptGeneratorException(
-                        exceptionBundle.getString(
-                            DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_DEF_TYPE_MISMATCH),
-                        c.getTableName().toLowerCase(),
-                        name,
-                        null);
-                }
-                nameTypeEnum.append(" DEFAULT '").append(current.getDefaultValue()).append('\''); // NOI18N
-            }
-            nameTypeEnum.append(", ");                                                            // NOI18N
         }
         if (!primarykeyFound) {
             throw new ScriptGeneratorException(

@@ -99,4 +99,9 @@ public class PSQLStatementGroup extends StatementGroup {
     public PSQLStatement[] getPSQLStatements() {
         return Arrays.copyOf(psqlStatements, psqlStatements.length);
     }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(psqlStatements);
+    }
 }

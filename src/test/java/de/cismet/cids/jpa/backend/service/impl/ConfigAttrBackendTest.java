@@ -60,7 +60,7 @@ public class ConfigAttrBackendTest {
      *
      * @throws  Exception  DOCUMENT ME!
      */
-    @BeforeClass
+//    @BeforeClass
     public static void setUpClass() throws Exception {
         final Properties p = new Properties();
         p.put("log4j.appender.Remote", "org.apache.log4j.net.SocketAppender");
@@ -83,7 +83,7 @@ public class ConfigAttrBackendTest {
      *
      * @throws  Exception  DOCUMENT ME!
      */
-    @AfterClass
+//    @AfterClass
     public static void tearDownClass() throws Exception {
     }
 
@@ -92,7 +92,7 @@ public class ConfigAttrBackendTest {
      *
      * @throws  Exception  DOCUMENT ME!
      */
-    @Before
+//    @Before
     public void setUp() throws Exception {
         final ScriptRunner runner = new ScriptRunner(DatabaseConnection.getConnection(runtimeProperties), false, true);
         final InputStream scriptStream = ConfigAttrBackendTest.class.getResourceAsStream("configAttrTestData.sql"); // NOI18N
@@ -107,7 +107,7 @@ public class ConfigAttrBackendTest {
     /**
      * DOCUMENT ME!
      */
-    @After
+//    @After
     public void tearDown() {
     }
 
@@ -147,6 +147,8 @@ public class ConfigAttrBackendTest {
     /**
      * DOCUMENT ME!
      */
+    // TODO: can be reactivated as soon as the test is changed to not use the cids reference db anymore
+    @Ignore
     @Test
     public void testCleanAttributeTables() {
         System.out.println("TEST " + getCurrentMethodName());
