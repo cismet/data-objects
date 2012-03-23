@@ -36,6 +36,8 @@ import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.permission.AttributePermission;
 import de.cismet.cids.jpa.entity.permission.Policy;
 
+import de.cismet.tools.Equals;
+
 /**
  * DOCUMENT ME!
  *
@@ -627,5 +629,49 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
      */
     public void setExtensionAttr(final Boolean extensionAttr) {
         this.extensionAttr = extensionAttr;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        // we ignore two operations for equals comparison because otherwise it would cause a StackOverFlow
+        return Equals.beanDeepEqual(this, o, "getCidsClass", "getType");
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = (43 * hash) + ((this.getId() != null) ? this.getId().hashCode() : 0);
+        // NOTE: we cannot use the cids class' own hashcode implementation, because this causes hashCode invokation
+        // cycles which in turn will cause an exception "org.hibernate.LazyInitializationException: illegal access to
+        // loading collection"
+        final CidsClass c = this.getCidsClass();
+        hash = (43 * hash) + ((c != null) ? ((c.getId() != null) ? c.getId().hashCode() : 0) : 0);
+        hash = (43 * hash) + ((this.getType() != null) ? this.getType().hashCode() : 0);
+        hash = (43 * hash) + ((this.getName() != null) ? this.getName().hashCode() : 0);
+        hash = (43 * hash) + ((this.getFieldName() != null) ? this.getFieldName().hashCode() : 0);
+        hash = (43 * hash) + ((this.isForeignKey() != null) ? this.isForeignKey().hashCode() : 0);
+        hash = (43 * hash) + ((this.isSubstitute() != null) ? this.isSubstitute().hashCode() : 0);
+        hash = (43 * hash) + ((this.getForeignKeyClass() != null) ? this.getForeignKeyClass().hashCode() : 0);
+        hash = (43 * hash) + ((this.getDescription() != null) ? this.getDescription().hashCode() : 0);
+        hash = (43 * hash) + ((this.isVisible() != null) ? this.isVisible().hashCode() : 0);
+        hash = (43 * hash) + ((this.isIndexed() != null) ? this.isIndexed().hashCode() : 0);
+        hash = (43 * hash) + ((this.isArray() != null) ? this.isArray().hashCode() : 0);
+        hash = (43 * hash) + ((this.getArrayKey() != null) ? this.getArrayKey().hashCode() : 0);
+        hash = (43 * hash) + ((this.getEditor() != null) ? this.getEditor().hashCode() : 0);
+        hash = (43 * hash) + ((this.getToString() != null) ? this.getToString().hashCode() : 0);
+        hash = (43 * hash) + ((this.getComplexEditor() != null) ? this.getComplexEditor().hashCode() : 0);
+        hash = (43 * hash) + ((this.isOptional() != null) ? this.isOptional().hashCode() : 0);
+        hash = (43 * hash) + ((this.getDefaultValue() != null) ? this.getDefaultValue().hashCode() : 0);
+        hash = (43 * hash) + ((this.getPosition() != null) ? this.getPosition().hashCode() : 0);
+        hash = (43 * hash) + ((this.getPrecision() != null) ? this.getPrecision().hashCode() : 0);
+        hash = (43 * hash) + ((this.getScale() != null) ? this.getScale().hashCode() : 0);
+        hash = (43 * hash) + ((this.getAttributePermissions() != null) ? this.getAttributePermissions().hashCode() : 0);
+        hash = (43 * hash) + ((this.isExtensionAttr() != null) ? this.isExtensionAttr().hashCode() : 0);
+
+        return hash;
     }
 }
