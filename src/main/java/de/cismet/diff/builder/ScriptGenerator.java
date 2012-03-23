@@ -59,6 +59,7 @@ public class ScriptGenerator {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String INTEGER = "INTEGER";
+    private static final String INT = "int";
 
     private static final transient Logger LOG = Logger.getLogger(ScriptGenerator.class);
     private static final String NOT_NULL = "NOT NULL";
@@ -314,6 +315,14 @@ public class ScriptGenerator {
                 continue;
             }
 
+            // this is only a "virtual" field to indicate the 1:N relationship and thus can savely be ignored. However,
+            // just like extension attributes, if 'drop columns' is activated, the cleanup facilities will take care in
+            // case of the presence of this table column (column != null). So again, be careful when cleanup mechanism
+            // shall be changed
+            if ((current.getForeignKeyClass() != null) && (current.getForeignKeyClass() < 0)) {
+                continue;
+            }
+
             // column not present, create new column
             if (column == null) {
                 // <editor-fold defaultstate="collapsed" desc=" handle complex type ">
@@ -339,19 +348,20 @@ public class ScriptGenerator {
                                 attrName,
                                 null);
                         }
+
+                        // add statement to statementlist
+                        final Statement[] st = {
+                                new CodedStatement(
+                                    CodedStatement.CODE_ALTER_ADD_COLUMN,
+                                    warning,
+                                    false,
+                                    t.getTableName(),
+                                    attrName.toLowerCase(),
+                                    INTEGER) // NOI18N
+                            };
+                        statementGroups.addLast(new StatementGroup(st, false));
                     }
-                    // add statement to statementlist
-                    final Statement[] s = {
-                            new CodedStatement(
-                                CodedStatement.CODE_ALTER_ADD_COLUMN,
-                                warning,
-                                false,
-                                t.getTableName(),
-                                attrName.toLowerCase(),
-                                INTEGER) // NOI18N
-                        };
-                    statementGroups.addLast(new StatementGroup(s, false));
-                }                        // </editor-fold>
+                }                            // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal type ">
                 else {
                     // add precision to parameter if present
@@ -497,14 +507,16 @@ public class ScriptGenerator {
                                 attrTypeName,
                                 null);
                         }
+
+                        // TODO: add BIGINT support
+                        if (!column.getTypeName().equalsIgnoreCase("int4")) { // NOI18N
+                            statementGroups.addLast(createTypeConversionStatements(
+                                    t,
+                                    current,
+                                    INTEGER));
+                        }
                     }
-                    if (!column.getTypeName().equalsIgnoreCase("int4")) { // NOI18N
-                        statementGroups.addLast(createTypeConversionStatements(
-                                t,
-                                current,
-                                INTEGER));                                // NOI18N
-                    }
-                }                                                         // </editor-fold>
+                }                                                             // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal type ">
                 else {
                     // type mismatch
@@ -788,8 +800,10 @@ public class ScriptGenerator {
         boolean primarykeyFound = false;
         while (it.hasNext()) {
             final Attribute current = it.next();
-            // extension attributes shall be ignored
-            if (!Boolean.TRUE.equals(current.isExtensionAttr())) {
+            // extension attributes and 1:N foreign key fields shall be ignored, for further info, see
+            // create_ALTER_Statements operation
+            if (!Boolean.TRUE.equals(current.isExtensionAttr())
+                        && !((current.getForeignKeyClass() != null) && (current.getForeignKeyClass() < 0))) {
                 final String name = current.getFieldName().toLowerCase();
                 final Type type = current.getType();
                 if (type.isComplexType()) {
@@ -816,6 +830,8 @@ public class ScriptGenerator {
                                 null);
                         }
                     }
+
+                    // TODO: INTEGER as default fk type? should depend on the pk type of the referenced class
                     if (current.isOptional()) {
                         nameTypeEnum.append(name).append(" INTEGER NULL");     // NOI18N
                     } else {
@@ -1141,7 +1157,8 @@ public class ScriptGenerator {
                 cidsClass.getPrimaryKeyField().toLowerCase(),
                 null);
         }
-        if (!isPrimkeyAttrInteger(cidsClass)) {
+        // TODO: add according error message
+        if (!isPrimkeyAttrIntegerType(cidsClass)) {
             throw new ScriptGeneratorException(
                 exceptionBundle.getString(
                     DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_NOT_INTEGER),
@@ -1297,12 +1314,13 @@ public class ScriptGenerator {
      *
      * @return  DOCUMENT ME!
      */
-    private boolean isPrimkeyAttrInteger(final CidsClass cidsClass) {
+    private boolean isPrimkeyAttrIntegerType(final CidsClass cidsClass) {
         final Iterator<Attribute> it = cidsClass.getAttributes().iterator();
         while (it.hasNext()) {
             final Attribute current = it.next();
             if (current.getFieldName().equalsIgnoreCase(cidsClass.getPrimaryKeyField())) {
-                return current.getType().getName().equalsIgnoreCase(INTEGER) ? true : false; // NOI18N
+                final String name = current.getType().getName();
+                return name.toLowerCase().startsWith(INT) ? true : false; // NOI18N
             }
         }
         return false;
