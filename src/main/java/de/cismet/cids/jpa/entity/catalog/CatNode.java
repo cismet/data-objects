@@ -39,6 +39,8 @@ import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.permission.NodePermission;
 import de.cismet.cids.jpa.entity.permission.Policy;
 
+import de.cismet.tools.Equals;
+
 /**
  * DOCUMENT ME!
  *
@@ -441,19 +443,19 @@ public class CatNode extends CommonEntity implements Serializable, PermissionAwa
         } else if (o instanceof CatNode) {
             final CatNode other = (CatNode)o;
 
-            return equals(getCidsClass(), other.getCidsClass())
-                        && equals(getDerivePermFromClass(), other.getDerivePermFromClass())
-                        && equals(getDynamicChildren(), other.getDynamicChildren())
-                        && equals(getIcon(), other.getIcon())
-                        && equals(getIconFactory(), other.getIconFactory())
-                        && equals(getIsRoot(), other.getIsRoot())
-                        && equals(getName(), other.getName())
-                        && equals(getNodePermissions(), other.getNodePermissions())
-                        && equals(getNodeType(), other.getNodeType())
-                        && equals(getObjectId(), other.getObjectId())
-                        && equals(getPolicy(), other.getPolicy())
-                        && equals(getSqlSort(), other.getSqlSort())
-                        && equals(getUrl(), other.getUrl());
+            return Equals.nullEqual(getCidsClass(), other.getCidsClass())
+                        && Equals.nullEqual(getDerivePermFromClass(), other.getDerivePermFromClass())
+                        && Equals.nullEqual(getDynamicChildren(), other.getDynamicChildren())
+                        && Equals.nullEqual(getIcon(), other.getIcon())
+                        && Equals.nullEqual(getIconFactory(), other.getIconFactory())
+                        && Equals.nullEqual(getIsRoot(), other.getIsRoot())
+                        && Equals.nullEqual(getName(), other.getName())
+                        && Equals.nullEqual(getNodePermissions(), other.getNodePermissions())
+                        && Equals.nullEqual(getNodeType(), other.getNodeType())
+                        && Equals.nullEqual(getObjectId(), other.getObjectId())
+                        && Equals.nullEqual(getPolicy(), other.getPolicy())
+                        && Equals.nullEqual(getSqlSort(), other.getSqlSort())
+                        && Equals.nullEqual(getUrl(), other.getUrl());
         } else {
             return false;
         }

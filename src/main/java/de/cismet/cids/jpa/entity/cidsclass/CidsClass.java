@@ -37,6 +37,8 @@ import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.permission.ClassPermission;
 import de.cismet.cids.jpa.entity.permission.Policy;
 
+import de.cismet.tools.Equals;
+
 /**
  * CidsClass objects are expensive so query them wisely.
  *
@@ -569,5 +571,39 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
     @Override
     public Set<? extends AbstractPermission> getPermissions() {
         return getClassPermissions();
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        return Equals.beanDeepEqual(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = (67 * hash) + ((this.getId() != null) ? this.getId().hashCode() : 0);
+        hash = (67 * hash) + ((this.getName() != null) ? this.getName().hashCode() : 0);
+        hash = (67 * hash) + ((this.getDescription() != null) ? this.getDescription().hashCode() : 0);
+        hash = (67 * hash) + ((this.getClassIcon() != null) ? this.getClassIcon().hashCode() : 0);
+        hash = (67 * hash) + ((this.getObjectIcon() != null) ? this.getObjectIcon().hashCode() : 0);
+        hash = (67 * hash) + ((this.getTableName() != null) ? this.getTableName().hashCode() : 0);
+        hash = (67 * hash) + ((this.getPrimaryKeyField() != null) ? this.getPrimaryKeyField().hashCode() : 0);
+        hash = (67 * hash) + ((this.isIndexed() != null) ? this.isIndexed().hashCode() : 0);
+        hash = (67 * hash) + ((this.getToString() != null) ? this.getToString().hashCode() : 0);
+        hash = (67 * hash) + ((this.getEditor() != null) ? this.getEditor().hashCode() : 0);
+        hash = (67 * hash) + ((this.getRenderer() != null) ? this.getRenderer().hashCode() : 0);
+        hash = (67 * hash) + ((this.getPolicy() != null) ? this.getPolicy().hashCode() : 0);
+        hash = (67 * hash) + ((this.getAttributePolicy() != null) ? this.getAttributePolicy().hashCode() : 0);
+        hash = (67 * hash) + ((this.isArrayLink() != null) ? this.isArrayLink().hashCode() : 0);
+        hash = (67 * hash) + ((this.getAttributes() != null) ? this.getAttributes().hashCode() : 0);
+        hash = (67 * hash) + ((this.getClassAttributes() != null) ? this.getClassAttributes().hashCode() : 0);
+        hash = (67 * hash) + ((this.getType() != null) ? this.getType().hashCode() : 0);
+        hash = (67 * hash) + ((this.getClassPermissions() != null) ? this.getClassPermissions().hashCode() : 0);
+
+        return hash;
     }
 }
