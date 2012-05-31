@@ -197,6 +197,7 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
         indexed = false;
         array = false;
         optional = true;
+        extensionAttr = false;
     }
 
     //~ Methods ----------------------------------------------------------------
