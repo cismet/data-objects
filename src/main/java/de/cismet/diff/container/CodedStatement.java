@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Map;
 
+import de.cismet.tools.Equals;
+
 /**
  * This class provides a container for coded sql statements. The supported codes are provided as public constants that
  * shall be used to create instances of this class. It also provides constants for warnings that may go along with a
@@ -275,5 +277,20 @@ public class CodedStatement extends Statement {
             }
         }
         return sort.toArray(new String[sort.size()]);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return Equals.beanDeepEqual(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+
+        hash = (37 * hash) + ((this.code != null) ? this.code.hashCode() : 0);
+        hash = (37 * hash) + Arrays.deepHashCode(this.argsArray);
+
+        return hash;
     }
 }

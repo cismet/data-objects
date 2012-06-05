@@ -348,20 +348,26 @@ public class ScriptGenerator {
                                 attrName,
                                 null);
                         }
-
-                        // add statement to statementlist
-                        final Statement[] st = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_ADD_COLUMN,
-                                    warning,
-                                    false,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    INTEGER) // NOI18N
-                            };
-                        statementGroups.addLast(new StatementGroup(st, false));
                     }
-                }                            // </editor-fold>
+
+                    // add statement to statementlist
+                    final Statement[] st = {
+                            new CodedStatement(
+                                CodedStatement.CODE_ALTER_ADD_COLUMN,
+                                warning,
+                                false,
+                                t.getTableName(),
+                                attrName.toLowerCase(),
+                                INTEGER) // NOI18N
+                        };
+
+                    // in certain cases recursive createStatement calls lead to an already present statement, thus we
+                    // have to check if the statement group is already present
+                    final StatementGroup sg = new StatementGroup(st, false);
+                    if (!statementGroups.contains(sg)) {
+                        statementGroups.addLast(sg);
+                    }
+                } // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal type ">
                 else {
                     // add precision to parameter if present

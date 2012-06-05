@@ -9,6 +9,8 @@ package de.cismet.diff.container;
 
 import java.util.Arrays;
 
+import de.cismet.tools.Equals;
+
 /**
  * DOCUMENT ME!
  *
@@ -156,5 +158,23 @@ public class StatementGroup {
      */
     public void setColumnName(final String columnName) {
         this.columnName = columnName;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return Equals.beanDeepEqual(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = (67 * hash) + ((this.tableName != null) ? this.tableName.hashCode() : 0);
+        hash = (67 * hash) + ((this.columnName != null) ? this.columnName.hashCode() : 0);
+        hash = (67 * hash) + ((this.description != null) ? this.description.hashCode() : 0);
+        hash = (67 * hash) + ((this.warning != null) ? this.warning.hashCode() : 0);
+        hash = (67 * hash) + Arrays.deepHashCode(this.statements);
+        hash = (67 * hash) + (this.transaction ? 1 : 0);
+
+        return hash;
     }
 }

@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.diff.container;
 
+import de.cismet.tools.Equals;
+
 /**
  * DOCUMENT ME!
  *
@@ -60,5 +62,19 @@ public abstract class Statement {
      */
     public boolean isPedantic() {
         return pedantic;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return Equals.beanDeepEqual(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = (83 * hash) + (this.pedantic ? 1 : 0);
+        hash = (83 * hash) + ((this.warning != null) ? this.warning.hashCode() : 0);
+
+        return hash;
     }
 }
