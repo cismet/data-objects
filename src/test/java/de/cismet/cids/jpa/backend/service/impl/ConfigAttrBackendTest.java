@@ -22,9 +22,12 @@ import java.util.List;
 import java.util.Properties;
 
 import de.cismet.cids.jpa.backend.service.Backend;
+import de.cismet.cids.jpa.entity.common.Domain;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrValue;
+import de.cismet.cids.jpa.entity.user.User;
+import de.cismet.cids.jpa.entity.user.UserGroup;
 
 import de.cismet.diff.db.DatabaseConnection;
 
@@ -118,6 +121,21 @@ public class ConfigAttrBackendTest {
      */
     private String getCurrentMethodName() {
         return new Throwable().getStackTrace()[1].getMethodName();
+    }
+    
+//    @Test
+    public void testGetEntries_DomUgUsrStrBool(){
+        final Domain d = new Domain();
+        d.setId(3);
+        d.setName("WUNDA_BLAU");
+
+        final UserGroup ug = new UserGroup();
+        ug.setId(3001);
+        ug.setDomain(d);
+        ug.setName("Akuk");
+        
+        final List<ConfigAttrEntry> caes = backend.getEntries(d, ug, null, "WUNDA_BLAU", true);
+        System.out.println(caes);
     }
 
     /**
