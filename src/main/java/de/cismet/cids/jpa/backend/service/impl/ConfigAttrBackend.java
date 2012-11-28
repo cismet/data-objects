@@ -91,14 +91,21 @@ public final class ConfigAttrBackend implements ConfigAttrService {
     public List<ConfigAttrEntry> getEntries(final Domain dom,
             final UserGroup ug,
             final User user,
+            final String localDomainName,
             final boolean collect) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("get all config attr entries: [domain=" + dom + "|ug=" + ug + "|usr=" + user + "|collect="
                         + collect + "]");
         }
 
-        final StringBuilder query = new StringBuilder("FROM ConfigAttrEntry cae WHERE cae.domain.id = "); // NOI18N
+        final StringBuilder query = new StringBuilder("FROM ConfigAttrEntry cae WHERE (cae.domain.id = "); // NOI18N
         query.append(dom.getId());
+
+        if (dom.getName().equals(localDomainName)) {
+            query.append(" OR cae.domain = (FROM Domain d WHERE d.name = 'LOCAL')");
+        }
+
+        query.append(')');
 
         if (ug == null) {
             query.append(" AND cae.usergroup IS NULL");                   // NOI18N
@@ -135,7 +142,7 @@ public final class ConfigAttrBackend implements ConfigAttrService {
     }
 
     @Override
-    public List<ConfigAttrEntry> getEntries(final User user) {
+    public List<ConfigAttrEntry> getEntries(final User user, final String localDomainName) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("get all config attr entries: [usr=" + user + "]"); // NOI18N
         }
@@ -143,7 +150,7 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         final List<ConfigAttrEntry> result = new ArrayList<ConfigAttrEntry>();
 
         for (final UserGroup ug : user.getUserGroups()) {
-            result.addAll(getEntries(ug.getDomain(), ug, user, true));
+            result.addAll(getEntries(ug.getDomain(), ug, user, localDomainName, true));
         }
 
         return result;

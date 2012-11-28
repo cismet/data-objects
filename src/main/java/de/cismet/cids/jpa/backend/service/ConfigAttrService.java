@@ -59,23 +59,29 @@ public interface ConfigAttrService extends ClosableResource {
     /**
      * DOCUMENT ME!
      *
-     * @param   dom      DOCUMENT ME!
-     * @param   ug       DOCUMENT ME!
-     * @param   user     DOCUMENT ME!
-     * @param   collect  DOCUMENT ME!
+     * @param   dom              DOCUMENT ME!
+     * @param   ug               DOCUMENT ME!
+     * @param   user             DOCUMENT ME!
+     * @param   localDomainName  DOCUMENT ME!
+     * @param   collect          DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    List<ConfigAttrEntry> getEntries(final Domain dom, final UserGroup ug, final User user, final boolean collect);
+    List<ConfigAttrEntry> getEntries(final Domain dom,
+            final UserGroup ug,
+            final User user,
+            final String localDomainName,
+            final boolean collect);
 
     /**
      * DOCUMENT ME!
      *
-     * @param   user  DOCUMENT ME!
+     * @param   user             DOCUMENT ME!
+     * @param   localDomainName  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    List<ConfigAttrEntry> getEntries(final User user);
+    List<ConfigAttrEntry> getEntries(final User user, final String localDomainName);
 
     /**
      * DOCUMENT ME!

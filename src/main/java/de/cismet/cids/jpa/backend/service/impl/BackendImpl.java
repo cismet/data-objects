@@ -385,13 +385,14 @@ public final class BackendImpl implements Backend {
     public List<ConfigAttrEntry> getEntries(final Domain dom,
             final UserGroup ug,
             final User user,
+            final String localDomainName,
             final boolean collect) {
-        return configAttrService.getEntries(dom, ug, user, collect);
+        return configAttrService.getEntries(dom, ug, user, localDomainName, collect);
     }
 
     @Override
-    public List<ConfigAttrEntry> getEntries(final User user) {
-        return configAttrService.getEntries(user);
+    public List<ConfigAttrEntry> getEntries(final User user, final String localDomainName) {
+        return configAttrService.getEntries(user, localDomainName);
     }
 
     @Override
