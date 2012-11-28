@@ -11,9 +11,12 @@ import com.mchange.v1.util.ClosableResource;
 
 import java.util.List;
 
+import de.cismet.cids.jpa.entity.common.Domain;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType.Types;
+import de.cismet.cids.jpa.entity.user.User;
+import de.cismet.cids.jpa.entity.user.UserGroup;
 
 /**
  * DOCUMENT ME!
@@ -52,6 +55,27 @@ public interface ConfigAttrService extends ClosableResource {
      * @return  DOCUMENT ME!
      */
     List<ConfigAttrEntry> getEntries(final Types type);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   dom      DOCUMENT ME!
+     * @param   ug       DOCUMENT ME!
+     * @param   user     DOCUMENT ME!
+     * @param   collect  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<ConfigAttrEntry> getEntries(final Domain dom, final UserGroup ug, final User user, final boolean collect);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   user  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<ConfigAttrEntry> getEntries(final User user);
 
     /**
      * DOCUMENT ME!

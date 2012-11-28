@@ -9,6 +9,7 @@ package de.cismet.cids.jpa.backend.service.impl;
 
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -20,11 +21,14 @@ import javax.persistence.criteria.Root;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.ConfigAttrService;
+import de.cismet.cids.jpa.entity.common.Domain;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType.Types;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrValue;
+import de.cismet.cids.jpa.entity.user.User;
+import de.cismet.cids.jpa.entity.user.UserGroup;
 
 /**
  * DOCUMENT ME!
@@ -81,6 +85,68 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         q.setParameter("type", getType(type));                                                  // NOI18N
 
         return q.getResultList();
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final Domain dom,
+            final UserGroup ug,
+            final User user,
+            final boolean collect) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("get all config attr entries: [domain=" + dom + "|ug=" + ug + "|usr=" + user + "|collect="
+                        + collect + "]");
+        }
+
+        final StringBuilder query = new StringBuilder("FROM ConfigAttrEntry cae WHERE cae.domain.id = "); // NOI18N
+        query.append(dom.getId());
+
+        if (ug == null) {
+            query.append(" AND cae.usergroup IS NULL");                   // NOI18N
+        } else {
+            query.append(" AND (cae.usergroup.id = ").append(ug.getId()); // NOI18N
+
+            if (collect) {
+                query.append(" OR cae.usergroup IS NULL"); // NOI18N
+            }
+
+            query.append(')');
+
+            if (user == null) {
+                query.append(" AND cae.user IS NULL");                     // NOI18N
+            } else {
+                query.append(" AND (cae.user.id = ").append(user.getId()); // NOI18N
+
+                if (collect) {
+                    query.append(" OR cae.user IS NULL"); // NOI18N
+                }
+
+                query.append(')');
+            }
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("created query: " + query.toString()); // NOI18N
+        }
+
+        final EntityManager manager = provider.getEntityManager();
+        final Query q = manager.createQuery(query.toString());
+
+        return q.getResultList();
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final User user) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("get all config attr entries: [usr=" + user + "]"); // NOI18N
+        }
+
+        final List<ConfigAttrEntry> result = new ArrayList<ConfigAttrEntry>();
+
+        for (final UserGroup ug : user.getUserGroups()) {
+            result.addAll(getEntries(ug.getDomain(), ug, user, true));
+        }
+
+        return result;
     }
 
     /**
