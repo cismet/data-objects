@@ -25,6 +25,8 @@ import javax.persistence.Query;
 
 import de.cismet.cids.jpa.entity.common.CommonEntity;
 
+import de.cismet.tools.PasswordEncrypter;
+
 /**
  * DOCUMENT ME!
  *
@@ -83,7 +85,6 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
         rwLock.readLock().lock();
         if (closed) {
             rwLock.readLock().unlock();
-            return;
         } else {
             rwLock.readLock().unlock();
             rwLock.writeLock().lock();
@@ -119,9 +120,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
             }
 
             // we won't close ourself
-            if (resource == this) {
-                return;
-            } else {
+            if (resource != this) {
                 resource.close();
             }
         } finally {
@@ -217,7 +216,10 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
             if ((currentProp == null) || currentProp.trim().isEmpty()) {
                 throw new IllegalArgumentException("password is not set in runtime properties"); // NOI18N
             }
-            map.put("hibernate.connection.password", currentProp);                               // NOI18N
+            map.put(
+                "hibernate.connection.password",                                                 // NOI18N
+                new String(PasswordEncrypter.decrypt(currentProp.toCharArray(), false)));
+            System.out.println(map.get("hibernate.connection.password"));
 
             currentProp = p.getProperty("connection.url");                                  // NOI18N
             if ((currentProp == null) || currentProp.trim().isEmpty()) {
