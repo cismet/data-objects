@@ -7,12 +7,18 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
+import java.util.List;
+import java.util.Properties;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
+import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.backend.service.UserService;
+import de.cismet.cids.jpa.entity.permission.ClassPermission;
 import de.cismet.cids.jpa.entity.user.User;
+import de.cismet.cids.jpa.entity.user.UserGroup;
 
 /**
  * DOCUMENT ME!
@@ -46,5 +52,14 @@ public class UserBackend implements UserService {
         q.setParameter("userName", userName);                                                             // NOI18N
         q.setParameter("password", password);                                                             // NOI18N
         return (User)q.getSingleResult();
+    }
+
+    @Override
+    public List<ClassPermission> getClassPermissions(final UserGroup ug) {
+        final EntityManager em = provider.getEntityManager();
+        final Query q = em.createQuery("FROM ClassPermission WHERE userGroup = :ug"); // NOI18N
+        q.setParameter("ug", ug);                                                     // NOI18N
+
+        return q.getResultList();
     }
 }
