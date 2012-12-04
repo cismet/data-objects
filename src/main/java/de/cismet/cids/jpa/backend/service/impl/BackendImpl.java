@@ -41,6 +41,7 @@ import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType.Types;
 import de.cismet.cids.jpa.entity.user.User;
+import de.cismet.cids.jpa.entity.user.UserGroup;
 
 import de.cismet.cids.util.ProgressListener;
 
@@ -381,7 +382,21 @@ public final class BackendImpl implements Backend {
     }
 
     @Override
-    public List<ConfigAttrEntry> getEntries(final ConfigAttrKey key, final Types type){
+    public List<ConfigAttrEntry> getEntries(final Domain dom,
+            final UserGroup ug,
+            final User user,
+            final String localDomainName,
+            final boolean collect) {
+        return configAttrService.getEntries(dom, ug, user, localDomainName, collect);
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final User user, final String localDomainName) {
+        return configAttrService.getEntries(user, localDomainName);
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final ConfigAttrKey key, final Types type) {
         return configAttrService.getEntries(key, type);
     }
 
