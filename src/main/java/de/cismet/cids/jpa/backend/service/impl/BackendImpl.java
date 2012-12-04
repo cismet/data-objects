@@ -40,6 +40,7 @@ import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType.Types;
+import de.cismet.cids.jpa.entity.permission.ClassPermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
@@ -373,6 +374,13 @@ public final class BackendImpl implements Backend {
     public User getUser(final String userName, final String password) {
         return ub.getUser(userName, password);
     }
+
+    @Override
+    public List<ClassPermission> getClassPermissions(final UserGroup ug)
+    {
+        return ub.getClassPermissions(ug);
+    }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" Part: ConfigAttrBackend ">
