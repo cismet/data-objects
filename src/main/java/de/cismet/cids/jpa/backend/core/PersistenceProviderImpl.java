@@ -219,7 +219,6 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
             map.put(
                 "hibernate.connection.password",                                                 // NOI18N
                 new String(PasswordEncrypter.decrypt(currentProp.toCharArray(), false)));
-            System.out.println(map.get("hibernate.connection.password"));
 
             currentProp = p.getProperty("connection.url");                                  // NOI18N
             if ((currentProp == null) || currentProp.trim().isEmpty()) {
