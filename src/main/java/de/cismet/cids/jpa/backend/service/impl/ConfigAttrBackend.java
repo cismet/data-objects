@@ -102,7 +102,8 @@ public final class ConfigAttrBackend implements ConfigAttrService {
             final String localDomainName,
             final boolean collect) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("get all config attr entries: [domain=" + dom + "|ug=" + ug + "|usr=" + user + "|collect=" // NOI18N
+            LOG.trace("get all config attr entries: [domain=" + dom + "|ug=" + ug + "|usr=" + user // NOI18N
+                        + "|collect=" // NOI18N
                         + collect + "]"); // NOI18N
         }
 

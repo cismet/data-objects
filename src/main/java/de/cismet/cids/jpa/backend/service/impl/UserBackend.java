@@ -83,8 +83,8 @@ public class UserBackend implements UserService {
 
         final Query delCfgAttr = em.createQuery(
                 "DELETE FROM ConfigAttrEntry cae WHERE cae.domain = :dom AND cae.usergroup = :ug"); // NOI18N
-        delCfgAttr.setParameter("dom", ug.getDomain()); // NOI18N
-        delCfgAttr.setParameter("ug", ug); // NOI18N
+        delCfgAttr.setParameter("dom", ug.getDomain());                                             // NOI18N
+        delCfgAttr.setParameter("ug", ug);                                                          // NOI18N
 
         final int delCfgAttrCount = delCfgAttr.executeUpdate();
         if (LOG.isDebugEnabled()) {
@@ -92,7 +92,7 @@ public class UserBackend implements UserService {
         }
 
         final Query delCPerm = em.createQuery("DELETE FROM ClassPermission cperm WHERE cperm.userGroup = :ug"); // NOI18N
-        delCPerm.setParameter("ug", ug); // NOI18N
+        delCPerm.setParameter("ug", ug);                                                                        // NOI18N
 
         final int delCPermCount = delCPerm.executeUpdate();
         if (LOG.isDebugEnabled()) {
