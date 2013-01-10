@@ -7,9 +7,6 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -138,6 +135,16 @@ public class ConfigAttrBackendTest {
         System.out.println(caes);
     }
 
+//    @Test
+    public void testGetEntries_UsrStrBool(){
+        final User user = new User();
+        user.setId(0);
+        final List<ConfigAttrEntry> caesWC = backend.getEntries(user, "WUNDA_BLAU", true, true);
+        final List<Object[]> caesNC = backend.getEntriesNewCollect(user, true);
+        
+         System.out.println("caesNC=" + caesNC.size() + " | caesWC" + caesWC.size());
+    }
+         
     /**
      * DOCUMENT ME!
      */
