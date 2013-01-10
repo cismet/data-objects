@@ -91,18 +91,27 @@ public final class ConfigAttrBackend implements ConfigAttrService {
     public List<ConfigAttrEntry> getEntries(final Domain dom,
             final UserGroup ug,
             final User user,
+            final boolean collect) {
+        return getEntries(dom, ug, user, provider.getRuntimeProperties().getProperty("serverName"), collect); // NOI18N
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final Domain dom,
+            final UserGroup ug,
+            final User user,
             final String localDomainName,
             final boolean collect) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("get all config attr entries: [domain=" + dom + "|ug=" + ug + "|usr=" + user + "|collect="
-                        + collect + "]");
+            LOG.trace("get all config attr entries: [domain=" + dom + "|ug=" + ug + "|usr=" + user // NOI18N
+                        + "|collect=" // NOI18N
+                        + collect + "]"); // NOI18N
         }
 
         final StringBuilder query = new StringBuilder("FROM ConfigAttrEntry cae WHERE (cae.domain.id = "); // NOI18N
         query.append(dom.getId());
 
         if (dom.getName().equals(localDomainName)) {
-            query.append(" OR cae.domain = (FROM Domain d WHERE d.name = 'LOCAL')");
+            query.append(" OR cae.domain = (FROM Domain d WHERE d.name = 'LOCAL')"); // NOI18N
         }
 
         query.append(')');
@@ -143,17 +152,61 @@ public final class ConfigAttrBackend implements ConfigAttrService {
 
     @Override
     public List<ConfigAttrEntry> getEntries(final User user, final String localDomainName) {
+        return getEntries(user, localDomainName, false, false);
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final User user,
+            final String localDomainName,
+            final boolean newCollect,
+            final boolean includeConflicting) {
         if (LOG.isTraceEnabled()) {
-            LOG.trace("get all config attr entries: [usr=" + user + "]"); // NOI18N
+            LOG.trace("get all config attr entries: [usr=" + user + "|localDomainName=" + localDomainName // NOI18N
+                        + "|newCollect=" + newCollect + "|includeConflicting=" + includeConflicting + "]"); // NOI18N
         }
 
         final List<ConfigAttrEntry> result = new ArrayList<ConfigAttrEntry>();
 
-        for (final UserGroup ug : user.getUserGroups()) {
-            result.addAll(getEntries(ug.getDomain(), ug, user, localDomainName, true));
+        if (newCollect) {
+            final List<Object[]> res = getEntriesNewCollect(user, includeConflicting);
+            for (final Object[] entry : res) {
+                result.add((ConfigAttrEntry)entry[0]);
+            }
+        } else {
+            for (final UserGroup ug : user.getUserGroups()) {
+                result.addAll(getEntries(ug.getDomain(), ug, user, localDomainName, true));
+            }
         }
 
         return result;
+    }
+
+    @Override
+    public List<Object[]> getEntriesNewCollect(final User user, final boolean includeConflicting) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("get all config attr entries: [usr=" + user + "|includeConflicting=" + includeConflicting + "]"); // NOI18N
+        }
+
+        //J-
+        // using native query to ensure distinct and join will work as expected and that we can make use of the custom
+        // resultset
+        final String query = "SELECT " + (includeConflicting ? "" : "DISTINCT ON (cae.key_id)") + " cae.*, jt.origin_ug_name "
+                + "FROM cs_config_attr_jt cae "
+                + "JOIN ("
+                    + "SELECT mem.usr_id, mem.ug_id, ug.domain, ug.prio, ug.name AS origin_ug_name "
+                    + "FROM cs_ug ug, cs_ug_membership mem, cs_domain dom "
+                    + "WHERE ug.id = mem.ug_id AND dom.id = ug.domain AND mem.usr_id = ?1) AS jt "
+                + "ON (cae.dom_id = jt.domain AND (cae.ug_id IS NULL OR (cae.ug_id = jt.ug_id AND (cae.usr_id IS NULL OR cae.usr_id = jt.usr_id)))) "
+                + "LEFT OUTER JOIN cs_config_attr_exempt exc "
+                + "ON exc.key_id = cae.key_id AND exc.ug_id = jt.ug_id "
+                + "ORDER BY cae.key_id, exc.ug_id, jt.prio";
+        //J+
+
+        final EntityManager manager = provider.getEntityManager();
+        final Query nQuery = manager.createNativeQuery(query, "config_attr_entry-origin_ug_name"); // NOI18N
+        nQuery.setParameter(1, user.getId());
+
+        return nQuery.getResultList();
     }
 
     /**
@@ -317,7 +370,7 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         final CriteriaQuery<ConfigAttrKey> cq = cb.createQuery(ConfigAttrKey.class);
         final Root<ConfigAttrKey> root = cq.from(ConfigAttrKey.class);
 
-        cq.where(cb.equal(root.get("key"), key.getKey()));
+        cq.where(cb.equal(root.get("key"), key.getKey())); // NOI18N
 
         try {
             manager.createQuery(cq).getSingleResult();

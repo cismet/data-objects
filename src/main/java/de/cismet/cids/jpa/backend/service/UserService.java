@@ -25,6 +25,13 @@ public interface UserService {
     /**
      * DOCUMENT ME!
      *
+     * @param  ug  DOCUMENT ME!
+     */
+    void delete(final UserGroup ug);
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   userName  DOCUMENT ME!
      * @param   password  DOCUMENT ME!
      *
@@ -40,4 +47,11 @@ public interface UserService {
      * @return  DOCUMENT ME!
      */
     List<ClassPermission> getClassPermissions(final UserGroup ug);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Integer getLowestUGPrio();
 }

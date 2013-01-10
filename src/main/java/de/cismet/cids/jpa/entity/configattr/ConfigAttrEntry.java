@@ -16,13 +16,16 @@ import java.io.Serializable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
 import javax.persistence.Entity;
+import javax.persistence.EntityResult;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
 import de.cismet.cids.jpa.entity.common.CommonEntity;
@@ -39,6 +42,11 @@ import de.cismet.cids.jpa.entity.user.UserGroup;
 @Entity
 @Table(name = "cs_config_attr_jt")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@SqlResultSetMapping(
+    name = "config_attr_entry-origin_ug_name",
+    entities = { @EntityResult(entityClass = ConfigAttrEntry.class), },
+    columns = { @ColumnResult(name = "origin_ug_name") }
+)
 public class ConfigAttrEntry extends CommonEntity implements Serializable {
 
     //~ Instance fields --------------------------------------------------------

@@ -77,7 +77,7 @@ public class TableLoader implements ClosableResource {
         this.runtime = runtime;
         try {
             data = new SimpleTablesDataProvider(runtime);
-        } catch (SQLException ex) {
+        } catch (final SQLException ex) {
             throw new TableLoaderException(
                 exceptionBundle.getString(
                     DiffAccessor.TABLE_LOADER_EXCPETION_STDP_CREATION_FAILED),
@@ -148,6 +148,7 @@ public class TableLoader implements ClosableResource {
      *
      * @throws  TableLoaderException  DOCUMENT ME!
      */
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     private void loadClasses() throws TableLoaderException {
         try {
             final List<CidsClass> l;

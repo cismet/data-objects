@@ -187,6 +187,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
      *
      * @throws  IllegalArgumentException  if an essential property is missing
      */
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     private Map getPropertyMap(final Properties p, final boolean caching) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("building property map: start"); // NOI18N
@@ -219,7 +220,6 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
             map.put(
                 "hibernate.connection.password",                                                 // NOI18N
                 new String(PasswordEncrypter.decrypt(currentProp.toCharArray(), false)));
-            System.out.println(map.get("hibernate.connection.password"));
 
             currentProp = p.getProperty("connection.url");                                  // NOI18N
             if ((currentProp == null) || currentProp.trim().isEmpty()) {

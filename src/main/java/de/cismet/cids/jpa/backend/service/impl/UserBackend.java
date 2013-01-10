@@ -7,14 +7,15 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
+import org.apache.log4j.Logger;
+
 import java.util.List;
-import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
-import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.backend.service.UserService;
 import de.cismet.cids.jpa.entity.permission.ClassPermission;
 import de.cismet.cids.jpa.entity.user.User;
@@ -27,6 +28,11 @@ import de.cismet.cids.jpa.entity.user.UserGroup;
  * @version  $Revision$, $Date$
  */
 public class UserBackend implements UserService {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    /** LOGGER. */
+    private static final transient Logger LOG = Logger.getLogger(UserBackend.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -61,5 +67,38 @@ public class UserBackend implements UserService {
         q.setParameter("ug", ug);                                                     // NOI18N
 
         return q.getResultList();
+    }
+
+    @Override
+    public Integer getLowestUGPrio() {
+        final EntityManager em = provider.getEntityManager();
+        final TypedQuery<Integer> q = em.createQuery("SELECT MAX(priority) FROM UserGroup", Integer.class); // NOI18N
+
+        return q.getSingleResult() + 1;
+    }
+
+    @Override
+    public void delete(final UserGroup ug) {
+        final EntityManager em = provider.getEntityManager();
+
+        final Query delCfgAttr = em.createQuery(
+                "DELETE FROM ConfigAttrEntry cae WHERE cae.domain = :dom AND cae.usergroup = :ug"); // NOI18N
+        delCfgAttr.setParameter("dom", ug.getDomain());                                             // NOI18N
+        delCfgAttr.setParameter("ug", ug);                                                          // NOI18N
+
+        final int delCfgAttrCount = delCfgAttr.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrCount + "' config attr entries for usergroup: " + ug); // NOI18N
+        }
+
+        final Query delCPerm = em.createQuery("DELETE FROM ClassPermission cperm WHERE cperm.userGroup = :ug"); // NOI18N
+        delCPerm.setParameter("ug", ug);                                                                        // NOI18N
+
+        final int delCPermCount = delCPerm.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCPermCount + "' class permissions for usergroup: " + ug); // NOI18N
+        }
+
+        provider.delete(ug);
     }
 }

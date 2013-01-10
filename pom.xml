@@ -10,7 +10,7 @@
 
     <groupId>de.cismet.cids</groupId>
     <artifactId>data-objects</artifactId>
-    <version>3.0</version>
+    <version>3.1</version>
     <packaging>jar</packaging>
 
     <name>cids DataObjects</name>

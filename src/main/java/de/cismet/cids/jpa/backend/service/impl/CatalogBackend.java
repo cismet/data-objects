@@ -73,6 +73,7 @@ public class CatalogBackend implements CatalogService {
 
     //~ Methods ----------------------------------------------------------------
 
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     @Override
     public Map<String, String> getSimpleObjectInformation(final CatNode node) {
         if (!node.getNodeType().equals(CatNode.Type.OBJECT.getType())) {
@@ -427,6 +428,7 @@ public class CatalogBackend implements CatalogService {
      *
      * @return  DOCUMENT ME!
      */
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     private synchronized Set<Integer> getNonLeafNodes() {
         Connection con = null;
         Statement stmt = null;
