@@ -376,20 +376,17 @@ public final class BackendImpl implements Backend {
     }
 
     @Override
-    public List<ClassPermission> getClassPermissions(final UserGroup ug)
-    {
+    public List<ClassPermission> getClassPermissions(final UserGroup ug) {
         return ub.getClassPermissions(ug);
     }
 
     @Override
-    public Integer getLowestUGPrio()
-    {
+    public Integer getLowestUGPrio() {
         return ub.getLowestUGPrio();
     }
 
     @Override
-    public void delete(UserGroup ug)
-    {
+    public void delete(final UserGroup ug) {
         ub.delete(ug);
     }
 
@@ -402,8 +399,11 @@ public final class BackendImpl implements Backend {
     }
 
     @Override
-    public List<ConfigAttrEntry> getEntries(Domain dom, UserGroup ug, User user, boolean collect)
-    {
+    public List<ConfigAttrEntry> getEntries(
+            final Domain dom,
+            final UserGroup ug,
+            final User user,
+            final boolean collect) {
         return configAttrService.getEntries(dom, ug, user, collect);
     }
 
@@ -422,7 +422,11 @@ public final class BackendImpl implements Backend {
     }
 
     @Override
-    public List<ConfigAttrEntry> getEntries(final User user, final String localDomainName, final boolean newCollect, final boolean includeConflicts) {
+    public List<ConfigAttrEntry> getEntries(
+            final User user,
+            final String localDomainName,
+            final boolean newCollect,
+            final boolean includeConflicts) {
         return configAttrService.getEntries(user, localDomainName, newCollect, includeConflicts);
     }
 

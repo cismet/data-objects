@@ -162,6 +162,7 @@ public class DiffAccessor {
      * @throws  TableLoaderException      if something went wrong during table load
      * @throws  ScriptGeneratorException  if statements could not be generated for any reason
      */
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     public PSQLStatementGroup[] getStatementGroups() throws TableLoaderException, ScriptGeneratorException {
         TableLoader t = null;
         try {

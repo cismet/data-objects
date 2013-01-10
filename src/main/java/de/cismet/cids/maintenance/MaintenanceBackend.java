@@ -72,6 +72,7 @@ public class MaintenanceBackend {
      *
      * @return  DOCUMENT ME!
      */
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     public InspectionResult checkTable(final String tablename) {
         if (properties == null) {
             return null;

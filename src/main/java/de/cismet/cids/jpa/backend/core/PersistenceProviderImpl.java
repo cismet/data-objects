@@ -187,6 +187,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
      *
      * @throws  IllegalArgumentException  if an essential property is missing
      */
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     private Map getPropertyMap(final Properties p, final boolean caching) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("building property map: start"); // NOI18N

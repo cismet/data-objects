@@ -57,7 +57,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
     //~ Methods ----------------------------------------------------------------
 
     // it is only thrown for tracing purposes
-    @SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
+    @SuppressWarnings({ "PMD.AvoidThrowingRawExceptionTypes", "PMD.AvoidCatchingGenericException" })
     @Override
     public Object invoke(final MethodInvocation mi) throws Throwable {
         final Method method = mi.getMethod();
@@ -164,6 +164,7 @@ public class PersistenceInterceptor implements MethodInterceptor {
      *
      * @throws  Throwable  DOCUMENT ME!
      */
+    @SuppressWarnings({ "PMD.AvoidThrowingRawExceptionTypes", "PMD.AvoidCatchingGenericException" })
     private void cleanup(final Method m, final Throwable t) throws Throwable {
         final Method associatedMethod = methodHolder.get();
         // if no method is associated with the calling thread or if method to
