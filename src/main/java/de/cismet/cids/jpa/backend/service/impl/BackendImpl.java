@@ -381,6 +381,12 @@ public final class BackendImpl implements Backend {
         return ub.getClassPermissions(ug);
     }
 
+    @Override
+    public Integer getLowestUGPrio()
+    {
+        return ub.getLowestUGPrio();
+    }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" Part: ConfigAttrBackend ">

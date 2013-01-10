@@ -40,4 +40,11 @@ public interface UserService {
      * @return  DOCUMENT ME!
      */
     List<ClassPermission> getClassPermissions(final UserGroup ug);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Integer getLowestUGPrio();
 }

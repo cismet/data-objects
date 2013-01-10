@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -80,9 +81,13 @@ public class UserGroup extends CommonEntity implements Serializable {
     @Column(name = "descr")
     private String description;
 
+    @Column(name = "prio")
+    private int priority;
+
     @ManyToOne(
         optional = false,
-        fetch = FetchType.EAGER
+        fetch = FetchType.EAGER,
+        cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }
     )
     @JoinColumn(
         name = "domain",
@@ -91,7 +96,10 @@ public class UserGroup extends CommonEntity implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Domain domain;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(
+        fetch = FetchType.EAGER,
+        cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }
+    )
     @JoinTable(
         name = "cs_ug_membership",
         joinColumns = { @JoinColumn(name = "ug_id") },
@@ -206,5 +214,23 @@ public class UserGroup extends CommonEntity implements Serializable {
     @Override
     public void setId(final Integer id) {
         this.id = id;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public int getPriority() {
+        return priority;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  priority  DOCUMENT ME!
+     */
+    public void setPriority(final int priority) {
+        this.priority = priority;
     }
 }
