@@ -387,6 +387,12 @@ public final class BackendImpl implements Backend {
         return ub.getLowestUGPrio();
     }
 
+    @Override
+    public void delete(UserGroup ug)
+    {
+        ub.delete(ug);
+    }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" Part: ConfigAttrBackend ">
