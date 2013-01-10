@@ -29,6 +29,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -92,6 +93,7 @@ public class User extends CommonEntity implements Serializable {
         joinColumns = { @JoinColumn(name = "usr_id") },
         inverseJoinColumns = { @JoinColumn(name = "ug_id") }
     )
+    @OrderBy(value = "priority")
     @Fetch(FetchMode.SUBSELECT)
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<UserGroup> userGroups;
