@@ -59,6 +59,21 @@ public interface ConfigAttrService extends ClosableResource {
     /**
      * DOCUMENT ME!
      *
+     * @param   dom      DOCUMENT ME!
+     * @param   ug       DOCUMENT ME!
+     * @param   user     DOCUMENT ME!
+     * @param   collect  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<ConfigAttrEntry> getEntries(final Domain dom,
+            final UserGroup ug,
+            final User user,
+            final boolean collect);
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   dom              DOCUMENT ME!
      * @param   ug               DOCUMENT ME!
      * @param   user             DOCUMENT ME!
@@ -82,6 +97,31 @@ public interface ConfigAttrService extends ClosableResource {
      * @return  DOCUMENT ME!
      */
     List<ConfigAttrEntry> getEntries(final User user, final String localDomainName);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   user              DOCUMENT ME!
+     * @param   localDomainName   DOCUMENT ME!
+     * @param   newCollect        DOCUMENT ME!
+     * @param   includeConflicts  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<ConfigAttrEntry> getEntries(final User user,
+            final String localDomainName,
+            final boolean newCollect,
+            final boolean includeConflicts);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   user              DOCUMENT ME!
+     * @param   includeConflicts  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<Object[]> getEntriesNewCollect(final User user, final boolean includeConflicts);
 
     /**
      * DOCUMENT ME!

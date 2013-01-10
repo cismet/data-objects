@@ -402,6 +402,12 @@ public final class BackendImpl implements Backend {
     }
 
     @Override
+    public List<ConfigAttrEntry> getEntries(Domain dom, UserGroup ug, User user, boolean collect)
+    {
+        return configAttrService.getEntries(dom, ug, user, collect);
+    }
+
+    @Override
     public List<ConfigAttrEntry> getEntries(final Domain dom,
             final UserGroup ug,
             final User user,
@@ -413,6 +419,16 @@ public final class BackendImpl implements Backend {
     @Override
     public List<ConfigAttrEntry> getEntries(final User user, final String localDomainName) {
         return configAttrService.getEntries(user, localDomainName);
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final User user, final String localDomainName, final boolean newCollect, final boolean includeConflicts) {
+        return configAttrService.getEntries(user, localDomainName, newCollect, includeConflicts);
+    }
+
+    @Override
+    public List<Object[]> getEntriesNewCollect(final User user, final boolean includeConflicts) {
+        return configAttrService.getEntriesNewCollect(user, includeConflicts);
     }
 
     @Override
