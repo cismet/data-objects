@@ -207,7 +207,7 @@ public class CatalogBackend implements CatalogService {
     public boolean deleteNode(final CatNode parent, final CatNode node) {
         final EntityManager em = provider.getEntityManager();
         // if parent == null then link will not exist
-        Query q = null;
+        Query q;
         if (parent != null) {
             q = em.createQuery("FROM CatLink c WHERE c.idTo = " + node.getId() + " AND c.idFrom = " + parent.getId()); // NOI18N
             provider.delete((CommonEntity)q.getSingleResult());
@@ -298,7 +298,7 @@ public class CatalogBackend implements CatalogService {
         newNode.setObjectId(node.getObjectId());
         newNode.setPolicy(node.getPolicy());
         newNode.setSqlSort(node.getSqlSort());
-        newNode.setUrl((node.getUrl().getId() == null) ? null : node.getUrl());
+        newNode.setUrl(((node.getUrl() == null) || (node.getUrl().getId() == null)) ? null : node.getUrl());
         newNode = addNode(newParent, newNode, domainTo);
         copyLinks(node, newNode);
     }
