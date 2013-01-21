@@ -81,10 +81,20 @@ public class UserBackend implements UserService {
     public void delete(final UserGroup ug) {
         final EntityManager em = provider.getEntityManager();
 
-        final Query delCfgAttr = em.createQuery(
-                "DELETE FROM ConfigAttrEntry cae WHERE cae.domain = :dom AND cae.usergroup = :ug"); // NOI18N
-        delCfgAttr.setParameter("dom", ug.getDomain());                                             // NOI18N
-        delCfgAttr.setParameter("ug", ug);                                                          // NOI18N
+        final StringBuilder delCfgAttrBuilder = new StringBuilder(
+                "DELETE FROM ConfigAttrEntry cae WHERE ( cae.domain = :dom ");                            // NOI18N
+        if (ug.getDomain().getName().equals(provider.getRuntimeProperties().getProperty("serverName"))) { // NOI18N
+            delCfgAttrBuilder.append("OR cae.domain = ( FROM Domain d WHERE d.name = 'LOCAL' ) ");        // NOI18N
+        }
+        delCfgAttrBuilder.append(") AND cae.usergroup = :ug");                                            // NOI18N
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("created cfg attr delete query: " + delCfgAttrBuilder.toString()); // NOI18N
+        }
+
+        final Query delCfgAttr = em.createQuery(delCfgAttrBuilder.toString());
+        delCfgAttr.setParameter("dom", ug.getDomain()); // NOI18N
+        delCfgAttr.setParameter("ug", ug);              // NOI18N
 
         final int delCfgAttrCount = delCfgAttr.executeUpdate();
         if (LOG.isDebugEnabled()) {
