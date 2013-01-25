@@ -99,6 +99,22 @@ public class UserBackend implements UserService {
             LOG.debug("deleted '" + delCPermCount + "' class permissions for usergroup: " + ug); // NOI18N
         }
 
+        final Query delNPerm = em.createQuery("DELETE FROM NodePermission nperm WHERE nperm.userGroup = :ug"); // NOI18N
+        delNPerm.setParameter("ug", ug);                                                                       // NOI18N
+
+        final int delNPermCount = delNPerm.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delNPermCount + "' node permissions for usergroup: " + ug); // NOI18N
+        }
+
+        final Query delAPerm = em.createQuery("DELETE FROM AttributePermission aperm WHERE aperm.userGroup = :ug"); // NOI18N
+        delAPerm.setParameter("ug", ug);                                                                            // NOI18N
+
+        final int delAPermCount = delAPerm.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delAPermCount + "' attribute permissions for usergroup: " + ug); // NOI18N
+        }
+
         provider.delete(ug);
     }
 }
