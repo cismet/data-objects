@@ -14,10 +14,13 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.UserService;
-import de.cismet.cids.jpa.entity.permission.ClassPermission;
+import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
@@ -61,10 +64,15 @@ public class UserBackend implements UserService {
     }
 
     @Override
-    public List<ClassPermission> getClassPermissions(final UserGroup ug) {
+    public <T extends AbstractPermission> List<T> getPermissions(final Class<T> permType, final UserGroup ug) {
         final EntityManager em = provider.getEntityManager();
-        final Query q = em.createQuery("FROM ClassPermission WHERE userGroup = :ug"); // NOI18N
-        q.setParameter("ug", ug);                                                     // NOI18N
+
+        final CriteriaBuilder cb = em.getCriteriaBuilder();
+        final CriteriaQuery<T> cq = cb.createQuery(permType);
+        final Root<T> root = cq.from(permType);
+        cq.where(cb.equal(root.get("userGroup"), ug));
+
+        final Query q = em.createQuery(cq);
 
         return q.getResultList();
     }
