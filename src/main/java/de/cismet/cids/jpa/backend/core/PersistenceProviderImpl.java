@@ -23,6 +23,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
+import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.entity.common.CommonEntity;
 
 import de.cismet.tools.PasswordEncrypter;
@@ -46,6 +47,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
 
     private final transient Properties runtimeProperties;
     private transient boolean closed;
+    private transient Backend backend;
 
     // the lock shall be used to synchronize the closed state
     private final transient ReentrantReadWriteLock rwLock;
@@ -400,5 +402,19 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
         } catch (final NoResultException ex) {
             return false;
         }
+    }
+
+    @Override
+    public Backend getBackend() {
+        return backend;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  backend  DOCUMENT ME!
+     */
+    public void setBackend(final Backend backend) {
+        this.backend = backend;
     }
 }

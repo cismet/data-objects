@@ -92,6 +92,8 @@ public final class BackendImpl implements Backend {
         catBackend = injector.wrapObject(CatalogService.class, new CatalogBackend(provider));
         metaBackend = injector.wrapObject(MetaService.class, new MetaBackend(properties));
         configAttrService = injector.wrapObject(ConfigAttrService.class, new ConfigAttrBackend(provider));
+
+        p.setBackend(this);
     }
     // </editor-fold>
 
