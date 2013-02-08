@@ -390,6 +390,16 @@ public final class BackendImpl implements Backend {
         ub.delete(ug);
     }
 
+    @Override
+    public UserGroup copy(final UserGroup original) {
+        return ub.copy(original);
+    }
+
+    @Override
+    public UserGroup copy(final UserGroup original, final UserGroup newGroup) {
+        return ub.copy(original, newGroup);
+    }
+
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc=" Part: ConfigAttrBackend ">

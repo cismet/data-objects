@@ -32,6 +32,25 @@ public interface UserService {
     /**
      * DOCUMENT ME!
      *
+     * @param   original  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    UserGroup copy(final UserGroup original);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   original  DOCUMENT ME!
+     * @param   newGroup  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    UserGroup copy(final UserGroup original, final UserGroup newGroup);
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   userName  DOCUMENT ME!
      * @param   password  DOCUMENT ME!
      *
