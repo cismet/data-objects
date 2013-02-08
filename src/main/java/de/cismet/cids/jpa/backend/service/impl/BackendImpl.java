@@ -40,7 +40,7 @@ import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrKey;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrType.Types;
-import de.cismet.cids.jpa.entity.permission.ClassPermission;
+import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
@@ -92,6 +92,8 @@ public final class BackendImpl implements Backend {
         catBackend = injector.wrapObject(CatalogService.class, new CatalogBackend(provider));
         metaBackend = injector.wrapObject(MetaService.class, new MetaBackend(properties));
         configAttrService = injector.wrapObject(ConfigAttrService.class, new ConfigAttrBackend(provider));
+
+        p.setBackend(this);
     }
     // </editor-fold>
 
@@ -376,8 +378,8 @@ public final class BackendImpl implements Backend {
     }
 
     @Override
-    public List<ClassPermission> getClassPermissions(final UserGroup ug) {
-        return ub.getClassPermissions(ug);
+    public <T extends AbstractPermission> List<T> getPermissions(final Class<T> permType, final UserGroup ug) {
+        return ub.getPermissions(permType, ug);
     }
 
     @Override
@@ -388,6 +390,16 @@ public final class BackendImpl implements Backend {
     @Override
     public void delete(final UserGroup ug) {
         ub.delete(ug);
+    }
+
+    @Override
+    public UserGroup copy(final UserGroup original) {
+        return ub.copy(original);
+    }
+
+    @Override
+    public UserGroup copy(final UserGroup original, final UserGroup newGroup) {
+        return ub.copy(original, newGroup);
     }
 
     // </editor-fold>

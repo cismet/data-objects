@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import javax.persistence.EntityManager;
 
+import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.backend.service.CommonService;
 
 /**
@@ -55,4 +56,11 @@ public interface PersistenceProvider extends CommonService {
      */
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     void monitorClose(final ClosableResource resource) throws Exception;
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Backend getBackend();
 }

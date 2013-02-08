@@ -9,7 +9,7 @@ package de.cismet.cids.jpa.backend.service;
 
 import java.util.List;
 
-import de.cismet.cids.jpa.entity.permission.ClassPermission;
+import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
@@ -32,6 +32,25 @@ public interface UserService {
     /**
      * DOCUMENT ME!
      *
+     * @param   original  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    UserGroup copy(final UserGroup original);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   original  DOCUMENT ME!
+     * @param   newGroup  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    UserGroup copy(final UserGroup original, final UserGroup newGroup);
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   userName  DOCUMENT ME!
      * @param   password  DOCUMENT ME!
      *
@@ -42,11 +61,13 @@ public interface UserService {
     /**
      * DOCUMENT ME!
      *
-     * @param   ug  DOCUMENT ME!
+     * @param   <T>       DOCUMENT ME!
+     * @param   permType  DOCUMENT ME!
+     * @param   ug        DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    List<ClassPermission> getClassPermissions(final UserGroup ug);
+    <T extends AbstractPermission> List<T> getPermissions(final Class<T> permType, final UserGroup ug);
 
     /**
      * DOCUMENT ME!
