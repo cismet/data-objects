@@ -19,8 +19,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
+import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.backend.service.UserService;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
 import de.cismet.cids.jpa.entity.permission.AbstractPermission;
+import de.cismet.cids.jpa.entity.permission.AttributePermission;
+import de.cismet.cids.jpa.entity.permission.ClassPermission;
+import de.cismet.cids.jpa.entity.permission.NodePermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
@@ -123,6 +128,97 @@ public class UserBackend implements UserService {
             LOG.debug("deleted '" + delAPermCount + "' attribute permissions for usergroup: " + ug); // NOI18N
         }
 
+        for (final User u : ug.getUsers()) {
+            u.getUserGroups().remove(ug);
+            provider.store(u);
+        }
+
+        ug.getUsers().clear();
+
         provider.delete(ug);
+    }
+
+    @Override
+    public UserGroup copy(final UserGroup original) {
+        return copy(original, null);
+    }
+
+    @Override
+    public UserGroup copy(final UserGroup original, final UserGroup newUg) {
+        if (original == null) {
+            throw new IllegalArgumentException("cannot copy user without original"); // NOI18N
+        }
+
+        UserGroup newGroup;
+        if (newUg == null) {
+            newGroup = new UserGroup();
+            newGroup.setDescription(original.getDescription());
+            newGroup.setDomain(original.getDomain());
+            newGroup.setName(original.getName());
+            newGroup.setUsers(original.getUsers());
+        } else {
+            newGroup = newUg;
+        }
+
+        newGroup.setPriority(getLowestUGPrio());
+
+        newGroup = provider.store(newGroup);
+
+        for (final User u : newGroup.getUsers()) {
+            u.getUserGroups().add(newGroup);
+            provider.store(u);
+        }
+
+        final Backend backend = provider.getBackend();
+
+        final List<ConfigAttrEntry> caes = backend.getEntries(
+                original.getDomain(),
+                original,
+                null,
+                provider.getRuntimeProperties().getProperty("serverName"), // NOI18N
+                false);
+        for (final ConfigAttrEntry cae : caes) {
+            final ConfigAttrEntry clone = new ConfigAttrEntry();
+            clone.setDomain(cae.getDomain());
+            clone.setKey(cae.getKey());
+            clone.setType(cae.getType());
+            clone.setUser(null);
+            clone.setUsergroup(newGroup);
+            clone.setValue(cae.getValue());
+
+            backend.storeEntry(clone);
+        }
+
+        final List<ClassPermission> cperms = getPermissions(ClassPermission.class, original);
+        for (final ClassPermission cperm : cperms) {
+            final ClassPermission perm = new ClassPermission();
+            perm.setCidsClass(cperm.getCidsClass());
+            perm.setPermission(cperm.getPermission());
+            perm.setUserGroup(newGroup);
+
+            backend.store(perm);
+        }
+
+        final List<AttributePermission> aperms = getPermissions(AttributePermission.class, original);
+        for (final AttributePermission aperm : aperms) {
+            final AttributePermission perm = new AttributePermission();
+            perm.setAttribute(aperm.getAttribute());
+            perm.setPermission(aperm.getPermission());
+            perm.setUserGroup(newGroup);
+
+            backend.store(perm);
+        }
+
+        final List<NodePermission> nperms = getPermissions(NodePermission.class, original);
+        for (final NodePermission nperm : nperms) {
+            final NodePermission perm = new NodePermission();
+            perm.setNode(nperm.getNode());
+            perm.setPermission(nperm.getPermission());
+            perm.setUserGroup(newGroup);
+
+            backend.store(perm);
+        }
+
+        return newGroup;
     }
 }
