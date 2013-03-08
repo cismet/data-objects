@@ -27,7 +27,6 @@ import de.cismet.cids.jpa.backend.service.ConfigAttrService;
 import de.cismet.cids.jpa.backend.service.MetaService;
 import de.cismet.cids.jpa.backend.service.UserService;
 import de.cismet.cids.jpa.entity.catalog.CatNode;
-import de.cismet.cids.jpa.entity.cidsclass.Attribute;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 import de.cismet.cids.jpa.entity.cidsclass.Icon;
 import de.cismet.cids.jpa.entity.cidsclass.JavaClass;
@@ -247,16 +246,6 @@ public final class BackendImpl implements Backend {
     @Override
     public void refreshIndex(final CidsClass cidsClass) throws SQLException {
         metaBackend.refreshIndex(cidsClass);
-    }
-
-    @Override
-    public void adjustTypeClassId(final Type type) throws SQLException {
-        metaBackend.adjustTypeClassId(type);
-    }
-
-    @Override
-    public void adjustAttrForeignKey(final Attribute attr) throws SQLException {
-        metaBackend.adjustAttrForeignKey(attr);
     }
 
     @Override
