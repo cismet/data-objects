@@ -19,8 +19,11 @@ import java.util.Properties;
 import de.cismet.cids.jpa.backend.service.MetaService;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 
-import de.cismet.cids.util.AbstractProgressObservable;
-import de.cismet.cids.util.ProgressListener.ProgressState;
+import de.cismet.commons.utils.ProgressEvent;
+import de.cismet.commons.utils.ProgressEvent.State;
+import de.cismet.commons.utils.ProgressListener;
+import de.cismet.commons.utils.ProgressObservable;
+import de.cismet.commons.utils.ProgressSupport;
 
 import de.cismet.diff.db.DatabaseConnection;
 
@@ -30,7 +33,7 @@ import de.cismet.diff.db.DatabaseConnection;
  * @author   mscholl
  * @version  1.3
  */
-public class MetaBackend extends AbstractProgressObservable implements MetaService {
+public class MetaBackend implements MetaService, ProgressObservable {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -38,6 +41,7 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
 
     //~ Instance fields --------------------------------------------------------
 
+    private final transient ProgressSupport progressSupport;
     private final transient Properties props;
 
     private transient boolean closed;
@@ -50,8 +54,10 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
      * @param  runtimeProps  DOCUMENT ME!
      */
     public MetaBackend(final Properties runtimeProps) {
+        this.progressSupport = new ProgressSupport();
+        this.closed = false;
+
         this.props = runtimeProps;
-        closed = false;
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -83,13 +89,16 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
             LOG.info("start refreshIndex for class: " + cidsClass.getName()); // NOI18N
         }
 
-        fireStateChanged(
-            new ProgressState(
+        progressSupport.fireEvent(
+            new ProgressEvent(
+                this,
+                State.STARTED,
+                0,
+                0,
                 NbBundle.getMessage(
                     MetaBackend.class,
                     "MetaBackend.refreshIndex(CidsClass).indexingStarted", // NOI18N
-                    cidsClass.getName()),
-                0));
+                    cidsClass.getName())));
 
         Connection con = null;
         try {
@@ -98,14 +107,18 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
             con.createStatement().execute("SELECT reindex(" + cidsClass.getId() + ");"); // NOI18N
         } catch (final SQLException e) {
             LOG.error("re-indexing of class '" + cidsClass.getName() + "' failed", e);   // NOI18N
-            fireStateChanged(
-                new ProgressState(
+
+            progressSupport.fireEvent(
+                new ProgressEvent(
+                    this,
+                    State.BROKEN,
+                    0,
+                    0,
                     NbBundle.getMessage(
                         MetaBackend.class,
-                        "MetaBackend.refreshIndex(CidsClass).indexingFailed",            // NOI18N
+                        "MetaBackend.refreshIndex(CidsClass).indexingFailed", // NOI18N
                         cidsClass.getName(),
-                        e.getLocalizedMessage()),
-                    0));
+                        e.getLocalizedMessage())));
 
             throw e;
         } finally {
@@ -116,14 +129,17 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
         if (LOG.isInfoEnabled()) {
             LOG.info("refresh index for class '" + cidsClass.getName() + "' completed in " + duration + " seconds"); // NOI18N
         }
-        fireStateChanged(
-            new ProgressState(
+        progressSupport.fireEvent(
+            new ProgressEvent(
+                this,
+                State.FINISHED,
+                0,
+                0,
                 NbBundle.getMessage(
                     MetaBackend.class,
                     "MetaBackend.refreshIndex(CidsClass).indexingFinished",                                          // NOI18N
                     cidsClass.getName(),
-                    duration),
-                0));
+                    duration)));
     }
 
     /**
@@ -132,5 +148,15 @@ public class MetaBackend extends AbstractProgressObservable implements MetaServi
     @Override
     public void cancel() {
         // currently not supported
+    }
+
+    @Override
+    public void addProgressListener(final ProgressListener pl) {
+        progressSupport.addProgressListener(pl);
+    }
+
+    @Override
+    public void removeProgressListener(final ProgressListener pl) {
+        progressSupport.removeProgressListener(pl);
     }
 }

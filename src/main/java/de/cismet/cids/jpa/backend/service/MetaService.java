@@ -14,7 +14,8 @@ import java.sql.SQLException;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 
 import de.cismet.cids.util.Cancelable;
-import de.cismet.cids.util.ProgressObservable;
+
+import de.cismet.commons.utils.ProgressObservable;
 
 /**
  * DOCUMENT ME!

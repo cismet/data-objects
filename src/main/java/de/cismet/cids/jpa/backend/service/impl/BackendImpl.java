@@ -43,7 +43,7 @@ import de.cismet.cids.jpa.entity.permission.AbstractPermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
-import de.cismet.cids.util.ProgressListener;
+import de.cismet.commons.utils.ProgressListener;
 
 /**
  * DOCUMENT ME!
