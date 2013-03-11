@@ -11,12 +11,11 @@ import com.mchange.v1.util.ClosableResource;
 
 import java.sql.SQLException;
 
-import de.cismet.cids.jpa.entity.cidsclass.Attribute;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
-import de.cismet.cids.jpa.entity.cidsclass.Type;
 
 import de.cismet.cids.util.Cancelable;
-import de.cismet.cids.util.ProgressObservable;
+
+import de.cismet.commons.utils.ProgressObservable;
 
 /**
  * DOCUMENT ME!
@@ -26,38 +25,16 @@ import de.cismet.cids.util.ProgressObservable;
  */
 public interface MetaService extends ClosableResource, ProgressObservable, Cancelable {
 
-    //~ Instance fields --------------------------------------------------------
-
-    String CS_ATTR_MAP_TABLE = "cs_all_attr_mapping";
-    String CS_ATTR_STRING_TABLE = "cs_attr_string";
-    String CS_CLASS_TABLE = "cs_class";
-    String CS_ATTR_TABLE = "cs_attr";
-    String CS_TYPE_TABLE = "cs_type";
-
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * DOCUMENT ME!
+     * Refreshes the index of the given {@link CidsClass} by using the new plsql indexing function.
      *
-     * @param   type  DOCUMENT ME!
+     * <p>This implemenetation makes use of the {@link ProgressListener} to propagate progress state.</p>
      *
-     * @throws  SQLException  DOCUMENT ME!
-     */
-    void adjustTypeClassId(final Type type) throws SQLException;
-    /**
-     * DOCUMENT ME!
+     * @param   cidsClass  the class that shall be reindexed
      *
-     * @param   attr  DOCUMENT ME!
-     *
-     * @throws  SQLException  DOCUMENT ME!
-     */
-    void adjustAttrForeignKey(final Attribute attr) throws SQLException;
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   cidsClass  DOCUMENT ME!
-     *
-     * @throws  SQLException  DOCUMENT ME!
+     * @throws  SQLException  if any error occurs during indexing
      */
     void refreshIndex(final CidsClass cidsClass) throws SQLException;
 }
