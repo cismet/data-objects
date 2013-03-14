@@ -382,6 +382,11 @@ public final class BackendImpl implements Backend {
     }
 
     @Override
+    public void delete(final User user) {
+        ub.delete(user);
+    }
+    
+    @Override
     public UserGroup copy(final UserGroup original) {
         return ub.copy(original);
     }

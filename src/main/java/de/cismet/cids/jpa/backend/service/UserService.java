@@ -14,9 +14,9 @@ import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
 /**
- * encapsulates methods related to user management.
+ * defines methods related to user management.
  *
- * @version  $Revision$, $Date$
+ * @version  1.5
  */
 public interface UserService {
 
@@ -28,6 +28,13 @@ public interface UserService {
      * @param  ug  DOCUMENT ME!
      */
     void delete(final UserGroup ug);
+    
+    /**
+     * Atomically delete a user and all the relationships.
+     * 
+     * @param user 
+     */
+    void delete(final User user);
 
     /**
      * DOCUMENT ME!
