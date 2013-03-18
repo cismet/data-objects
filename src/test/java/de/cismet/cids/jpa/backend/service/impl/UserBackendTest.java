@@ -4,9 +4,11 @@ package de.cismet.cids.jpa.backend.service.impl;
 
 import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.entity.configattr.ConfigAttrEntry;
+import de.cismet.cids.jpa.entity.configattr.ConfigAttrExempt;
 import de.cismet.cids.jpa.entity.permission.AttributePermission;
 import de.cismet.cids.jpa.entity.permission.ClassPermission;
 import de.cismet.cids.jpa.entity.permission.NodePermission;
+import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 import de.cismet.diff.db.DatabaseConnection;
 import de.cismet.tools.ScriptRunner;
@@ -15,7 +17,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Properties;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.BeforeClass;
@@ -96,7 +97,7 @@ public class UserBackendTest
     }
 
 //    @Test
-    public void testDelete()
+    public void testDeleteUG()
     {
         System.out.println("TEST " + getCurrentMethodName());
         
@@ -116,5 +117,22 @@ public class UserBackendTest
         
         l = backend.getAllEntities(ConfigAttrEntry.class);
         assertEquals("cfg attrs still present", 1, l.size());
+    }
+    
+//        @Test
+    public void testDeleteUser()
+    {
+        System.out.println("TEST " + getCurrentMethodName());
+        
+        final User u = backend.getEntity(User.class, 1);
+        backend.delete(u);
+        List l = backend.getAllEntities(User.class);
+        assertEquals("user still present", 0, l.size());
+        
+        l = backend.getAllEntities(ConfigAttrEntry.class);
+        assertEquals("cfg attrs still present", 6, l.size());
+        
+        l = backend.getAllEntities(ConfigAttrExempt.class);
+        assertEquals("cfg attr exempt still present", 0, l.size());
     }
 }

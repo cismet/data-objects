@@ -28,6 +28,7 @@ import de.cismet.cids.jpa.entity.permission.ClassPermission;
 import de.cismet.cids.jpa.entity.permission.NodePermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
+import de.cismet.commons.utils.StackUtils;
 
 /**
  * DOCUMENT ME!
@@ -136,6 +137,45 @@ public class UserBackend implements UserService {
         ug.getUsers().clear();
 
         provider.delete(ug);
+    }
+    
+    @Override
+    public void delete(final User user) {
+        // use log.finest if we change to another logging utility
+        if(LOG.isTraceEnabled()){
+            LOG.trace("enter " + StackUtils.getMethodName(true, true, new Object[] {user})); // NOI18N
+        }
+        
+        final EntityManager em = provider.getEntityManager();
+        
+        final Query delCfgAttr = em.createQuery("DELETE FROM ConfigAttrEntry cae WHERE cae.user = :user"); // NOI18N
+        delCfgAttr.setParameter("user", user);                                                          // NOI18N
+
+        final int delCfgAttrCount = delCfgAttr.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrCount + "' config attr entries for user: " + user); // NOI18N
+        }
+        
+        final Query delCfgAttrExempt = em.createQuery("DELETE FROM ConfigAttrExempt cae WHERE cae.user = :user"); // NOI18N
+        delCfgAttrExempt.setParameter("user", user);                                                          // NOI18N
+
+        final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrExCount + "' config attr exempt entries for user: " + user); // NOI18N
+        }
+        
+        for(final UserGroup ug : user.getUserGroups()){
+            ug.getUsers().remove(user);
+            provider.store(ug);
+        }
+        
+        user.getUserGroups().clear();
+        
+        provider.delete(user);
+        
+        if(LOG.isTraceEnabled()){
+            LOG.trace("leave " + StackUtils.getMethodName(true, true, new Object[] {user})); // NOI18N
+        }
     }
 
     @Override
