@@ -157,7 +157,7 @@ public class UserBackend implements UserService {
         }
         
         final Query delCfgAttrExempt = em.createQuery("DELETE FROM ConfigAttrExempt cae WHERE cae.user = :user"); // NOI18N
-        delCfgAttr.setParameter("user", user);                                                          // NOI18N
+        delCfgAttrExempt.setParameter("user", user);                                                          // NOI18N
 
         final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();
         if (LOG.isDebugEnabled()) {

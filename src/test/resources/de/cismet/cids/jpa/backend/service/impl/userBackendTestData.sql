@@ -58,6 +58,9 @@ INSERT INTO cs_config_attr_value (value) VALUES ('e');
 INSERT INTO cs_config_attr_value (value) VALUES ('f');
 INSERT INTO cs_config_attr_value (value) VALUES ('orphanvalue3');
 
+INSERT INTO cs_config_attr_exempt (usr_id, ug_id, key_id) VALUES (1, 1, 2);
+INSERT INTO cs_config_attr_exempt (usr_id, ug_id, key_id) VALUES (1, 1, 4);
+
 INSERT INTO cs_config_attr_jt         (ug_id, dom_id, key_id, val_id) VALUES    (1, 0, 1,  2);
 INSERT INTO cs_config_attr_jt (usr_id, ug_id, dom_id, key_id, val_id) VALUES (1, 1, 0, 1,  3);
 INSERT INTO cs_config_attr_jt         (ug_id, dom_id, key_id, val_id) VALUES    (1, 0, 2,  5);
