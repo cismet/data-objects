@@ -89,7 +89,9 @@ public class UserBackend implements UserService {
         final EntityManager em = provider.getEntityManager();
         final TypedQuery<Integer> q = em.createQuery("SELECT MAX(priority) FROM UserGroup", Integer.class); // NOI18N
 
-        return q.getSingleResult() + 1;
+        final Integer prio = q.getSingleResult();
+
+        return (prio == null) ? 1 : (prio + 1);
     }
 
     @Override

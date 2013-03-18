@@ -94,6 +94,20 @@ public class UserBackendTest
 //    @Test
     public void testGetLowestUGPrio()
     {
+        System.out.println("TEST " + getCurrentMethodName());
+        
+        int result = backend.getLowestUGPrio();
+        int expected = 2;
+        
+        assertEquals(expected, result);
+        
+        final UserGroup u = backend.getEntity(UserGroup.class, 1);
+        backend.delete(u);
+        
+        result = backend.getLowestUGPrio();
+        expected = 1;
+        
+        assertEquals(expected, result);
     }
 
 //    @Test
