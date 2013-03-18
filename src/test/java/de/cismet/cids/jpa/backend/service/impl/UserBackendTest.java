@@ -138,4 +138,25 @@ public class UserBackendTest
         l = backend.getAllEntities(ConfigAttrExempt.class);
         assertEquals("cfg attr exempt still present", 0, l.size());
     }
+    
+//            @Test
+    public void testRemoveMembership()
+    {
+        System.out.println("TEST " + getCurrentMethodName());
+        
+        User u = backend.getEntity(User.class, 1);
+        UserGroup ug = backend.getEntity(UserGroup.class, 1);
+        backend.removeMembership(u, ug);
+        
+        u = backend.getEntity(User.class, 1);
+        ug = backend.getEntity(UserGroup.class, 1);
+        assertEquals("user still member", 0, u.getUserGroups().size());
+        assertEquals("usergroup still has user", 0, ug.getUsers().size());
+        
+        List l = backend.getAllEntities(ConfigAttrEntry.class);
+        assertEquals("cfg attrs still present", 6, l.size());
+        
+        l = backend.getAllEntities(ConfigAttrExempt.class);
+        assertEquals("cfg attr exempt still present", 0, l.size());
+    }
 }
