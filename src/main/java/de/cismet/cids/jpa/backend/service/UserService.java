@@ -28,13 +28,21 @@ public interface UserService {
      * @param  ug  DOCUMENT ME!
      */
     void delete(final UserGroup ug);
-    
+
     /**
      * Atomically delete a user and all the relationships.
-     * 
-     * @param user 
+     *
+     * @param  user  DOCUMENT ME!
      */
     void delete(final User user);
+
+    /**
+     * Removes the membership of the user from the given usergroup.
+     *
+     * @param  user  the user whose membership shall be revoked from the group
+     * @param  ug    the usergroup the user's membership shall be removed from
+     */
+    void removeMembership(final User user, final UserGroup ug);
 
     /**
      * DOCUMENT ME!
