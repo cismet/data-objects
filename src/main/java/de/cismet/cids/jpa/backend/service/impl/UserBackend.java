@@ -104,6 +104,14 @@ public class UserBackend implements UserService {
         if (LOG.isDebugEnabled()) {
             LOG.debug("deleted '" + delCfgAttrCount + "' config attr entries for usergroup: " + ug); // NOI18N
         }
+        
+        final Query delCfgAttrExempt = em.createQuery("DELETE FROM ConfigAttrExempt cae WHERE cae.usergroup = :ug"); // NOI18N
+        delCfgAttrExempt.setParameter("ug", ug);                                                          // NOI18N
+
+        final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrExCount + "' config attr exempt entries for usergroup: " + ug); // NOI18N
+        }
 
         final Query delCPerm = em.createQuery("DELETE FROM ClassPermission cperm WHERE cperm.userGroup = :ug"); // NOI18N
         delCPerm.setParameter("ug", ug);                                                                        // NOI18N

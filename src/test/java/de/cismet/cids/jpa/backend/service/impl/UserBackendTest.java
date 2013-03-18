@@ -117,6 +117,9 @@ public class UserBackendTest
         
         l = backend.getAllEntities(ConfigAttrEntry.class);
         assertEquals("cfg attrs still present", 1, l.size());
+        
+        l = backend.getAllEntities(ConfigAttrExempt.class);
+        assertEquals("cfg attr exempt still present", 0, l.size());
     }
     
 //        @Test
