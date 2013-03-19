@@ -28,7 +28,7 @@ import de.cismet.diff.DiffAccessor;
  * @author   Martin Scholl
  * @version  1.0
  */
-public class DatabaseConnection {
+public final class DatabaseConnection {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -72,9 +72,6 @@ public class DatabaseConnection {
     public static Connection getConnection(final Properties runtime, final int timeOut) throws SQLException {
         final ResourceBundle exceptionBundle = ResourceBundle.getBundle(
                 DiffAccessor.EXCEPTION_RESOURCE_BASE_NAME);
-        final String dbURL = runtime.getProperty("connection.url");
-        final String username = runtime.getProperty("connection.username");
-        final String password = runtime.getProperty("connection.password");
         final String driver = runtime.getProperty("connection.driver_class");
         try {
             Class.forName(driver).newInstance();
@@ -89,6 +86,10 @@ public class DatabaseConnection {
         }
         final int dTO = DriverManager.getLoginTimeout();
         DriverManager.setLoginTimeout(timeOut);
+
+        final String dbURL = runtime.getProperty("connection.url");
+        final String username = runtime.getProperty("connection.username");
+        final String password = runtime.getProperty("connection.password");
         try {
             return DriverManager.getConnection(dbURL, username, password);
         } finally {
@@ -108,13 +109,17 @@ public class DatabaseConnection {
      *
      * @throws  SQLException  DOCUMENT ME!
      */
+    // the connections used here will be cached and reused, clear() closes them
+    @SuppressWarnings("PMD.CloseResource")
     public static int updateSQL(final Properties runtime, final String sql, final int callerHashcode)
             throws SQLException {
+        // FIXME: missing sync may cause unneccesary connection creation and memory leaks
         if (CON_HASH_UPDATE.get(callerHashcode) == null) {
             final Connection con = getConnection(runtime);
             con.setAutoCommit(false);
             CON_HASH_UPDATE.put(callerHashcode, con);
         }
+
         return CON_HASH_UPDATE.get(callerHashcode).createStatement().executeUpdate(sql);
     }
 
@@ -140,6 +145,8 @@ public class DatabaseConnection {
     /**
      * Releases all cached connections.*
      */
+    // don't know why this an issue for the PMD plugin, the whole purpose of this operation is to close methods...
+    @SuppressWarnings("PMD.CloseResource")
     public static void clear() {
         for (final Connection con : CON_HASH_EXEC.values()) {
             try {
@@ -164,6 +171,8 @@ public class DatabaseConnection {
      *
      * @param  cons  DOCUMENT ME!
      */
+    // don't know why this an issue for the PMD plugin, the whole purpose of this operation is to close methods...
+    @SuppressWarnings("PMD.CloseResource")
     public static void closeConnections(final Connection... cons) {
         for (final Connection con : cons) {
             closeConnection(con);
@@ -175,6 +184,8 @@ public class DatabaseConnection {
      *
      * @param  con  DOCUMENT ME!
      */
+    // don't know why this an issue for the PMD plugin, the whole purpose of this operation is to close methods...
+    @SuppressWarnings("PMD.CloseResource")
     public static void closeConnection(final Connection con) {
         if (con != null) {
             try {
@@ -190,6 +201,8 @@ public class DatabaseConnection {
      *
      * @param  stmts  DOCUMENT ME!
      */
+    // don't know why this an issue for the PMD plugin, the whole purpose of this operation is to close methods...
+    @SuppressWarnings("PMD.CloseResource")
     public static void closeStatements(final Statement... stmts) {
         for (final Statement stmt : stmts) {
             closeStatement(stmt);
@@ -201,6 +214,8 @@ public class DatabaseConnection {
      *
      * @param  stmt  DOCUMENT ME!
      */
+    // don't know why this an issue for the PMD plugin, the whole purpose of this operation is to close methods...
+    @SuppressWarnings("PMD.CloseResource")
     public static void closeStatement(final Statement stmt) {
         if (stmt != null) {
             try {
@@ -216,6 +231,8 @@ public class DatabaseConnection {
      *
      * @param  sets  DOCUMENT ME!
      */
+    // don't know why this an issue for the PMD plugin, the whole purpose of this operation is to close methods...
+    @SuppressWarnings("PMD.CloseResource")
     public static void closeResultSets(final ResultSet... sets) {
         for (final ResultSet set : sets) {
             closeResultSet(set);
@@ -227,6 +244,8 @@ public class DatabaseConnection {
      *
      * @param  set  DOCUMENT ME!
      */
+    // don't know why this an issue for the PMD plugin, the whole purpose of this operation is to close methods...
+    @SuppressWarnings("PMD.CloseResource")
     public static void closeResultSet(final ResultSet set) {
         if (set != null) {
             try {

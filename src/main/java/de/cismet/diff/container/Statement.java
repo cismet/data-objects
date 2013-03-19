@@ -15,6 +15,8 @@ import de.cismet.tools.Equals;
  * @author   Martin Scholl
  * @version  1.0
  */
+// we simply don't want this class to be instantiated, it is the base class for statements
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class Statement {
 
     //~ Instance fields --------------------------------------------------------
@@ -73,7 +75,7 @@ public abstract class Statement {
     public int hashCode() {
         int hash = 7;
         hash = (83 * hash) + (this.pedantic ? 1 : 0);
-        hash = (83 * hash) + ((this.warning != null) ? this.warning.hashCode() : 0);
+        hash = (83 * hash) + ((this.warning == null) ? 0 : this.warning.hashCode());
 
         return hash;
     }

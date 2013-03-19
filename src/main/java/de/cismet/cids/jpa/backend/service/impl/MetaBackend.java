@@ -74,6 +74,8 @@ public class MetaBackend implements MetaService, ProgressObservable {
         closed = true;
     }
 
+    // the pmd plugin cannot detect "closing methods" such as the ones used in the finally block
+    @SuppressWarnings({ "PMD.CloseResource" })
     @Override
     public void refreshIndex(final CidsClass cidsClass) throws SQLException {
         if (cidsClass == null) {

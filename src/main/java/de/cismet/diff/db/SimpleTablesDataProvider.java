@@ -77,8 +77,8 @@ public class SimpleTablesDataProvider implements ClosableResource {
                 final String schema = set.getString(2);
                 final String table = set.getString(3);
                 if (!(table.startsWith("cs_")                                              // NOI18N
-                                || table.equals("spatial_ref_sys")                         // NOI18N
-                                || table.equals("geometry_columns"))) {                    // NOI18N
+                                || "spatial_ref_sys".equals(table)                         // NOI18N
+                                || "geometry_columns".equals(table))) {                    // NOI18N
                     if ((schema == null) || schema.isEmpty() || "public".equals(schema)) { // NOI18N
                         names.add(table);
                     } else {

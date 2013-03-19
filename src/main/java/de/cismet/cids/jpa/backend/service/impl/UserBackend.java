@@ -29,11 +29,13 @@ import de.cismet.cids.jpa.entity.permission.NodePermission;
 import de.cismet.cids.jpa.entity.user.User;
 import de.cismet.cids.jpa.entity.user.UserGroup;
 
+import de.cismet.commons.utils.StackUtils;
+
 /**
  * DOCUMENT ME!
  *
  * @author   mscholl
- * @version  $Revision$, $Date$
+ * @version  1.5
  */
 public class UserBackend implements UserService {
 
@@ -41,6 +43,7 @@ public class UserBackend implements UserService {
 
     /** LOGGER. */
     private static final transient Logger LOG = Logger.getLogger(UserBackend.class);
+    private static final String USER = "user"; // NOI18N
 
     //~ Instance fields --------------------------------------------------------
 
@@ -87,10 +90,14 @@ public class UserBackend implements UserService {
         final EntityManager em = provider.getEntityManager();
         final TypedQuery<Integer> q = em.createQuery("SELECT MAX(priority) FROM UserGroup", Integer.class); // NOI18N
 
-        return q.getSingleResult() + 1;
+        final Integer prio = q.getSingleResult();
+
+        return (prio == null) ? 1 : (prio + 1);
     }
 
     @Override
+    // we suppress the duplicate literals here as there are many debug strings
+    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     public void delete(final UserGroup ug) {
         final EntityManager em = provider.getEntityManager();
 
@@ -102,6 +109,14 @@ public class UserBackend implements UserService {
         final int delCfgAttrCount = delCfgAttr.executeUpdate();
         if (LOG.isDebugEnabled()) {
             LOG.debug("deleted '" + delCfgAttrCount + "' config attr entries for usergroup: " + ug); // NOI18N
+        }
+
+        final Query delCfgAttrExempt = em.createQuery("DELETE FROM ConfigAttrExempt cae WHERE cae.usergroup = :ug"); // NOI18N
+        delCfgAttrExempt.setParameter("ug", ug);                                                                     // NOI18N
+
+        final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrExCount + "' config attr exempt entries for usergroup: " + ug); // NOI18N
         }
 
         final Query delCPerm = em.createQuery("DELETE FROM ClassPermission cperm WHERE cperm.userGroup = :ug"); // NOI18N
@@ -136,6 +151,92 @@ public class UserBackend implements UserService {
         ug.getUsers().clear();
 
         provider.delete(ug);
+    }
+
+    @Override
+    public void delete(final User user) {
+        // use log.finest if we change to another logging utility
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("enter " + StackUtils.getMethodName(true, true, new Object[] { user })); // NOI18N
+        }
+
+        final EntityManager em = provider.getEntityManager();
+
+        final Query delCfgAttr = em.createQuery("DELETE FROM ConfigAttrEntry cae WHERE cae.user = :user"); // NOI18N
+        delCfgAttr.setParameter(USER, user);                                                               // NOI18N
+
+        final int delCfgAttrCount = delCfgAttr.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrCount + "' config attr entries for user: " + user); // NOI18N
+        }
+
+        final Query delCfgAttrExempt = em.createQuery("DELETE FROM ConfigAttrExempt cae WHERE cae.user = :user"); // NOI18N
+        delCfgAttrExempt.setParameter(USER, user);                                                                // NOI18N
+
+        final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrExCount + "' config attr exempt entries for user: " + user); // NOI18N
+        }
+
+        for (final UserGroup ug : user.getUserGroups()) {
+            ug.getUsers().remove(user);
+            provider.store(ug);
+        }
+
+        user.getUserGroups().clear();
+
+        provider.delete(user);
+
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("leave " + StackUtils.getMethodName(true, true, new Object[] { user })); // NOI18N
+        }
+    }
+
+    @Override
+    public void removeMembership(final User user, final UserGroup ug) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("enter " + StackUtils.getMethodName(true, true, new Object[] { user })); // NOI18N
+        }
+
+        if ((user == null) || (ug == null)) {
+            throw new IllegalArgumentException("user or usergroup may not be null: [user=" + user + "|ug=" + ug + "]"); // NOI18N
+        }
+
+        user.getUserGroups().remove(ug);
+        ug.getUsers().remove(user);
+
+        final EntityManager em = provider.getEntityManager();
+
+        final Query delCfgAttr = em.createQuery(
+                "DELETE FROM ConfigAttrEntry cae WHERE cae.user = :user AND cae.usergroup = :ug"); // NOI18N
+        delCfgAttr.setParameter(USER, user);                                                       // NOI18N
+        delCfgAttr.setParameter("ug", ug);                                                         // NOI18N
+
+        final int delCfgAttrCount = delCfgAttr.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrCount + "' config attr entries: [user=" + user + "|usergroup=" // NOI18N
+                        + ug
+                        + "]");         // NOI18N
+        }
+
+        final Query delCfgAttrExempt = em.createQuery(
+                "DELETE FROM ConfigAttrExempt cae WHERE cae.user = :user AND cae.usergroup = :ug"); // NOI18N
+        delCfgAttrExempt.setParameter(USER, user);                                                  // NOI18N
+        delCfgAttrExempt.setParameter("ug", ug);                                                    // NOI18N
+
+        final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleted '" + delCfgAttrExCount + "' config attr exempt entries: [user=" + user // NOI18N
+                        + "|usergroup=" // NOI18N
+                        + ug + "]");    // NOI18N
+        }
+
+        provider.store(user);
+        provider.store(ug);
+
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("leave " + StackUtils.getMethodName(true, true, new Object[] { user })); // NOI18N
+        }
     }
 
     @Override

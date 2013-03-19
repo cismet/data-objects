@@ -47,6 +47,8 @@ import de.cismet.tools.Equals;
 @Entity
 @Table(name = "cs_attr")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+// this is only a bean class not real functionality at all
+@SuppressWarnings({ "PMD.GodClass" })
 public class Attribute extends CommonEntity implements Serializable, PermissionAwareEntity {
 
     //~ Instance fields --------------------------------------------------------
@@ -634,19 +636,20 @@ public class Attribute extends CommonEntity implements Serializable, PermissionA
 
     @Override
     public boolean equals(final Object o) {
-        if (!super.equals(o)) {
-            return false;
+        if (super.equals(o)) {
+            // we ignore two operations for equals comparison because otherwise it would cause a StackOverFlow
+            return Equals.beanDeepEqual(this, o, "getCidsClass", "getType");
         }
 
-        // we ignore two operations for equals comparison because otherwise it would cause a StackOverFlow
-        return Equals.beanDeepEqual(this, o, "getCidsClass", "getType");
+        return false;
     }
 
     @Override
+    @SuppressWarnings("PMD.ConfusingTernary")
     public int hashCode() {
         int hash = 7;
         hash = (43 * hash) + ((this.getId() != null) ? this.getId().hashCode() : 0);
-        // NOTE: we cannot use the cids class' own hashcode implementation, because this causes hashCode invokation
+        // NOTE: we cannot use the cids class' own hashcode implementation, because this causes hashCode invocation
         // cycles which in turn will cause an exception "org.hibernate.LazyInitializationException: illegal access to
         // loading collection"
         final CidsClass c = this.getCidsClass();

@@ -45,7 +45,7 @@ public class MaintenanceBackend {
 
     //~ Instance fields --------------------------------------------------------
 
-    private transient Properties properties;
+    private final transient Properties properties;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -72,7 +72,9 @@ public class MaintenanceBackend {
      *
      * @return  DOCUMENT ME!
      */
-    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
+    // the close() operation throws checked Exception so no choice, additionally
+    // the pmd plugin cannot detect "closing methods" such as the ones used in the finally block
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.CloseResource" })
     public InspectionResult checkTable(final String tablename) {
         if (properties == null) {
             return null;
@@ -119,7 +121,7 @@ public class MaintenanceBackend {
                 }
                 try {
                     set = con.createStatement().executeQuery(sql);
-                } catch (SQLException ex) {
+                } catch (final SQLException ex) {
                     LOG.warn("could not execute query", ex);                                      // NOI18N
                     continue;
                 }

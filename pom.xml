@@ -10,11 +10,11 @@
 
     <groupId>de.cismet.cids</groupId>
     <artifactId>data-objects</artifactId>
-    <version>3.3</version>
+    <version>3.4</version>
     <packaging>jar</packaging>
 
     <name>cids DataObjects</name>
-    <description>Database layer for the cids meta system</description>
+    <description>ORM database layer for the cids meta data management system</description>
 
     <prerequisites>
         <maven>3</maven>
@@ -27,7 +27,7 @@
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/cismet/data-objects/issues</url>
+        <url>https://github.com/cismet/data-objects/issues/</url>
     </issueManagement>
 
     <repositories>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.12</version>
+            <version>1.2.17</version>
         </dependency>
         <dependency>
             <groupId>net.sf.tie</groupId>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>net.sf.tie</groupId>
             <artifactId>tie-ext</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>aopalliance</groupId>
@@ -76,12 +76,27 @@
         <dependency>
             <groupId>de.cismet.commons</groupId>
             <artifactId>cismet-commons</artifactId>
-            <version>2.0-rc3</version>
+            <version>2.0-rc4</version>
         </dependency>
         <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.0-api</artifactId>
+            <version>1.0.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+            <version>RELEASE701</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+            <version>RELEASE701</version>
         </dependency>
         <!-- 
             we need a driver that includes the schema information in a sequence name so that the sync implementation
@@ -96,8 +111,8 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <scope>runtime</scope>
             <version>1.5.8</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -138,7 +153,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>2.7.1</version>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -159,6 +174,62 @@
                     <targetJdk>1.6</targetJdk>
                 </configuration>
             </plugin>
+            <!-- we want to use only direct dependencies to compile -->
+            <plugin>
+                <groupId>de.cismet.cids</groupId>
+                <artifactId>cids-maven-plugin</artifactId>
+                <version>2.0-preview-2</version>
+                <executions>
+                    <execution>
+                        <id>create-compile-classpath</id>
+                        <goals>
+                            <goal>create-direct-cp-property</goal>
+                        </goals>
+                        <configuration>
+                            <includeSystemScope>true</includeSystemScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>direct-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <compilerArguments>
+                                <sourcepath>${basedir}/src/main/java</sourcepath>
+                                <classpath>${classpath.directDependencies}</classpath>
+                            </compilerArguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <issueManagementSystems>
+                        <issueManagementSystem>GitHub</issueManagementSystem>
+                    </issueManagementSystems>     
+                    <smtpHost>localhost</smtpHost>
+                    <fromDeveloperId>mscholl</fromDeveloperId>
+                    <toAddresses>
+                        <toAddress>dev@mailman.cismet.de</toAddress>
+                    </toAddresses>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     
@@ -168,12 +239,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.6</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                        </reports>
-                    </reportSet>
-                </reportSets>
                 <configuration>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                 </configuration>
@@ -181,7 +246,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changes-plugin</artifactId>
-                <version>2.8</version>
+                <version>2.9</version>
                 <reportSets>
                     <reportSet>
                         <reports>
