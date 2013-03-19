@@ -14,7 +14,7 @@
     <packaging>jar</packaging>
 
     <name>cids DataObjects</name>
-    <description>Database layer for the cids meta system</description>
+    <description>ORM database layer for the cids meta data management system</description>
 
     <prerequisites>
         <maven>3</maven>
@@ -27,7 +27,7 @@
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/cismet/data-objects/issues</url>
+        <url>https://github.com/cismet/data-objects/issues/</url>
     </issueManagement>
 
     <repositories>
@@ -215,6 +215,16 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <issueManagementSystems>
+                        <issueManagementSystem>GitHub</issueManagementSystem>
+                    </issueManagementSystems>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     
@@ -224,12 +234,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>2.6</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                        </reports>
-                    </reportSet>
-                </reportSets>
                 <configuration>
                     <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
                 </configuration>
@@ -237,7 +241,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changes-plugin</artifactId>
-                <version>2.8</version>
+                <version>2.9</version>
                 <reportSets>
                     <reportSet>
                         <reports>
