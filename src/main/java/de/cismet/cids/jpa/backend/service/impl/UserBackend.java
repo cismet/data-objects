@@ -43,6 +43,7 @@ public class UserBackend implements UserService {
 
     /** LOGGER. */
     private static final transient Logger LOG = Logger.getLogger(UserBackend.class);
+    private static final String USER = "user"; // NOI18N
 
     //~ Instance fields --------------------------------------------------------
 
@@ -95,6 +96,8 @@ public class UserBackend implements UserService {
     }
 
     @Override
+    // we suppress the duplicate literals here as there are many debug strings
+    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     public void delete(final UserGroup ug) {
         final EntityManager em = provider.getEntityManager();
 
@@ -160,7 +163,7 @@ public class UserBackend implements UserService {
         final EntityManager em = provider.getEntityManager();
 
         final Query delCfgAttr = em.createQuery("DELETE FROM ConfigAttrEntry cae WHERE cae.user = :user"); // NOI18N
-        delCfgAttr.setParameter("user", user);                                                             // NOI18N
+        delCfgAttr.setParameter(USER, user);                                                               // NOI18N
 
         final int delCfgAttrCount = delCfgAttr.executeUpdate();
         if (LOG.isDebugEnabled()) {
@@ -168,7 +171,7 @@ public class UserBackend implements UserService {
         }
 
         final Query delCfgAttrExempt = em.createQuery("DELETE FROM ConfigAttrExempt cae WHERE cae.user = :user"); // NOI18N
-        delCfgAttrExempt.setParameter("user", user);                                                              // NOI18N
+        delCfgAttrExempt.setParameter(USER, user);                                                                // NOI18N
 
         final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();
         if (LOG.isDebugEnabled()) {
@@ -206,7 +209,7 @@ public class UserBackend implements UserService {
 
         final Query delCfgAttr = em.createQuery(
                 "DELETE FROM ConfigAttrEntry cae WHERE cae.user = :user AND cae.usergroup = :ug"); // NOI18N
-        delCfgAttr.setParameter("user", user);                                                     // NOI18N
+        delCfgAttr.setParameter(USER, user);                                                       // NOI18N
         delCfgAttr.setParameter("ug", ug);                                                         // NOI18N
 
         final int delCfgAttrCount = delCfgAttr.executeUpdate();
@@ -218,7 +221,7 @@ public class UserBackend implements UserService {
 
         final Query delCfgAttrExempt = em.createQuery(
                 "DELETE FROM ConfigAttrExempt cae WHERE cae.user = :user AND cae.usergroup = :ug"); // NOI18N
-        delCfgAttrExempt.setParameter("user", user);                                                // NOI18N
+        delCfgAttrExempt.setParameter(USER, user);                                                  // NOI18N
         delCfgAttrExempt.setParameter("ug", ug);                                                    // NOI18N
 
         final int delCfgAttrExCount = delCfgAttrExempt.executeUpdate();

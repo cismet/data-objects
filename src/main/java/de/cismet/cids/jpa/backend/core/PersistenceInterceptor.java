@@ -56,8 +56,10 @@ public class PersistenceInterceptor implements MethodInterceptor {
 
     //~ Methods ----------------------------------------------------------------
 
-    // it is only thrown for tracing purposes
-    @SuppressWarnings({ "PMD.AvoidThrowingRawExceptionTypes", "PMD.AvoidCatchingGenericException" })
+    // this is a generic invoker method thus it is intentional to do those "bad" things
+    @SuppressWarnings(
+        { "PMD.AvoidThrowingRawExceptionTypes", "PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace" }
+    )
     @Override
     public Object invoke(final MethodInvocation mi) throws Throwable {
         final Method method = mi.getMethod();

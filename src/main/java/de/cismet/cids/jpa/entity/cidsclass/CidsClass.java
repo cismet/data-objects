@@ -48,6 +48,8 @@ import de.cismet.tools.Equals;
 @Entity
 @Table(name = "cs_class")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+// this is only a bean class not real functionality at all
+@SuppressWarnings({ "PMD.GodClass" })
 public class CidsClass extends CommonEntity implements Serializable, PermissionAwareEntity {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -583,6 +585,7 @@ public class CidsClass extends CommonEntity implements Serializable, PermissionA
     }
 
     @Override
+    @SuppressWarnings("PMD.ConfusingTernary")
     public int hashCode() {
         int hash = 3;
         hash = (67 * hash) + ((this.getId() != null) ? this.getId().hashCode() : 0);

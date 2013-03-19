@@ -166,6 +166,7 @@ public class StatementGroup {
     }
 
     @Override
+    @SuppressWarnings("PMD.ConfusingTernary")
     public int hashCode() {
         int hash = 7;
         hash = (67 * hash) + ((this.tableName != null) ? this.tableName.hashCode() : 0);

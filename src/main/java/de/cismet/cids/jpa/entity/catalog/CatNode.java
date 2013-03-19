@@ -437,10 +437,9 @@ public class CatNode extends CommonEntity implements Serializable, PermissionAwa
     }
 
     @Override
+    @SuppressWarnings("PMD.ConfusingTernary")
     public boolean equals(final Object o) {
-        if (!super.equals(o)) {
-            return false;
-        } else if (o instanceof CatNode) {
+        if (super.equals(o) && (o instanceof CatNode)) {
             final CatNode other = (CatNode)o;
 
             return Equals.nullEqual(getCidsClass(), other.getCidsClass())
@@ -456,12 +455,13 @@ public class CatNode extends CommonEntity implements Serializable, PermissionAwa
                         && Equals.nullEqual(getPolicy(), other.getPolicy())
                         && Equals.nullEqual(getSqlSort(), other.getSqlSort())
                         && Equals.nullEqual(getUrl(), other.getUrl());
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     @Override
+    @SuppressWarnings("PMD.ConfusingTernary")
     public int hashCode() {
         int hash = 5;
         hash = (59 * hash) + ((this.id != null) ? this.id.hashCode() : 0);

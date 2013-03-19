@@ -31,7 +31,7 @@ public class Action {
     //~ Instance fields --------------------------------------------------------
 
     private final transient String[] args;
-    private transient String action;
+    private final transient String action;
 
     //~ Constructors -----------------------------------------------------------
 

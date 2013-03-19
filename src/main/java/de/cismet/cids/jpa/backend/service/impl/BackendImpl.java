@@ -53,8 +53,8 @@ import de.cismet.commons.utils.ProgressListener;
  */
 // The backend shall not be formatted automatically since jalopy messes everything up due to the netbeans editor folds
 //J-
-// This is an Accessor/Facade class so there simply are many imports
-@SuppressWarnings("PMD.ExcessiveImports")
+// This is an Accessor/Facade class so there simply are many imports and it does nothing but delegation
+@SuppressWarnings({"PMD.ExcessiveImports", "PMD.GodClass"})
 public final class BackendImpl implements Backend {
 
     //~ Instance fields --------------------------------------------------------

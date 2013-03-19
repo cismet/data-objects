@@ -288,7 +288,7 @@ public class CodedStatement extends Statement {
     public int hashCode() {
         int hash = super.hashCode();
 
-        hash = (37 * hash) + ((this.code != null) ? this.code.hashCode() : 0);
+        hash = (37 * hash) + ((this.code == null) ? 0 : this.code.hashCode());
         hash = (37 * hash) + Arrays.deepHashCode(this.argsArray);
 
         return hash;

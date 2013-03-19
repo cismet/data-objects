@@ -25,7 +25,7 @@ import de.cismet.diff.exception.IllegalCodeException;
  * @author   Martin Scholl
  * @version  1.0 2007-03-09
  */
-public class PSQLStatement extends Statement {
+public final class PSQLStatement extends Statement {
 
     //~ Instance fields --------------------------------------------------------
 

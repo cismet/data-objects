@@ -43,6 +43,8 @@ import de.cismet.diff.db.DatabaseConnection;
  * @author   Martin Scholl
  * @version  1.0
  */
+// check god class argument
+@SuppressWarnings({ "PMD.GodClass" })
 public class CatalogBackend implements CatalogService {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -57,6 +59,7 @@ public class CatalogBackend implements CatalogService {
     //~ Instance fields --------------------------------------------------------
 
     private final transient PersistenceProvider provider;
+    private final transient Object cacheLock;
     private transient Set<Integer> nonLeafCache;
 
     //~ Constructors -----------------------------------------------------------
@@ -68,19 +71,21 @@ public class CatalogBackend implements CatalogService {
      */
     public CatalogBackend(final PersistenceProvider provider) {
         this.provider = provider;
+        this.cacheLock = new Object();
         nonLeafCache = getNonLeafNodes();
     }
 
     //~ Methods ----------------------------------------------------------------
 
-    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
+    // we don't care if the object information cannot be fetched for any reason, thus we catch Exception, additionally
+    // the pmd plugin cannot detect "closing methods" such as the ones used in the finally block
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.CloseResource" })
     @Override
     public Map<String, String> getSimpleObjectInformation(final CatNode node) {
         if (!node.getNodeType().equals(CatNode.Type.OBJECT.getType())) {
             return null;
         }
 
-        final Map<String, String> objInfo = new HashMap<String, String>();
         final Map<String, String> tmp = new HashMap<String, String>();
         try {
             for (final Iterator<Attribute> it = node.getCidsClass().getAttributes().iterator(); it.hasNext();) {
@@ -92,6 +97,7 @@ public class CatalogBackend implements CatalogService {
             return null;
         }
 
+        final Map<String, String> objInfo = new HashMap<String, String>();
         Connection con = null;
         Statement stmt = null;
         ResultSet set = null;
@@ -100,20 +106,24 @@ public class CatalogBackend implements CatalogService {
             con.setAutoCommit(false);
             stmt = con.createStatement();
             set = stmt.executeQuery(
-                    "SELECT * "                                  // NOI18N
-                            + "FROM "
-                            + node.getCidsClass().getTableName() // NOI18N
-                            + " WHERE id = "
-                            + node.getObjectId());               // NOI18N
-            while (set.next()) {
+                    "SELECT * "              // NOI18N
+                            + "FROM "        // NOI18N
+                            + node.getCidsClass().getTableName()
+                            + " WHERE id = " // NOI18N
+                            + node.getObjectId());
+            // only one row
+            if (set.next()) {
                 final Iterator<Entry<String, String>> entries = tmp.entrySet().iterator();
                 while (entries.hasNext()) {
                     final Entry<String, String> e = entries.next();
                     objInfo.put(e.getKey(), set.getString(e.getValue()));
                 }
-
-                break;
+            } else {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("no object info found: " + node); // NOI18N
+                }
             }
+
             if (set.next()) {
                 throw new SQLException("query shall return just one row"); // NOI18N
             }
@@ -428,38 +438,44 @@ public class CatalogBackend implements CatalogService {
      *
      * @return  DOCUMENT ME!
      */
-    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
-    private synchronized Set<Integer> getNonLeafNodes() {
-        Connection con = null;
-        Statement stmt = null;
-        ResultSet set = null;
-        try {
-            con = DatabaseConnection.getConnection(provider.getRuntimeProperties());
-            stmt = con.createStatement();
-            set = stmt.executeQuery("SELECT DISTINCT id_from FROM cs_cat_link"); // NOI18N
-        } catch (final Exception ex) {
-            LOG.error("could not fetch nonLeafCache", ex);                       // NOI18N
-            DatabaseConnection.closeResultSet(set);
-            DatabaseConnection.closeStatement(stmt);
-            DatabaseConnection.closeConnection(con);
-            return null;
-        }
+    // we don't care what was the error while trying to fetch nodes, thus we catch Exception, additionally
+    // the pmd plugin cannot detect "closing methods" such as the ones used in the finally block
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.CloseResource" })
+    private Set<Integer> getNonLeafNodes() {
+        synchronized (cacheLock) {
+            Connection con = null;
+            Statement stmt = null;
+            ResultSet set = null;
+            try {
+                con = DatabaseConnection.getConnection(provider.getRuntimeProperties());
+                stmt = con.createStatement();
+                set = stmt.executeQuery("SELECT DISTINCT id_from FROM cs_cat_link"); // NOI18N
+            } catch (final Exception ex) {
+                LOG.error("could not fetch nonLeafCache", ex);                       // NOI18N
+                DatabaseConnection.closeResultSet(set);
+                DatabaseConnection.closeStatement(stmt);
+                DatabaseConnection.closeConnection(con);
 
-        final Set<Integer> ret = new HashSet<Integer>();
-        try {
-            while (set.next()) {
-                ret.add(set.getInt(1));
+                return null;
             }
-        } catch (final Exception ex) {
-            LOG.error("could not build non leaf node id cache", ex); // NOI18N
-            return null;
-        } finally {
-            DatabaseConnection.closeResultSet(set);
-            DatabaseConnection.closeStatement(stmt);
-            DatabaseConnection.closeConnection(con);
-        }
 
-        return nonLeafCache = ret;
+            final Set<Integer> ret = new HashSet<Integer>();
+            try {
+                while (set.next()) {
+                    ret.add(set.getInt(1));
+                }
+            } catch (final Exception ex) {
+                LOG.error("could not build non leaf node id cache", ex); // NOI18N
+
+                return null;
+            } finally {
+                DatabaseConnection.closeResultSet(set);
+                DatabaseConnection.closeStatement(stmt);
+                DatabaseConnection.closeConnection(con);
+            }
+
+            return nonLeafCache = ret;
+        }
     }
 
     @Override
