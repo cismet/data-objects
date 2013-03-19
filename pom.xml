@@ -222,7 +222,12 @@
                 <configuration>
                     <issueManagementSystems>
                         <issueManagementSystem>GitHub</issueManagementSystem>
-                    </issueManagementSystems>
+                    </issueManagementSystems>     
+                    <smtpHost>smtp.htw-saarland.de</smtpHost>
+                    <fromDeveloperId>mscholl</fromDeveloperId>
+                    <toAddresses>
+                        <toAddress>dev@mailman.cismet.de</toAddress>
+                    </toAddresses>
                 </configuration>
             </plugin>
         </plugins>
