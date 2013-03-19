@@ -223,7 +223,7 @@
                     <issueManagementSystems>
                         <issueManagementSystem>GitHub</issueManagementSystem>
                     </issueManagementSystems>     
-                    <smtpHost>smtp.htw-saarland.de</smtpHost>
+                    <smtpHost>localhost</smtpHost>
                     <fromDeveloperId>mscholl</fromDeveloperId>
                     <toAddresses>
                         <toAddress>dev@mailman.cismet.de</toAddress>
