@@ -36,8 +36,8 @@ import de.cismet.cids.jpa.entity.user.UserGroup;
  * @author   martin.scholl@cismet.de
  * @version  $Revision$, $Date$
  */
-// many logging and sql here
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+// many logging and sql here, check god class argument
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.GodClass" })
 public final class ConfigAttrBackend implements ConfigAttrService {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -96,6 +96,8 @@ public final class ConfigAttrBackend implements ConfigAttrService {
     }
 
     @Override
+    // the rule does not evaluate well, it is simply not true
+    @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
     public List<ConfigAttrEntry> getEntries(final Domain dom,
             final UserGroup ug,
             final User user,

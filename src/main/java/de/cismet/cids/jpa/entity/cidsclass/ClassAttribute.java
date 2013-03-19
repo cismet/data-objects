@@ -89,10 +89,10 @@ public class ClassAttribute extends CommonEntity implements Serializable {
      * Creates a new ClassAttribute object.
      */
     public ClassAttribute() {
-        setAttrKey(null);
-        setAttrValue(null);
-        setCidsClass(null);
-        setType(null);
+        attrKey = null;
+        attrValue = null;
+        cidsClass = null;
+        type = null;
     }
 
     //~ Methods ----------------------------------------------------------------

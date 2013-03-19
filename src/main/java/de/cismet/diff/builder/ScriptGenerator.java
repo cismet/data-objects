@@ -54,6 +54,9 @@ import de.cismet.diff.util.ProgressionQueue;
  * @author   Martin Scholl
  * @version  1.0 2007-03-09
  */
+// check god class argument, pmd seems to confuse the container classes (*statement) as 'closable resource', case
+// conversion is only done for identifiers which are ASCII only
+@SuppressWarnings({ "PMD.GodClass", "PMD.CloseResource", "PMD.UseLocaleWithCaseConversions" })
 public class ScriptGenerator {
 
     //~ Static fields/initializers ---------------------------------------------
@@ -134,8 +137,6 @@ public class ScriptGenerator {
      *
      * @throws  IllegalArgumentException  DOCUMENT ME!
      */
-    // pmd complains about the classes array but it is not stored directly at all. this seems to be a bug
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public ScriptGenerator(
             final Properties runtime,
             final Table[] tables,
@@ -358,7 +359,7 @@ public class ScriptGenerator {
                                 false,
                                 t.getTableName(),
                                 attrName.toLowerCase(),
-                                INTEGER) // NOI18N
+                                INTEGER)
                         };
 
                     // in certain cases recursive createStatement calls lead to an already present statement, thus we
@@ -383,12 +384,12 @@ public class ScriptGenerator {
                     if (current.getPrecision() != null) {
                         paramAttrType.append('(');
                         // also add scale to parameter if present
-                        if (current.getScale() != null) {
+                        if (current.getScale() == null) {
+                            paramAttrType.append(current.getPrecision()); // NOI18N
+                        } else {
                             paramAttrType.append(current.getPrecision());
                             paramAttrType.append(',');
                             paramAttrType.append(current.getScale());
-                        } else {
-                            paramAttrType.append(current.getPrecision()); // NOI18N
                         }
                         paramAttrType.append(')');
                     }
@@ -448,7 +449,18 @@ public class ScriptGenerator {
                 // <editor-fold defaultstate="collapsed" desc=" set not null if needed ">
                 if (!current.isOptional()) {
                     // default value is valid if present due to check above
-                    if (current.getDefaultValue() != null) {
+                    if (current.getDefaultValue() == null) {
+                        final Statement[] s = {
+                                new CodedStatement(
+                                    CodedStatement.CODE_ALTER_COLUMN_SET,
+                                    CodedStatement.WARNING_ALTER_COLUMN_TO_NOTNULL,
+                                    true,
+                                    t.getTableName(),
+                                    attrName.toLowerCase(),
+                                    NOT_NULL) // NOI18N
+                            };
+                        statementGroups.addLast(new StatementGroup(s, false));
+                    } else {
                         final Statement[] s = {
                                 new CodedStatement(
                                     CodedStatement.CODE_UPDATE_WHERE_NULL,
@@ -474,17 +486,6 @@ public class ScriptGenerator {
                         group.setTableName(t.getTableName());
                         group.setColumnName(attrName.toLowerCase());
                         statementGroups.addLast(group);
-                    } else {
-                        final Statement[] s = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_COLUMN_SET,
-                                    CodedStatement.WARNING_ALTER_COLUMN_TO_NOTNULL,
-                                    true,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    NOT_NULL) // NOI18N
-                            };
-                        statementGroups.addLast(new StatementGroup(s, false));
                     }
                 }                             // </editor-fold>
                 // column present, look for differences
@@ -574,8 +575,33 @@ public class ScriptGenerator {
                         }
                     }
                 }                                                                          // </editor-fold>
+                // <editor-fold defaultstate="collapsed" desc=" handle primary key ">
+                if (current.getFieldName().equalsIgnoreCase(c.getPrimaryKeyField())) {
+                    //J-
+                    final String defVal = column.getDefaultValue();
+                    // <editor-fold defaultstate="collapsed" desc=" set default 'nextval' ">
+                    if ((defVal == null)
+                                || !(
+                                    // this string represents postgres jdbc 7 drivers
+                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::text)") // NOI18N
+                                    ||
+                                    // this string represents postgres jdbc 8 drivers
+                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::regclass)"))) { // NOI18N
+                        final Statement[] s = {
+                                new CodedStatement(
+                                    CodedStatement.CODE_ALTER_COLUMN_SET,
+                                    null,
+                                    false,
+                                    t.getTableName(),
+                                    attrName.toLowerCase(),
+                                    "DEFAULT nextval('" + t.getTableName() + "_seq')") // NOI18N
+                            };
+                        statementGroups.addLast(new StatementGroup(s, false));
+                    }                              // </editor-fold>
+                    //J+
+                } // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal attr ">
-                if (!current.getFieldName().equalsIgnoreCase(c.getPrimaryKeyField())) {
+                else {
                     // <editor-fold defaultstate="collapsed" desc=" drop default value ">
                     if ((current.getDefaultValue() == null)
                                 && (t.getDefaultValue(attrName) != null)) {
@@ -623,15 +649,14 @@ public class ScriptGenerator {
                                     false,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    "DEFAULT '"
+                                    "DEFAULT '"                     // NOI18N
                                             + current.getDefaultValue()
                                             + "'")                  // NOI18N
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
                     }                                               // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" alter column to 'optional' ">
-                    if (current.isOptional() && !(column.getNullable()
-                                    == DatabaseMetaData.attributeNullable)) {
+                    if (current.isOptional() && (column.getNullable() != DatabaseMetaData.attributeNullable)) {
                         if (column.getColumnName().equalsIgnoreCase(c.getPrimaryKeyField())) {
                             throw new ScriptGeneratorException(
                                 exceptionBundle.getString(
@@ -647,14 +672,24 @@ public class ScriptGenerator {
                                     false,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    NOT_NULL) // NOI18N
+                                    NOT_NULL)
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
-                    }                         // </editor-fold>
+                    } // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" alter column to 'required' ">
-                    if (!current.isOptional() && !(column.getNullable()
-                                    == DatabaseMetaData.attributeNoNulls)) {
-                        if (current.getDefaultValue() != null) {
+                    if (!current.isOptional() && (column.getNullable() != DatabaseMetaData.attributeNoNulls)) {
+                        if (current.getDefaultValue() == null) {
+                            final Statement[] s = {
+                                    new CodedStatement(
+                                        CodedStatement.CODE_ALTER_COLUMN_SET,
+                                        CodedStatement.WARNING_ALTER_COLUMN_TO_NOTNULL,
+                                        true,
+                                        t.getTableName(),
+                                        attrName.toLowerCase(),
+                                        NOT_NULL)
+                                };
+                            statementGroups.addLast(new StatementGroup(s, false));
+                        } else {
                             if (
                                 !isDefaultValueValid(
                                             attrName,
@@ -683,7 +718,7 @@ public class ScriptGenerator {
                                         false,
                                         t.getTableName(),
                                         attrName.toLowerCase(),
-                                        NOT_NULL) // NOI18N
+                                        NOT_NULL)
                                 };
                             final StatementGroup group = new StatementGroup(s, true);
                             final MessageFormat descform = new MessageFormat(
@@ -694,52 +729,16 @@ public class ScriptGenerator {
                             group.setTableName(t.getTableName());
                             group.setColumnName(attrName.toLowerCase());
                             statementGroups.addLast(group);
-                        } else {
-                            final Statement[] s = {
-                                    new CodedStatement(
-                                        CodedStatement.CODE_ALTER_COLUMN_SET,
-                                        CodedStatement.WARNING_ALTER_COLUMN_TO_NOTNULL,
-                                        true,
-                                        t.getTableName(),
-                                        attrName.toLowerCase(),
-                                        NOT_NULL) // NOI18N
-                                };
-                            statementGroups.addLast(new StatementGroup(s, false));
                         }
-                    }                             // </editor-fold>
-                }                                 // </editor-fold>
-                // <editor-fold defaultstate="collapsed" desc=" handle primary key ">
-                else {
-                    //J-
-                    final String defVal = column.getDefaultValue();
-                    // <editor-fold defaultstate="collapsed" desc=" set default 'nextval' ">
-                    if ((defVal == null)
-                                || !(
-                                    // this string represents postgres jdbc 7 drivers
-                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::text)") // NOI18N
-                                    ||
-                                    // this string represents postgres jdbc 8 drivers
-                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::regclass)"))) { // NOI18N
-                        final Statement[] s = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_COLUMN_SET,
-                                    null,
-                                    false,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    "DEFAULT nextval('" + t.getTableName() + "_seq')") // NOI18N
-                            };
-                        statementGroups.addLast(new StatementGroup(s, false));
-                    }                              // </editor-fold>
-                    //J+
-                } // </editor-fold>
+                    } // </editor-fold>
+                }     // </editor-fold>
                 tableColumns.remove(column);
             }
         }
         // <editor-fold defaultstate="collapsed" desc=" drop columns that are not in "cs_attr" anymore ">
         // we only drop columns if 'drop columns' is activated
         if (dropColumns) {
-            while (tableColumns.size() > 0) {
+            while (!tableColumns.isEmpty()) {
                 if (tableColumns.getFirst().getColumnName().equalsIgnoreCase(c.getPrimaryKeyField())) {
                     throw new ScriptGeneratorException(
                         exceptionBundle.getString(
@@ -802,7 +801,6 @@ public class ScriptGenerator {
         map.put(CodedStatement.KEY_TABLENAME, c.getTableName().toLowerCase());
         final StringBuffer nameTypeEnum = new StringBuffer(20);
         final Iterator<Attribute> it = c.getAttributes().iterator();
-        final String warning = null;
         boolean primarykeyFound = false;
         while (it.hasNext()) {
             final Attribute current = it.next();
@@ -927,7 +925,8 @@ public class ScriptGenerator {
         classesDone.add(c);
         statem.addLast(new CodedStatement(
                 CodedStatement.CODE_CREATE_STANDARD,
-                warning,
+                // there has never been a warning assigned thus we simply put null here
+                null,
                 false,
                 map));
         Statement[] s = new Statement[statem.size()];
@@ -957,7 +956,26 @@ public class ScriptGenerator {
         // if a queue is provided check first if a table has really been dropped by
         // the user or if the table is just in the database with no relation to the
         // cids system
-        if (queue != null) {
+        if (queue == null) {
+            // sequence has to be dropped after table
+            if (sequenceExists(table.getTableName())) {
+                statem.add(
+                    new CodedStatement(
+                        CodedStatement.CODE_DROP_SEQUENCE,
+                        null,
+                        false,
+                        table.getTableName()
+                                + SEQ_SUFFIX)); // NOI18N
+            }
+            statem.addFirst(new CodedStatement(CodedStatement.CODE_DROP_STANDARD, null, false, map));
+            final Statement[] s = statem.toArray(new Statement[statem.size()]);
+            final StatementGroup ret = new StatementGroup(s, true);
+            ret.setDescription(
+                MessageFormat.format(descBundle.getString(StatementGroup.GROUP_DESC_NEW_TABLE), table.getTableName()));
+            ret.setTableName(table.getTableName());
+
+            return ret;
+        } else {
             final Action[] drops = queue.getActionArray(Action.DROP_ACTION);
             if (drops != null) {
                 for (final Action action : drops) {
@@ -985,28 +1003,11 @@ public class ScriptGenerator {
                                 descBundle.getString(StatementGroup.GROUP_DESC_NEW_TABLE),
                                 table.getTableName()));
                         ret.setTableName(table.getTableName());
+
                         return ret;
                     }
                 }
             }
-        } else {
-            // sequence has to be dropped after table
-            if (sequenceExists(table.getTableName())) {
-                statem.add(
-                    new CodedStatement(
-                        CodedStatement.CODE_DROP_SEQUENCE,
-                        null,
-                        false,
-                        table.getTableName()
-                                + SEQ_SUFFIX)); // NOI18N
-            }
-            statem.addFirst(new CodedStatement(CodedStatement.CODE_DROP_STANDARD, null, false, map));
-            final Statement[] s = statem.toArray(new Statement[statem.size()]);
-            final StatementGroup ret = new StatementGroup(s, true);
-            ret.setDescription(
-                MessageFormat.format(descBundle.getString(StatementGroup.GROUP_DESC_NEW_TABLE), table.getTableName()));
-            ret.setTableName(table.getTableName());
-            return ret;
         }
         return null;
     }
@@ -1120,6 +1121,7 @@ public class ScriptGenerator {
             };
         group.setDescription(descform.format(args));
         group.setWarning(descBundle.getString(StatementGroup.WARNING_CONVERT_ERROR_ON_TYPE_MISMATCH));
+
         return group;
     }
 
@@ -1136,8 +1138,6 @@ public class ScriptGenerator {
      */
     private StatementGroup createPrimaryKeyStatements(final Table table, final CidsClass cidsClass)
             throws ScriptGeneratorException {
-        final LinkedList<CodedStatement> codedStatements = new LinkedList<CodedStatement>();
-        StatementGroup createGroup = null;
         // check for primary key
         // eventually drop existing and/or create new one
         if (cidsClass.getPrimaryKeyField() == null) {
@@ -1172,6 +1172,9 @@ public class ScriptGenerator {
                 cidsClass.getPrimaryKeyField().toLowerCase(),
                 null);
         }
+
+        final LinkedList<CodedStatement> codedStatements = new LinkedList<CodedStatement>();
+
         if (!sequenceExists(cidsClass.getTableName() + SEQ_SUFFIX)) { // NOI18N
             if (isTableEmpty(cidsClass.getTableName())) {
                 codedStatements.addFirst(
@@ -1248,6 +1251,9 @@ public class ScriptGenerator {
                     table.getTableName().toLowerCase(),
                     cidsClass.getPrimaryKeyField().toLowerCase()));
         }
+
+        StatementGroup createGroup = null;
+
         if (!codedStatements.isEmpty()) {
             final Statement[] stmts = codedStatements.toArray(new Statement[codedStatements.size()]);
             createGroup = new StatementGroup(stmts, true);

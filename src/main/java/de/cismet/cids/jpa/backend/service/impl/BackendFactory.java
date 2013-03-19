@@ -129,6 +129,15 @@ public final class BackendFactory {
 
         //~ Static fields/initializers -----------------------------------------
 
+        @SuppressWarnings("PMD.AccessorClassGeneration")
         private static final BackendFactory INSTANCE = new BackendFactory();
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new LazyInitialiser object.
+         */
+        private LazyInitialiser() {
+        }
     }
 }
