@@ -210,6 +210,7 @@
                             <compilerArguments>
                                 <sourcepath>${basedir}/src/main/java</sourcepath>
                                 <classpath>${classpath.directDependencies}</classpath>
+                                <Xlint:unchecked/>
                             </compilerArguments>
                         </configuration>
                     </execution>
