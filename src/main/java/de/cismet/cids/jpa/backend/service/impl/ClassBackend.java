@@ -14,6 +14,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.ClassService;
@@ -167,7 +168,7 @@ public class ClassBackend implements ClassService {
         final String server = (urlBase.getServer() == null) ? "" : urlBase.getServer();                   // NOI18N
         final String path = (urlBase.getPath() == null) ? "" : urlBase.getPath();                         // NOI18N
         final String object = (url.getObjectName() == null) ? "" : url.getObjectName();                   // NOI18N
-        final Query q = em.createQuery(
+        final TypedQuery<URL> q = em.createQuery(
                 "FROM URL url "                                                                           // NOI18N
                         + "WHERE url.urlbase.protocolPrefix LIKE '%"
                         + protocol
@@ -180,7 +181,9 @@ public class ClassBackend implements ClassService {
                         + "%' "                                                                           // NOI18N
                         + "AND url.objectName LIKE '%"
                         + object
-                        + "%'");                                                                          // NOI18N
+                        + "%'",
+                URL.class);                                                                               // NOI18N
+
         return q.getResultList();
     }
 

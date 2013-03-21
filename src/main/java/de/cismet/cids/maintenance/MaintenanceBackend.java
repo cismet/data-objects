@@ -128,11 +128,11 @@ public class MaintenanceBackend {
                 int countForColumn = 0;
                 while (set.next()) {
                     countForColumn++;
-                    final List data = new ArrayList(check.getColumnNames().length);
+                    final List<Object> data = new ArrayList<Object>(check.getColumnNames().length);
                     for (final String cname : check.getColumnNames()) {
                         data.add(set.getObject(cname));
                     }
-                    final List errorCol = new ArrayList(1);
+                    final List<String> errorCol = new ArrayList<String>(1);
                     errorCol.add(colname);
                     rows.add(new Row(check, data, errorCol));
                 }
