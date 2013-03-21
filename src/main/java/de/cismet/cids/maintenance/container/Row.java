@@ -23,7 +23,7 @@ public class Row {
     //~ Instance fields --------------------------------------------------------
 
     private final transient Table table;
-    private final transient List headlessRowdata;
+    private final transient List<Object> headlessRowdata;
 
     private final transient List<ErrorAwareEntry> rowdata;
 
@@ -36,7 +36,7 @@ public class Row {
      * @param  data                  DOCUMENT ME!
      * @param  erroneousColumnNames  DOCUMENT ME!
      */
-    public Row(final Table table, final List data, final List<String> erroneousColumnNames) {
+    public Row(final Table table, final List<Object> data, final List<String> erroneousColumnNames) {
         this.table = table;
         this.headlessRowdata = data;
         final String[] names = table.getColumnNames();

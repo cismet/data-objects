@@ -25,6 +25,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import de.cismet.cids.jpa.backend.core.PersistenceProvider;
 import de.cismet.cids.jpa.backend.service.CatalogService;
@@ -153,9 +154,10 @@ public class CatalogBackend implements CatalogService {
     @Override
     public List<CatNode> getNodeParents(final CatNode node) {
         final EntityManager em = provider.getEntityManager();
-        final Query q = em.createQuery(
-                "FROM CatNode node WHERE node.id in (SELECT idFrom FROM CatLink WHERE idTo = :id)"); // NOI18N
-        q.setParameter("id", node.getId());                                                          // NOI18N
+        final TypedQuery<CatNode> q = em.createQuery(
+                "FROM CatNode node WHERE node.id in (SELECT idFrom FROM CatLink WHERE idTo = :id)", // NOI18N
+                CatNode.class);
+        q.setParameter("id", node.getId()); // NOI18N
         final List<CatNode> nodeList = q.getResultList();
         final ListIterator<CatNode> it = nodeList.listIterator();
         while (it.hasNext()) {
@@ -168,9 +170,10 @@ public class CatalogBackend implements CatalogService {
     @Override
     public List<CatNode> getNodeChildren(final CatNode node) {
         final EntityManager em = provider.getEntityManager();
-        final Query q = em.createQuery(
-                "FROM CatNode node WHERE node.id in (SELECT idTo FROM CatLink WHERE idFrom = :id)"); // NOI18N
-        q.setParameter("id", node.getId());                                                          // NOI18N
+        final TypedQuery<CatNode> q = em.createQuery(
+                "FROM CatNode node WHERE node.id in (SELECT idTo FROM CatLink WHERE idFrom = :id)", // NOI18N
+                CatNode.class);
+        q.setParameter("id", node.getId()); // NOI18N
         final List<CatNode> nodeList = q.getResultList();
         final ListIterator<CatNode> it = nodeList.listIterator();
         while (it.hasNext()) {
@@ -184,12 +187,12 @@ public class CatalogBackend implements CatalogService {
     @Override
     public List<CatNode> getRootNodes(final CatNode.Type type) {
         final EntityManager em = provider.getEntityManager();
-        final Query q;
+        final TypedQuery<CatNode> q;
         if (type == null) {
-            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true ");                          // NOI18N
+            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true ", CatNode.class);                          // NOI18N
         } else {
-            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true AND node.nodeType = :type"); // NOI18N
-            q.setParameter("type", type.getType());                                                     // NOI18N
+            q = em.createQuery("FROM CatNode node WHERE node.isRoot = true AND node.nodeType = :type", CatNode.class); // NOI18N
+            q.setParameter("type", type.getType());                                                                    // NOI18N
         }
         final List<CatNode> nodeList = q.getResultList();
         final ListIterator<CatNode> it = nodeList.listIterator();
@@ -217,18 +220,19 @@ public class CatalogBackend implements CatalogService {
     public boolean deleteNode(final CatNode parent, final CatNode node) {
         final EntityManager em = provider.getEntityManager();
         // if parent == null then link will not exist
-        Query q;
+        TypedQuery<CatLink> q;
         if (parent != null) {
-            q = em.createQuery("FROM CatLink c WHERE c.idTo = " + node.getId() + " AND c.idFrom = " + parent.getId()); // NOI18N
+            q = em.createQuery("FROM CatLink c WHERE c.idTo = " + node.getId() + " AND c.idFrom = " + parent.getId(), // NOI18N
+                    CatLink.class);
             provider.delete((CommonEntity)q.getSingleResult());
             if (isLeaf(parent, false)) {
                 parent.setIsLeaf(true);
                 nonLeafCache.remove(parent.getId());
             }
         }
-        q = em.createQuery("FROM CatLink c WHERE c.idTo = " + node.getId());                                           // NOI18N
+        q = em.createQuery("FROM CatLink c WHERE c.idTo = " + node.getId(), CatLink.class); // NOI18N
         if (q.getResultList().isEmpty()) {
-            q = em.createQuery("FROM CatLink c WHERE c.idFrom = " + node.getId());                                     // NOI18N
+            q = em.createQuery("FROM CatLink c WHERE c.idFrom = " + node.getId(), CatLink.class); // NOI18N
             final Iterator<CatLink> lit = q.getResultList().iterator();
             while (lit.hasNext()) {
                 provider.delete(lit.next());
@@ -341,7 +345,7 @@ public class CatalogBackend implements CatalogService {
      */
     private void copyLinks(final CatNode oldNode, final CatNode newNode) {
         final EntityManager em = provider.getEntityManager();
-        final Query q = em.createQuery("FROM CatLink WHERE idFrom = " + oldNode.getId()); // NOI18N
+        final TypedQuery<CatLink> q = em.createQuery("FROM CatLink WHERE idFrom = " + oldNode.getId(), CatLink.class); // NOI18N
         final List<CatLink> links = q.getResultList();
         for (final CatLink link : links) {
             final CatLink newLink = new CatLink();
