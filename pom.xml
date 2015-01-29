@@ -214,10 +214,10 @@
                             <goal>compile</goal>
                         </goals>
                         <configuration>
+                            <compilerArgument>-Xlint:unchecked</compilerArgument>
                             <compilerArguments>
                                 <sourcepath>${basedir}/src/main/java</sourcepath>
                                 <classpath>${classpath.directDependencies}</classpath>
-                                <Xlint:unchecked/>
                             </compilerArguments>
                         </configuration>
                     </execution>
