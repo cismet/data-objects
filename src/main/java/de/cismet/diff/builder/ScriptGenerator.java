@@ -866,7 +866,7 @@ public class ScriptGenerator {
                     }
                     nameTypeEnum.append(name).append(" INTEGER PRIMARY KEY DEFAULT nextval('"); // NOI18N
                     nameTypeEnum.append(c.getTableName().toLowerCase()).append("_seq')");       // NOI18N
-                    if (!sequenceExists(c.getTableName())) {
+                    if (!sequenceExists(c.getTableName() + SEQ_SUFFIX)) {
                         statem.addFirst(
                             new CodedStatement(
                                 CodedStatement.CODE_CREATE_SEQUENCE,
@@ -958,7 +958,7 @@ public class ScriptGenerator {
         // cids system
         if (queue == null) {
             // sequence has to be dropped after table
-            if (sequenceExists(table.getTableName())) {
+            if (sequenceExists(table.getTableName() + SEQ_SUFFIX)) {
                 statem.add(
                     new CodedStatement(
                         CodedStatement.CODE_DROP_SEQUENCE,
@@ -982,7 +982,7 @@ public class ScriptGenerator {
                     // args[0] shall always be the table name if a drop action is stored
                     if (action.getArgs()[0].equalsIgnoreCase(table.getTableName())) {
                         // sequence has to be dropped after table
-                        if (sequenceExists(table.getTableName())) {
+                        if (sequenceExists(table.getTableName() + SEQ_SUFFIX)) {
                             statem.add(
                                 new CodedStatement(
                                     CodedStatement.CODE_DROP_SEQUENCE,
