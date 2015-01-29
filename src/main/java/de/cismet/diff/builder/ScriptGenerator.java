@@ -1363,7 +1363,9 @@ public class ScriptGenerator {
      */
     private boolean isTableEmpty(final String tableName) {
         try {
-            return !DatabaseConnection.execSQL(runtime, "SELECT * FROM " + tableName, this.hashCode()).next(); // NOI18N
+            System.out.println("sel");
+            return !DatabaseConnection.execSQL(runtime, "SELECT 1 FROM " + tableName + " LIMIT 1", this.hashCode())
+                        .next(); // NOI18N
         } catch (final SQLException ex) {
             return true;
         }
