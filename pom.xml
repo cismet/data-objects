@@ -10,11 +10,18 @@
 
     <groupId>de.cismet.cids</groupId>
     <artifactId>data-objects</artifactId>
-    <version>3.4</version>
+    <version>3.4.1</version>
     <packaging>jar</packaging>
 
     <name>cids DataObjects</name>
     <description>ORM database layer for the cids meta data management system</description>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License</name>
+            <distribution>repo</distribution>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.html</url>
+        </license>
+    </licenses>
 
     <prerequisites>
         <maven>3</maven>
@@ -207,6 +214,7 @@
                             <goal>compile</goal>
                         </goals>
                         <configuration>
+                            <compilerArgument>-Xlint:unchecked</compilerArgument>
                             <compilerArguments>
                                 <sourcepath>${basedir}/src/main/java</sourcepath>
                                 <classpath>${classpath.directDependencies}</classpath>

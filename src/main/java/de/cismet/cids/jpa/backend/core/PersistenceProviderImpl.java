@@ -21,7 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import de.cismet.cids.jpa.backend.service.Backend;
 import de.cismet.cids.jpa.entity.common.CommonEntity;
@@ -32,7 +32,7 @@ import de.cismet.tools.PasswordEncrypter;
  * DOCUMENT ME!
  *
  * @author   mscholl
- * @version  $Revision$, $Date$
+ * @version  1.5
  */
 public final class PersistenceProviderImpl implements PersistenceProvider {
 
@@ -58,7 +58,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
      * Creates a new instance of PersistenceProviderImpl.
      *
      * @param   runtimeProperties  the domainservers runtime properties
-     * @param   caching            DOCUMENT ME!
+     * @param   caching            if the persistence provider should use a second level cache and a query cache or not
      *
      * @throws  IllegalArgumentException  if the runtime properties are null or some essential properties are missing
      */
@@ -195,7 +195,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
             LOG.debug("building property map: start"); // NOI18N
         }
         try {
-            final Map map = new HashMap();
+            final Map<String, String> map = new HashMap<String, String>();
 
             String currentProp = p.getProperty("dialect");                                      // NOI18N
             if ((currentProp == null) || currentProp.trim().isEmpty()) {
@@ -352,7 +352,7 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
     @Override
     public <T extends CommonEntity> List<T> getAllEntities(final Class<T> entity) {
         final EntityManager entityManager = getEntityManager();
-        final Query q = entityManager.createQuery("FROM " + entity.getSimpleName()); // NOI18N
+        final TypedQuery<T> q = entityManager.createQuery("FROM " + entity.getSimpleName(), entity); // NOI18N
 
         return q.getResultList();
     }
@@ -376,10 +376,11 @@ public final class PersistenceProviderImpl implements PersistenceProvider {
     @Override
     public <T extends CommonEntity> T getEntity(final Class<T> entity, final String name) throws NoResultException {
         final EntityManager entityManager = getEntityManager();
-        final Query q = entityManager.createQuery("FROM " + entity.getSimpleName() + " WHERE name = :name"); // NOI18N
-        q.setParameter("name", name);                                                                        // NOI18N
+        final TypedQuery<T> q = entityManager.createQuery("FROM " + entity.getSimpleName() + " WHERE name = :name",
+                entity);              // NOI18N
+        q.setParameter("name", name); // NOI18N
 
-        return (T)q.getSingleResult();
+        return q.getSingleResult();
     }
 
     /**

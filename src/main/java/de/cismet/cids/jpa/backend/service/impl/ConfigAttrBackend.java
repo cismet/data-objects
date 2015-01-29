@@ -15,6 +15,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -68,8 +69,10 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         }
 
         final EntityManager manager = provider.getEntityManager();
-        final Query q = manager.createQuery("FROM ConfigAttrEntry cae WHERE cae.key = :key"); // NOI18N
-        q.setParameter("key", key);                                                           // NOI18N
+        final TypedQuery<ConfigAttrEntry> q = manager.createQuery(
+                "FROM ConfigAttrEntry cae WHERE cae.key = :key", // NOI18N
+                ConfigAttrEntry.class);
+        q.setParameter("key", key); // NOI18N
 
         return q.getResultList();
     }
@@ -81,8 +84,10 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         }
 
         final EntityManager manager = provider.getEntityManager();
-        final Query q = manager.createQuery("FROM ConfigAttrEntry cae WHERE cae.type = :type"); // NOI18N
-        q.setParameter("type", getType(type));                                                  // NOI18N
+        final TypedQuery<ConfigAttrEntry> q = manager.createQuery(
+                "FROM ConfigAttrEntry cae WHERE cae.type = :type", // NOI18N
+                ConfigAttrEntry.class);
+        q.setParameter("type", getType(type)); // NOI18N
 
         return q.getResultList();
     }
@@ -147,7 +152,7 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         }
 
         final EntityManager manager = provider.getEntityManager();
-        final Query q = manager.createQuery(query.toString());
+        final TypedQuery<ConfigAttrEntry> q = manager.createQuery(query.toString(), ConfigAttrEntry.class);
 
         return q.getResultList();
     }
@@ -184,6 +189,8 @@ public final class ConfigAttrBackend implements ConfigAttrService {
     }
 
     @Override
+    // we cannot create a typed query for native queries
+    @SuppressWarnings("unchecked")
     public List<Object[]> getEntriesNewCollect(final User user, final boolean includeConflicting) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("get all config attr entries: [usr=" + user + "|includeConflicting=" + includeConflicting + "]"); // NOI18N
@@ -292,24 +299,26 @@ public final class ConfigAttrBackend implements ConfigAttrService {
     public void cleanAttributeTables() {
         final EntityManager manager = provider.getEntityManager();
 
-        final Query keyQuery = manager.createQuery(
-                "FROM ConfigAttrKey cak WHERE cak NOT IN (SELECT cae.key FROM ConfigAttrEntry cae)"); // NOI18N
+        final TypedQuery<ConfigAttrKey> keyQuery = manager.createQuery(
+                "FROM ConfigAttrKey cak WHERE cak NOT IN (SELECT cae.key FROM ConfigAttrEntry cae)", // NOI18N
+                ConfigAttrKey.class);
         final List<ConfigAttrKey> orphanKeys = keyQuery.getResultList();
         for (final ConfigAttrKey orphan : orphanKeys) {
             provider.delete(orphan);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("deleted " + orphanKeys.size() + " ConfigAttrKey orphans");                     // NOI18N
+            LOG.debug("deleted " + orphanKeys.size() + " ConfigAttrKey orphans"); // NOI18N
         }
 
-        final Query valueQuery = manager.createQuery(
-                "FROM ConfigAttrValue cav WHERE cav NOT IN (SELECT cae.value FROM ConfigAttrEntry cae)"); // NOI18N
+        final TypedQuery<ConfigAttrValue> valueQuery = manager.createQuery(
+                "FROM ConfigAttrValue cav WHERE cav NOT IN (SELECT cae.value FROM ConfigAttrEntry cae)", // NOI18N
+                ConfigAttrValue.class);
         final List<ConfigAttrValue> orphanValues = valueQuery.getResultList();
         for (final ConfigAttrValue orphan : orphanValues) {
             provider.delete(orphan);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("deleted " + orphanValues.size() + " ConfigAttrValue orphans");                     // NOI18N
+            LOG.debug("deleted " + orphanValues.size() + " ConfigAttrValue orphans"); // NOI18N
         }
     }
 
@@ -327,9 +336,11 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         }
 
         final EntityManager manager = provider.getEntityManager();
-        final Query q = manager.createQuery("FROM ConfigAttrEntry cae WHERE cae.key = :key AND cae.type = :type"); // NOI18N
-        q.setParameter("key", key);                                                                                // NOI18N
-        q.setParameter("type", getType(type));                                                                     // NOI18N
+        final TypedQuery<ConfigAttrEntry> q = manager.createQuery(
+                "FROM ConfigAttrEntry cae WHERE cae.key = :key AND cae.type = :type", // NOI18N
+                ConfigAttrEntry.class);
+        q.setParameter("key", key); // NOI18N
+        q.setParameter("type", getType(type)); // NOI18N
 
         return q.getResultList();
     }

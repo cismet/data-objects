@@ -80,7 +80,7 @@ public class UserBackend implements UserService {
         final Root<T> root = cq.from(permType);
         cq.where(cb.equal(root.get("userGroup"), ug));
 
-        final Query q = em.createQuery(cq);
+        final TypedQuery<T> q = em.createQuery(cq);
 
         return q.getResultList();
     }
