@@ -31,6 +31,25 @@ public interface ConfigAttrService extends ClosableResource {
     /**
      * DOCUMENT ME!
      *
+     * @param   type  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<String> getConfigAttrGroups(Types type);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   type   DOCUMENT ME!
+     * @param   group  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    List<ConfigAttrEntry> getEntries(final Types type, final String group);
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   key  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!

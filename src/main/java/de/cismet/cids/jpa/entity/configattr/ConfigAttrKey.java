@@ -33,6 +33,10 @@ import de.cismet.cids.jpa.entity.common.CommonEntity;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ConfigAttrKey extends CommonEntity implements Serializable {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    public static final String NO_GROUP = "__no_group__";
+
     //~ Instance fields --------------------------------------------------------
 
     @Id
@@ -50,6 +54,9 @@ public class ConfigAttrKey extends CommonEntity implements Serializable {
 
     @Column(name = "key")
     private String key;
+
+    @Column(name = "group_name")
+    private String groupName;
 
     //~ Methods ----------------------------------------------------------------
 
@@ -76,6 +83,24 @@ public class ConfigAttrKey extends CommonEntity implements Serializable {
      *
      * @return  DOCUMENT ME!
      */
+    public String getGroupName() {
+        return groupName;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  groupName  DOCUMENT ME!
+     */
+    public void setGroupName(final String groupName) {
+        this.groupName = groupName;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     @Override
     public Integer getId() {
         return id;
@@ -93,6 +118,6 @@ public class ConfigAttrKey extends CommonEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[" + super.toString() + "] (" + getId() + ") key: " + getKey();
+        return "[" + super.toString() + "] (" + getId() + ") key: " + getKey() + ", groupName: " + getGroupName();
     }
 }
