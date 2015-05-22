@@ -405,6 +405,16 @@ public final class BackendImpl implements Backend {
 
     // <editor-fold defaultstate="collapsed" desc=" Part: ConfigAttrBackend ">
     @Override
+    public List<String> getConfigAttrGroups(Types type) {
+        return configAttrService.getConfigAttrGroups(type);
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(Types type, String group) {
+        return configAttrService.getEntries(type, group);
+    }
+
+    @Override
     public List<ConfigAttrEntry> getEntries(final ConfigAttrKey key) {
         return configAttrService.getEntries(key);
     }
