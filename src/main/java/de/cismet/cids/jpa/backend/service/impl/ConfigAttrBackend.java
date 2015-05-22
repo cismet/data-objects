@@ -393,4 +393,36 @@ public final class ConfigAttrBackend implements ConfigAttrService {
             return false;
         }
     }
+
+    @Override
+    public List<String> getConfigAttrGroups(final Types type) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("get all config attr key groups for type: " + type); // NOI18N
+        }
+
+        final EntityManager manager = provider.getEntityManager();
+        final TypedQuery<String> q = manager.createQuery(
+                "SELECT DISTINCT cae.key.groupName FROM ConfigAttrEntry cae " // NOI18N
+                        + "WHERE cae.type = :type",                           // NOI18N
+                String.class);
+        q.setParameter("type", getType(type));                                // NOI18N
+
+        return q.getResultList();
+    }
+
+    @Override
+    public List<ConfigAttrEntry> getEntries(final Types type, final String groupName) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("get all config attr entries for type and group: " + type + ", " + groupName); // NOI18N
+        }
+
+        final EntityManager manager = provider.getEntityManager();
+        final TypedQuery<ConfigAttrEntry> q = manager.createQuery(
+                "FROM ConfigAttrEntry cae WHERE cae.type = :type AND cae.key.groupName = :groupName", // NOI18N
+                ConfigAttrEntry.class);
+        q.setParameter("type", getType(type)); // NOI18N
+        q.setParameter("groupName", groupName); // NOI18N
+
+        return q.getResultList();
+    }
 }
