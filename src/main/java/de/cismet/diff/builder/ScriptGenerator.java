@@ -440,9 +440,8 @@ public class ScriptGenerator {
                                 false,
                                 t.getTableName(),
                                 attrName.toLowerCase(),
-                                "DEFAULT '"
-                                        + current.getDefaultValue()
-                                        + "'")      // NOI18N
+                                "DEFAULT "          // NOI18N
+                                        + current.getDefaultValue())
                         };
                     statementGroups.addLast(new StatementGroup(s, false));
                 }                                   // </editor-fold>
@@ -649,9 +648,8 @@ public class ScriptGenerator {
                                     false,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    "DEFAULT '"                     // NOI18N
-                                            + current.getDefaultValue()
-                                            + "'")                  // NOI18N
+                                    "DEFAULT "                      // NOI18N
+                                            + current.getDefaultValue())
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
                     }                                               // </editor-fold>
@@ -907,9 +905,9 @@ public class ScriptGenerator {
                             name,
                             null);
                     }
-                    nameTypeEnum.append(" DEFAULT '").append(current.getDefaultValue()).append('\''); // NOI18N
+                    nameTypeEnum.append(" DEFAULT ").append(current.getDefaultValue()); // NOI18N
                 }
-                nameTypeEnum.append(", ");                                                            // NOI18N
+                nameTypeEnum.append(", ");                                              // NOI18N
             }
         }
         if (!primarykeyFound) {
@@ -1400,13 +1398,13 @@ public class ScriptGenerator {
             sb.append("CREATE TEMP TABLE cs_tmptable (").append(column).append(' ').append(csTypename); // NOI18N
             // typesize != null indicates that a type is parameterized
             if (precision != null) {
-                sb.append('(').append(precision);                      // NOI18N
+                sb.append('(').append(precision);                    // NOI18N
                 if (scale != null) {
-                    sb.append(", ").append(scale);                     // NOI18N
+                    sb.append(", ").append(scale);                   // NOI18N
                 }
-                sb.append(')');                                        // NOI18N
+                sb.append(')');                                      // NOI18N
             }
-            sb.append(" DEFAULT '").append(defaultValue).append("')"); // NOI18N
+            sb.append(" DEFAULT ").append(defaultValue).append(")"); // NOI18N
             // try to create table from creation string, if failes due to exception it
             // indicates that the default value is not valid
             DatabaseConnection.updateSQL(runtime, sb.toString(), this.hashCode());
