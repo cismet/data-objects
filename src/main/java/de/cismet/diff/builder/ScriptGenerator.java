@@ -617,16 +617,8 @@ public class ScriptGenerator {
                     }
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" set default value ">
-                    String defaultVal = t.getDefaultValue(attrName);
-                    if (defaultVal != null) {
-                        final int i = defaultVal.indexOf('\'') + 1; // NOI18N
-                        final int j = defaultVal.lastIndexOf('\''); // NOI18N
-                        if ((i > 0) && (j > i)) {
-                            defaultVal = defaultVal.substring(i, j);
-                        }
-                    }
                     if ((current.getDefaultValue() != null)
-                                && !current.getDefaultValue().equals(defaultVal)) {
+                                && !defaultValueEquals(current.getDefaultValue(), t.getDefaultValue(attrName))) {
                         if (
                             !isDefaultValueValid(
                                         attrName,
@@ -648,11 +640,11 @@ public class ScriptGenerator {
                                     false,
                                     t.getTableName(),
                                     attrName.toLowerCase(),
-                                    "DEFAULT "                      // NOI18N
+                                    "DEFAULT " // NOI18N
                                             + current.getDefaultValue())
                             };
                         statementGroups.addLast(new StatementGroup(s, false));
-                    }                                               // </editor-fold>
+                    }                      // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" alter column to 'optional' ">
                     if (current.isOptional() && (column.getNullable() != DatabaseMetaData.attributeNullable)) {
                         if (column.getColumnName().equalsIgnoreCase(c.getPrimaryKeyField())) {
@@ -760,6 +752,62 @@ public class ScriptGenerator {
         classes.remove(c);
         classesDone.add(c);
         return statementGroups;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   cidsDefault  DOCUMENT ME!
+     * @param   dbmsDefault  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private boolean defaultValueEquals(final String cidsDefault, final String dbmsDefault) {
+        boolean equal = false;
+
+        if (dbmsDefault != null) {
+            if ((cidsDefault.charAt(0) == '\'') && (cidsDefault.charAt(cidsDefault.length() - 1) == '\'')) {
+                // we have a string default value
+                // strip the quotes and compare the 'bare' values
+                final String cD = cidsDefault.substring(1, cidsDefault.length() - 1);
+                // take care to strip the quotes appropriately as there might be additional casts inserted by the dbms
+                final String dD = stripSingleQuotes(dbmsDefault);
+
+                equal = cD.equals(dD);
+            } else {
+                equal = cidsDefault.equals(dbmsDefault);
+
+                if (!equal) {
+                    // we have to add legacy behaviour as everything has been considered a string before
+                    final String dD = stripSingleQuotes(dbmsDefault);
+                    equal = cidsDefault.equals(dD);
+                }
+            }
+        }
+
+        return equal;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   s  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private String stripSingleQuotes(final String s) {
+        String ret = s;
+
+        if (s != null) {
+            final int start = s.indexOf('\'') + 1;
+            final int end = s.lastIndexOf('\'');
+
+            if ((start > 0) && (end > start)) {
+                ret = s.substring(start, end);
+            }
+        }
+
+        return ret;
     }
 
     /**
