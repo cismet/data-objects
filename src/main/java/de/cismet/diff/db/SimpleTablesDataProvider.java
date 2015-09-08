@@ -11,10 +11,15 @@ import com.mchange.v1.util.ClosableResource;
 
 import org.apache.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Properties;
 
@@ -43,6 +48,7 @@ public class SimpleTablesDataProvider implements ClosableResource {
     //~ Instance fields --------------------------------------------------------
 
     private final transient Connection con;
+    private final Properties runtimeProperties;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -55,6 +61,8 @@ public class SimpleTablesDataProvider implements ClosableResource {
      * @throws  SQLException  if the database runtime could not be initialized
      */
     public SimpleTablesDataProvider(final Properties runtime) throws SQLException {
+        this.runtimeProperties = runtime;
+
         con = DatabaseConnection.getConnection(runtime);
     }
 
@@ -76,9 +84,7 @@ public class SimpleTablesDataProvider implements ClosableResource {
             while (set.next()) {
                 final String schema = set.getString(2);
                 final String table = set.getString(3);
-                if (!(table.startsWith("cs_")                                              // NOI18N
-                                || "spatial_ref_sys".equals(table)                         // NOI18N
-                                || "geometry_columns".equals(table))) {                    // NOI18N
+                if (includeTable(schema, table)) {
                     if ((schema == null) || schema.isEmpty() || "public".equals(schema)) { // NOI18N
                         names.add(table);
                     } else {
@@ -96,6 +102,37 @@ public class SimpleTablesDataProvider implements ClosableResource {
                 set.close();
             }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   schema  DOCUMENT ME!
+     * @param   table   DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  UnsupportedOperationException  DOCUMENT ME!
+     */
+    private boolean includeTable(final String schema, final String table) {
+        boolean include = true;
+
+        include = !table.toLowerCase().startsWith("cs_"); // NOI18N
+
+        if (include) {
+            final String internalDialect = runtimeProperties.getProperty("internalDialect");      // NOI18N
+            if ((internalDialect == null) || "postgres_9".equals(internalDialect)) {              // NOI18N
+                include = !("spatial_ref_sys".equals(table) || "geometry_columns".equals(table)); // NOI18N
+            } else if ("oracle_11g".equals(internalDialect)) {                                    // NOI18N
+                // only tables in user space are relevant
+                include = runtimeProperties.getProperty("connection.username").equalsIgnoreCase(schema) // NOI18N
+                            && !table.endsWith("$");                                                    // NOI18N
+            } else {
+                throw new UnsupportedOperationException("unknown dialect: " + internalDialect);         // NOI18N
+            }
+        }
+
+        return include;
     }
 
     /**
@@ -187,5 +224,29 @@ public class SimpleTablesDataProvider implements ClosableResource {
     @Override
     public void close() throws Exception {
         DatabaseConnection.closeConnection(con);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   args  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static void main(final String[] args) throws Exception {
+        final Properties p = new Properties();
+        p.load(new BufferedReader(
+                new FileReader(
+                    new File(
+                        "/Users/mscholl/gitwork/cismet/uba/cids-custom-udm2020-di/src/udm2020-diDist/server/udm2020-di/runtime.properties"))));
+        final SimpleTablesDataProvider s = new SimpleTablesDataProvider(p);
+        final String[] t = s.getTableNames();
+        System.out.println(Arrays.toString(t));
+        System.out.println("===========");
+//        for (final String st : t) {
+//            final TableColumn[] tc = s.getColumns(st);
+//            System.out.println(Arrays.toString(tc));
+//            System.out.println("----------");
+//        }
     }
 }

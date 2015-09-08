@@ -30,7 +30,6 @@ public final class PSQLStatement extends Statement {
     //~ Instance fields --------------------------------------------------------
 
     private String statement;
-    private String description;
     private transient CodedStatement codedStatement;
     private final transient ResourceBundle sqlBundle = ResourceBundle.getBundle(
             "de.cismet.diff.resource.psqlTemplate");            // NOI18N
@@ -140,6 +139,7 @@ public final class PSQLStatement extends Statement {
      *
      * @return  DOCUMENT ME!
      */
+    @Override
     public String getStatement() {
         return statement;
     }
@@ -157,20 +157,12 @@ public final class PSQLStatement extends Statement {
     }
 
     /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
      * Sets a new statement description. Using this method will cause the <code>CodedStatement</code> held by this
      * <code>PSQLStatement</code> to be set to <code>null</code>.
      *
      * @param  description  the new description of the statement
      */
+    @Override
     public void setDescription(final String description) {
         this.codedStatement = null;
         this.description = description;

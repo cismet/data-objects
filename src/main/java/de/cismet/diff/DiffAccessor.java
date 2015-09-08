@@ -9,6 +9,11 @@ package de.cismet.diff;
 
 import org.apache.log4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
+import java.util.Arrays;
 import java.util.Properties;
 
 import de.cismet.cids.jpa.backend.service.Backend;
@@ -17,7 +22,8 @@ import de.cismet.diff.builder.ScriptGenerator;
 import de.cismet.diff.builder.TableLoader;
 
 import de.cismet.diff.container.Action;
-import de.cismet.diff.container.PSQLStatementGroup;
+import de.cismet.diff.container.Statement;
+import de.cismet.diff.container.StatementGroup;
 
 import de.cismet.diff.db.DatabaseConnection;
 
@@ -163,7 +169,7 @@ public class DiffAccessor {
      * @throws  ScriptGeneratorException  if statements could not be generated for any reason
      */
     @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
-    public PSQLStatementGroup[] getStatementGroups() throws TableLoaderException, ScriptGeneratorException {
+    public StatementGroup[] getStatementGroups() throws TableLoaderException, ScriptGeneratorException {
         TableLoader t = null;
         try {
             long time1 = System.currentTimeMillis();
@@ -171,7 +177,7 @@ public class DiffAccessor {
             time1 = System.currentTimeMillis() - time1;
             long time2 = System.currentTimeMillis();
             final ScriptGenerator sg = new ScriptGenerator(runtime, t, storage);
-            final PSQLStatementGroup[] s = sg.getStatementGroups();
+            final StatementGroup[] s = sg.getStatementGroups();
             time2 = System.currentTimeMillis() - time2;
 
             if (LOG.isInfoEnabled()) {
@@ -203,5 +209,33 @@ public class DiffAccessor {
      */
     public void freeResources() {
         DatabaseConnection.clear();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   args  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static void main(final String[] args) throws Exception {
+        final Properties p = new Properties();
+//        p.load(new BufferedReader(
+//                new FileReader(
+//                    new File(
+//                        "/Users/mscholl/gitwork/cismet/uba/cids-custom-udm2020-di/src/udm2020-diDist/server/udm2020-di/runtime.properties"))));
+        p.load(new BufferedReader(
+                new FileReader(
+                    new File(
+                        "/Users/mscholl/cismetWork/wundaDist/server/localhost_wunda_live_geocpm_dev/runtime.properties"))));
+        final DiffAccessor da = new DiffAccessor(p);
+        final StatementGroup[] g = da.getStatementGroups();
+        for (final StatementGroup sg : g) {
+            for (final Statement s : sg.getStatements()) {
+                if (!s.isPedantic()) {
+                    System.out.println(s);
+                }
+            }
+        }
     }
 }

@@ -252,6 +252,11 @@ public class CodedStatement extends Statement {
         return code;
     }
 
+    @Override
+    public String getStatement() {
+        throw new UnsupportedOperationException("coded statements by nature are dialect unaware"); // NOI18N
+    }
+
     /**
      * DOCUMENT ME!
      *

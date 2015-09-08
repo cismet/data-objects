@@ -19,10 +19,6 @@ import de.cismet.diff.exception.IllegalCodeException;
  */
 public class PSQLStatementGroup extends StatementGroup {
 
-    //~ Instance fields --------------------------------------------------------
-
-    private transient PSQLStatement[] psqlStatements;
-
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -52,7 +48,7 @@ public class PSQLStatementGroup extends StatementGroup {
         super(statements, transaction);
         applyStatements(statements);
         if (transaction) {
-            final PSQLStatement[] tmp = new PSQLStatement[statements.length + 2];
+            final Statement[] tmp = new Statement[statements.length + 2];
             tmp[0] = new PSQLStatement(
                     "BEGIN WORK;", // NOI18N
                     null,
@@ -63,8 +59,8 @@ public class PSQLStatementGroup extends StatementGroup {
                     null,
                     null,
                     false);
-            System.arraycopy(psqlStatements, 0, tmp, 1, psqlStatements.length);
-            psqlStatements = tmp;
+            System.arraycopy(this.statements, 0, tmp, 1, this.statements.length);
+            setStatements(tmp);
         }
     }
 
@@ -79,7 +75,7 @@ public class PSQLStatementGroup extends StatementGroup {
      * @throws  IllegalArgumentException  DOCUMENT ME!
      */
     private void applyStatements(final Statement[] statements) throws IllegalCodeException {
-        psqlStatements = new PSQLStatement[statements.length];
+        final PSQLStatement[] psqlStatements = new PSQLStatement[statements.length];
         for (int i = 0; i < statements.length; i++) {
             if (statements[i] instanceof CodedStatement) {
                 psqlStatements[i] = new PSQLStatement((CodedStatement)statements[i]);
@@ -89,19 +85,11 @@ public class PSQLStatementGroup extends StatementGroup {
                 throw new IllegalArgumentException("Instance not known"); // NOI18N
             }
         }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public PSQLStatement[] getPSQLStatements() {
-        return Arrays.copyOf(psqlStatements, psqlStatements.length);
+        setStatements(psqlStatements);
     }
 
     @Override
     public String toString() {
-        return Arrays.toString(psqlStatements);
+        return Arrays.toString(statements);
     }
 }

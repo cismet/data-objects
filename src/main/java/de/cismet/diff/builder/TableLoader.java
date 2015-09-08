@@ -9,6 +9,10 @@ package de.cismet.diff.builder;
 
 import com.mchange.v1.util.ClosableResource;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 import java.sql.SQLException;
 
 import java.util.Arrays;
@@ -204,5 +208,24 @@ public class TableLoader implements ClosableResource {
     @Override
     public void close() throws Exception {
         data.close();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   args  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static void main(final String[] args) throws Exception {
+        final Properties p = new Properties();
+        p.load(new BufferedReader(
+                new FileReader(
+                    new File(
+                        "/Users/mscholl/gitwork/cismet/uba/cids-custom-udm2020-di/src/udm2020-diDist/server/udm2020-di/runtime.properties"))));
+        final TableLoader tl = new TableLoader(p);
+
+        final Table[] t = tl.getTables();
+        System.out.println(Arrays.toString(t));
     }
 }
