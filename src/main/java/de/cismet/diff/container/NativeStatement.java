@@ -17,31 +17,29 @@ import de.cismet.diff.DiffAccessor;
 import de.cismet.diff.exception.IllegalCodeException;
 
 /**
- * Container class for PSQL statements. This class is able to build correct statements of correct <code>
+ * Container class for native statements. This class is able to build correct statements of correct <code>
  * CodedStatements</code> using templates that can be found in the <code>de.cismet.diff.resource</code> package.<br/>
- * You can also build a <code>PSQLStatement</code> manually. In this case there will be no corresponding <code>
+ * You can also build a <code>NativeStatement</code> manually. In this case there will be no corresponding <code>
  * CodedStatement</code> stored in the class.
  *
  * @author   Martin Scholl
- * @version  1.0 2007-03-09
+ * @version  1.0 2015-09-09
  */
-public final class PSQLStatement extends Statement {
+public final class NativeStatement extends Statement {
 
     //~ Instance fields --------------------------------------------------------
 
     private String statement;
     private transient CodedStatement codedStatement;
-    private final transient ResourceBundle sqlBundle = ResourceBundle.getBundle(
-            "de.cismet.diff.resource.psqlTemplate");            // NOI18N
-    private final transient ResourceBundle descBundle = ResourceBundle.getBundle(
-            "de.cismet.diff.resource.psqlTemplateDescription"); // NOI18N
+    private final transient ResourceBundle sqlBundle;
+    private final transient ResourceBundle descBundle;
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new empty instance of <code>PSQLStatement</code>.
+     * Creates a new empty instance of <code>NativeStatement</code>.
      */
-    public PSQLStatement() {
+    public NativeStatement() {
         this(null, null, null, false);
     }
 
@@ -49,19 +47,23 @@ public final class PSQLStatement extends Statement {
      * Creates a new instance of <code>PSQLStatement</code> using a <code>CodedStatement</code>. Simply calls the <code>
      * applyCodedStatement</code> method.
      *
-     * @param   statement  the statement which shall be the base of creation of the <code>PSQLStatement</code> instance
+     * @param   statement          the statement which shall be the base of creation of the <code>NativeStatement</code>
+     *                             instance
+     * @param   sqlBundleResource  DOCUMENT ME!
      *
      * @throws  IllegalCodeException  if the code contained in the <code>CodedStatement</code> instance is not know or
      *                                invalid
      */
-    public PSQLStatement(final CodedStatement statement) throws IllegalCodeException {
+    public NativeStatement(final CodedStatement statement, final String sqlBundleResource) throws IllegalCodeException {
         super(statement.getWarning(), statement.isPedantic());
+        sqlBundle = ResourceBundle.getBundle(sqlBundleResource);
+        descBundle = ResourceBundle.getBundle(sqlBundleResource + "Description"); // NOI18N
         applyCodedStatement(statement);
     }
 
     /**
-     * Lets you manually create a new instance of <code>PSQLStatement</code> without using a <code>CodedStatement</code>
-     * as base. You may provide your desired statement, the description and the warning.
+     * Lets you manually create a new instance of <code>NativeStatement</code> without using a <code>
+     * CodedStatement</code> as base. You may provide your desired statement, the description and the warning.
      *
      * @param  statement    a string represending a SQL statement
      * @param  description  a custom prose description of what the provided statement does
@@ -69,7 +71,7 @@ public final class PSQLStatement extends Statement {
      *                      perform may fail etc.
      * @param  pedantic     DOCUMENT ME!
      */
-    public PSQLStatement(
+    public NativeStatement(
             final String statement,
             final String description,
             final String warning,
@@ -77,6 +79,8 @@ public final class PSQLStatement extends Statement {
         super(warning, pedantic);
         this.statement = statement;
         this.description = description;
+        this.sqlBundle = null;
+        this.descBundle = null;
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -85,7 +89,7 @@ public final class PSQLStatement extends Statement {
      * You can use this method to find out whether this instance has been create from a <code>CodedStatement</code> or
      * manually.
      *
-     * @return  the <code>CodedStatement</code> this instance of <code>PSQLStatement</code> was build of or null if it
+     * @return  the <code>CodedStatement</code> this instance of <code>NativeStatement</code> was build of or null if it
      *          has been created manually.
      */
     public CodedStatement getCodedStatement() {
@@ -93,7 +97,7 @@ public final class PSQLStatement extends Statement {
     }
 
     /**
-     * Tries to use the information the given <code>CodedStatement</code> provides to build a PSQL statement with a
+     * Tries to use the information the given <code>CodedStatement</code> provides to build a native statement with a
      * corresponding description and a warning if it is also provided.
      *
      * @param   codedStatement  the statement providing the information

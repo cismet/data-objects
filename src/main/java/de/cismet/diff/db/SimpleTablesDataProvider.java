@@ -243,10 +243,10 @@ public class SimpleTablesDataProvider implements ClosableResource {
         final String[] t = s.getTableNames();
         System.out.println(Arrays.toString(t));
         System.out.println("===========");
-//        for (final String st : t) {
-//            final TableColumn[] tc = s.getColumns(st);
-//            System.out.println(Arrays.toString(tc));
-//            System.out.println("----------");
-//        }
+        for (final String st : t) {
+            final TableColumn[] tc = s.getColumns(st);
+            System.out.println(Arrays.toString(tc));
+            System.out.println("----------");
+        }
     }
 }

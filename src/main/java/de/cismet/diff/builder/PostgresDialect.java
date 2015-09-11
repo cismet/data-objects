@@ -7,23 +7,18 @@
 ****************************************************/
 package de.cismet.diff.builder;
 
-import org.apache.log4j.Logger;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 import de.cismet.cids.jpa.entity.cidsclass.Attribute;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 
 import de.cismet.diff.container.CodedStatement;
-import de.cismet.diff.container.PSQLStatementGroup;
+import de.cismet.diff.container.NativeStatementGroup;
 import de.cismet.diff.container.Statement;
 import de.cismet.diff.container.StatementGroup;
 import de.cismet.diff.container.Table;
@@ -39,17 +34,10 @@ import de.cismet.diff.exception.IllegalCodeException;
  * @author   martin.scholl@cismet.de
  * @version  1.0
  */
-public class PostgresDialect implements ScriptGeneratorDialect {
-
-    //~ Static fields/initializers ---------------------------------------------
-
-    private static final transient Logger LOG = Logger.getLogger(PostgresDialect.class);
+public class PostgresDialect extends AbstractDialect {
 
     //~ Instance fields --------------------------------------------------------
 
-    private final Properties runtime;
-
-    private final transient Map<String, String> typemapDBMStoCids;
     private final transient Map<String, String> typemapCidsToDBMS;
 
     //~ Constructors -----------------------------------------------------------
@@ -60,85 +48,15 @@ public class PostgresDialect implements ScriptGeneratorDialect {
      * @param  runtime  DOCUMENT ME!
      */
     public PostgresDialect(final Properties runtime) {
-        this.runtime = runtime;
-        this.typemapDBMStoCids = getTypeMap(false);
+        super(runtime);
         this.typemapCidsToDBMS = getTypeMap(true);
     }
 
     //~ Methods ----------------------------------------------------------------
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   directionTo  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     @Override
-    public final Map<String, String> getTypeMap(final boolean directionTo) {
-        final ResourceBundle bundle = ResourceBundle.getBundle("de.cismet.diff.resource.typemap"); // NOI18N
-
-        final Map<String, String> map = new HashMap<String, String>();
-        final Enumeration<String> keys = bundle.getKeys();
-        while (keys.hasMoreElements()) {
-            final String key = keys.nextElement();
-            // for bidirectional mapping
-            if (directionTo) {
-                map.put(key, bundle.getString(key));
-            } else {
-                map.put(bundle.getString(key), key);
-            }
-        }
-
-        return map;
-    }
-
-    @Override
-    public boolean isDefaultValueValid(final String column,
-            final String typename,
-            final Integer precision,
-            final Integer scale,
-            final String defaultValue) {
-        try {
-            String csTypename = typename;
-            // map typename back from postgres internal to cids type name if necessary
-            if (typemapDBMStoCids.containsKey(typename)) {
-                csTypename = typemapDBMStoCids.get(typename);
-            }
-            DatabaseConnection.updateSQL(runtime, "BEGIN WORK", this.hashCode()); // NOI18N
-            final StringBuffer sb = new StringBuffer(50);
-            // build a new temporary table creation string using the given values
-            sb.append("CREATE TEMP TABLE cs_tmptable (").append(column).append(' ').append(csTypename); // NOI18N
-            // typesize != null indicates that a type is parameterized
-            if (precision != null) {
-                sb.append('(').append(precision);                    // NOI18N
-                if (scale != null) {
-                    sb.append(", ").append(scale);                   // NOI18N
-                }
-                sb.append(')');                                      // NOI18N
-            }
-            sb.append(" DEFAULT ").append(defaultValue).append(")"); // NOI18N
-            // try to create table from creation string, if failes due to exception it
-            // indicates that the default value is not valid
-            DatabaseConnection.updateSQL(runtime, sb.toString(), this.hashCode());
-            // try to insert the default values into the table, if fails due to
-            // exception it indicates that the default value has correct type but does
-            // not fit in the reserved space for this column and so is not valid
-            DatabaseConnection.updateSQL(runtime, "INSERT INTO cs_tmptable DEFAULT VALUES", this.hashCode()); // NOI18N
-            // everyting was fine
-            return true;
-        } catch (final SQLException ex) {
-            // an exception indicated that the value is not valid
-            return false;
-        } finally {
-            try {
-                // rollback to delete the temporary table
-                DatabaseConnection.updateSQL(runtime, "ROLLBACK", this.hashCode()); // NOI18N
-            } catch (SQLException ex) {
-                // do nothing, table will be deleted when session ends
-                LOG.error("temp table could not be deleted", ex); // NOI18N
-            }
-        }
+    public String getTypeMapBundle() {
+        return "de.cismet.diff.resource.typemap";
     }
 
     @Override
@@ -179,36 +97,7 @@ public class PostgresDialect implements ScriptGeneratorDialect {
 
     @Override
     public StatementGroup createDialectAwareStatementGroup(final StatementGroup group) throws IllegalCodeException {
-        return new PSQLStatementGroup(group);
-    }
-
-    @Override
-    public StringBuilder appendCreateTableExpression(final StringBuilder targetCreateTable,
-            final String attrName,
-            final String attrTypeName,
-            final boolean optional,
-            final Integer precision,
-            final Integer scale,
-            final String defaultValue) {
-        // probably we have to do type conversion if a cids type is not a valid dbms type
-        targetCreateTable.append(attrName).append(' ').append(attrTypeName.toUpperCase()); // NOI18N
-        if (precision != null) {
-            targetCreateTable.append('(').append(precision);                               // NOI18N
-            if (scale != null) {
-                targetCreateTable.append(", ").append(scale);                              // NOI18N
-            }
-            targetCreateTable.append(')');                                                 // NOI18N
-        }
-        if (!optional) {
-            targetCreateTable.append(" NOT");                                              // NOI18N
-        }
-        targetCreateTable.append(" NULL");                                                 // NOI18N
-
-        if (defaultValue != null) {
-            targetCreateTable.append(" DEFAULT ").append(defaultValue); // NOI18N
-        }
-
-        return targetCreateTable;
+        return new NativeStatementGroup(group, "de.cismet.diff.resource.psqlTemplate");
     }
 
     @Override
@@ -390,5 +279,31 @@ public class PostgresDialect implements ScriptGeneratorDialect {
         }
 
         return mismatch;
+    }
+
+    @Override
+    public Statement[] allowNull(final String table, final String attr) {
+        return new Statement[] {
+                new CodedStatement(
+                    CodedStatement.CODE_ALTER_COLUMN_DROP,
+                    null,
+                    false,
+                    table,
+                    attr.toLowerCase(),
+                    ScriptGenerator.NOT_NULL)
+            };
+    }
+
+    @Override
+    public Statement[] removeDefault(final String table, final String attr) {
+        return new Statement[] {
+                new CodedStatement(
+                    CodedStatement.CODE_ALTER_COLUMN_DROP,
+                    null,
+                    false,
+                    table,
+                    attr.toLowerCase(),
+                    "DEFAULT") // NOI18N
+            };
     }
 }

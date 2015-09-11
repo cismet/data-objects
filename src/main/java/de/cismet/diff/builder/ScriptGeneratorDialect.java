@@ -168,4 +168,24 @@ public interface ScriptGeneratorDialect {
      * @return  DOCUMENT ME!
      */
     boolean isIntegerType(Table table, String attr);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   table  DOCUMENT ME!
+     * @param   attr   DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Statement[] allowNull(String table, String attr);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   table  DOCUMENT ME!
+     * @param   attr   DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Statement[] removeDefault(String table, String attr);
 }

@@ -60,7 +60,8 @@ public class ScriptGenerator {
     private static final String INT = "int";        // NOI18N
 
     private static final transient Logger LOG = Logger.getLogger(ScriptGenerator.class);
-    private static final String NOT_NULL = "NOT NULL";
+    public static final String NULL = "NULL";
+    public static final String NOT_NULL = "NOT " + NULL;
     public static final String SEQ_SUFFIX = "_seq";
 
     //~ Instance fields --------------------------------------------------------
@@ -502,17 +503,11 @@ public class ScriptGenerator {
                 else {
                     // <editor-fold defaultstate="collapsed" desc=" drop default value ">
                     if ((current.getDefaultValue() == null)
-                                && (t.getDefaultValue(attrName) != null)) {
-                        final Statement[] s = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_COLUMN_DROP,
-                                    null,
-                                    false,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    "DEFAULT") // NOI18N
-                            };
-                        statementGroups.addLast(new StatementGroup(s, false));
+                                && ((t.getDefaultValue(attrName) != null)
+                                    && !t.getDefaultValue(attrName).equals("NULL"))) {
+                        statementGroups.addLast(new StatementGroup(
+                                dialect.removeDefault(t.getTableName(), attrName),
+                                false));
                     }
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" set default value ">
@@ -554,16 +549,9 @@ public class ScriptGenerator {
                                 attrName,
                                 null);
                         }
-                        final Statement[] s = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_COLUMN_DROP,
-                                    null,
-                                    false,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    NOT_NULL)
-                            };
-                        statementGroups.addLast(new StatementGroup(s, false));
+                        statementGroups.addLast(new StatementGroup(
+                                dialect.allowNull(t.getTableName(), attrName),
+                                false));
                     } // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" alter column to 'required' ">
                     if (!current.isOptional() && (column.getNullable() != DatabaseMetaData.attributeNoNulls)) {
@@ -863,12 +851,19 @@ public class ScriptGenerator {
         map.put(CodedStatement.KEY_NAME_TYPE_ENUM, nameTypeEnum.toString());
         classes.remove(c);
         classesDone.add(c);
-        statem.addLast(new CodedStatement(
-                CodedStatement.CODE_CREATE_STANDARD,
-                // there has never been a warning assigned thus we simply put null here
-                null,
-                false,
-                map));
+        for (int i = statem.size() - 1; i >= 0; --i) {
+            final Statement s = statem.get(i);
+            // trigger statements must be last
+            if (!((s instanceof CodedStatement)
+                            && ((CodedStatement)s).getCode().equals(CodedStatement.CODE_CREATE_SEQ_TRIGGER))) {
+                statem.add(i + 1, (new CodedStatement(
+                            CodedStatement.CODE_CREATE_STANDARD,
+                            // there has never been a warning assigned thus we simply put null here
+                            null,
+                            false,
+                            map)));
+            }
+        }
         Statement[] s = new Statement[statem.size()];
         s = statem.toArray(s);
         final StatementGroup group = new StatementGroup(s, true);

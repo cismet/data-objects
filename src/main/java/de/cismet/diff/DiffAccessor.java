@@ -13,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import java.util.Arrays;
 import java.util.Properties;
 
 import de.cismet.cids.jpa.backend.service.Backend;
@@ -220,21 +219,21 @@ public class DiffAccessor {
      */
     public static void main(final String[] args) throws Exception {
         final Properties p = new Properties();
-//        p.load(new BufferedReader(
-//                new FileReader(
-//                    new File(
-//                        "/Users/mscholl/gitwork/cismet/uba/cids-custom-udm2020-di/src/udm2020-diDist/server/udm2020-di/runtime.properties"))));
         p.load(new BufferedReader(
                 new FileReader(
                     new File(
-                        "/Users/mscholl/cismetWork/wundaDist/server/localhost_wunda_live_geocpm_dev/runtime.properties"))));
+                        "/Users/mscholl/gitwork/cismet/uba/cids-custom-udm2020-di/src/udm2020-diDist/server/udm2020-di/runtime.properties"))));
+//        p.load(new BufferedReader(
+//                new FileReader(
+//                    new File(
+//                        "/Users/mscholl/cismetWork/wundaDist/server/localhost_wunda_live_geocpm_dev/runtime.properties"))));
         final DiffAccessor da = new DiffAccessor(p);
         final StatementGroup[] g = da.getStatementGroups();
         for (final StatementGroup sg : g) {
             for (final Statement s : sg.getStatements()) {
-                if (!s.isPedantic()) {
-                    System.out.println(s);
-                }
+//                if (!s.isPedantic()) {
+                System.out.println(s);
+//                }
             }
         }
     }
