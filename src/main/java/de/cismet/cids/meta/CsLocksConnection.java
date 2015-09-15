@@ -140,7 +140,7 @@ public class CsLocksConnection {
      * @throws  SQLException  DOCUMENT ME!
      */
     public String setLock(final String lockPrefix, final String who) throws SQLException {
-        final String nonce = lockPrefix + "_" + System.currentTimeMillis();
+        final String nonce = lockPrefix + System.currentTimeMillis();
         Statement stmt = null;
         try {
             stmt = con.createStatement();
