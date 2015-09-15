@@ -25,7 +25,7 @@ import de.cismet.diff.db.DatabaseConnection;
  * @author   martin.scholl@cismet.de
  * @version  1.0
  */
-public abstract class AbstractDialect implements ScriptGeneratorDialect {
+public abstract class AbstractDialect implements DataObjectsDialect {
 
     //~ Static fields/initializers ---------------------------------------------
 

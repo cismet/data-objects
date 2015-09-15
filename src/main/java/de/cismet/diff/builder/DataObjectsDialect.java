@@ -26,7 +26,7 @@ import de.cismet.diff.exception.IllegalCodeException;
  * @author   martin.scholl@cismet.de
  * @version  1.0
  */
-public interface ScriptGeneratorDialect {
+public interface DataObjectsDialect {
 
     //~ Methods ----------------------------------------------------------------
 
@@ -188,4 +188,11 @@ public interface ScriptGeneratorDialect {
      * @return  DOCUMENT ME!
      */
     Statement[] removeDefault(String table, String attr);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    int getMaxIdentifierChars();
 }

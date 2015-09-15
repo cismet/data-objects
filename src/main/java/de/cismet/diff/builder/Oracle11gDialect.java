@@ -365,4 +365,9 @@ public class Oracle11gDialect extends AbstractDialect {
                             + ScriptGenerator.NULL)
             };
     }
+
+    @Override
+    public int getMaxIdentifierChars() {
+        return 19;
+    }
 }

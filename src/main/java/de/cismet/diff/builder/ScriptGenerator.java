@@ -87,7 +87,7 @@ public class ScriptGenerator {
     private final transient ResourceBundle descBundle = ResourceBundle.getBundle(
             "de.cismet.diff.resource.psqlTemplateDescription"); // NOI18N
 
-    private final transient ScriptGeneratorDialect dialect;
+    private final transient DataObjectsDialect dialect;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -163,7 +163,7 @@ public class ScriptGenerator {
                 this.classes.add(c);
             }
         }
-        this.dialect = DialectFactory.getScriptGeneratorDialect(runtime);
+        this.dialect = DialectFactory.getDataObjectsDialect(runtime);
         this.classesDone = new ArrayList<CidsClass>(this.classes.size());
         this.typemapCidsToDBMS = dialect.getTypeMap(true);
         this.statements = new ArrayList<StatementGroup>();

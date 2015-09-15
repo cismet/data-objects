@@ -306,4 +306,9 @@ public class PostgresDialect extends AbstractDialect {
                     "DEFAULT") // NOI18N
             };
     }
+
+    @Override
+    public int getMaxIdentifierChars() {
+        return 59;
+    }
 }

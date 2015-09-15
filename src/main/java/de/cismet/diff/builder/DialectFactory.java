@@ -36,7 +36,7 @@ public class DialectFactory {
      *
      * @throws  UnsupportedOperationException  DOCUMENT ME!
      */
-    public static ScriptGeneratorDialect getScriptGeneratorDialect(final Properties runtime) {
+    public static DataObjectsDialect getDataObjectsDialect(final Properties runtime) {
         final String internalDialect = runtime.getProperty("internalDialect");                  // NOI18N
         if ((internalDialect == null) || "postgres_9".equals(internalDialect)) {                // NOI18N
             return new PostgresDialect(runtime);
