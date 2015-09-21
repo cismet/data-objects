@@ -14,7 +14,10 @@ import org.openide.util.NbBundle;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import java.text.MessageFormat;
+
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import de.cismet.cids.jpa.backend.service.MetaService;
 import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
@@ -43,6 +46,7 @@ public class MetaBackend implements MetaService, ProgressObservable {
 
     private final transient ProgressSupport progressSupport;
     private final transient Properties props;
+    private final ResourceBundle bundle;
 
     private transient boolean closed;
 
@@ -58,6 +62,9 @@ public class MetaBackend implements MetaService, ProgressObservable {
         this.closed = false;
 
         this.props = runtimeProps;
+
+        final String dialect = this.props.getProperty("internalDialect", "postgres_9");                           // NOI18N
+        this.bundle = ResourceBundle.getBundle("de.cismet.cids.jpa.backend.service.impl.metabackend_" + dialect); // NOI18N
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -106,9 +113,9 @@ public class MetaBackend implements MetaService, ProgressObservable {
         try {
             con = DatabaseConnection.getConnection(props);
 
-            con.createStatement().execute("SELECT reindex(" + cidsClass.getId() + ");"); // NOI18N
+            con.createStatement().execute(MessageFormat.format(bundle.getString("reindex_class"), cidsClass.getId())); // NOI18N
         } catch (final SQLException e) {
-            LOG.error("re-indexing of class '" + cidsClass.getName() + "' failed", e);   // NOI18N
+            LOG.error("re-indexing of class '" + cidsClass.getName() + "' failed", e);                                 // NOI18N
 
             progressSupport.fireEvent(
                 new ProgressEvent(
