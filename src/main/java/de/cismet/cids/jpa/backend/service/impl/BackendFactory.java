@@ -7,9 +7,15 @@
 ****************************************************/
 package de.cismet.cids.jpa.backend.service.impl;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
+import java.util.List;
 import java.util.Properties;
 
 import de.cismet.cids.jpa.backend.service.Backend;
+import de.cismet.cids.jpa.entity.cidsclass.CidsClass;
 
 /**
  * DOCUMENT ME!
@@ -116,6 +122,24 @@ public final class BackendFactory {
      */
     public static BackendFactory getInstance() {
         return LazyInitialiser.INSTANCE;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   args  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static void main(final String[] args) throws Exception {
+        final Properties p = new Properties();
+        p.load(new BufferedReader(
+                new FileReader(
+                    new File(
+                        "/Users/mscholl/gitwork/cismet/uba/cids-custom-udm2020-di/src/udm2020-diDist/server/udm2020-di/runtime.properties"))));
+        final Backend b = getInstance().getBackend(p);
+        final List l = b.getAllEntities(CidsClass.class);
+        System.out.println(l);
     }
 
     //~ Inner Classes ----------------------------------------------------------

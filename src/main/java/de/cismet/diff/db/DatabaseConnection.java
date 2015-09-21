@@ -120,7 +120,18 @@ public final class DatabaseConnection {
             CON_HASH_UPDATE.put(callerHashcode, con);
         }
 
-        return CON_HASH_UPDATE.get(callerHashcode).createStatement().executeUpdate(sql);
+        final Connection con = CON_HASH_UPDATE.get(callerHashcode);
+        if (sql.equalsIgnoreCase("COMMIT")) { // NOI18N
+            con.commit();
+
+            return 0;
+        } else if (sql.equalsIgnoreCase("ROLLBACK")) { // NOI18N
+            con.rollback();
+
+            return 0;
+        } else {
+            return con.createStatement().executeUpdate(sql);
+        }
     }
 
     /**

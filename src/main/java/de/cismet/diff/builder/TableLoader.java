@@ -9,6 +9,12 @@ package de.cismet.diff.builder;
 
 import com.mchange.v1.util.ClosableResource;
 
+import org.apache.log4j.Logger;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 import java.sql.SQLException;
 
 import java.util.Arrays;
@@ -36,6 +42,10 @@ import de.cismet.diff.exception.TableLoaderException;
  * @version  1.0 2007-03-13
  */
 public class TableLoader implements ClosableResource {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final transient Logger LOG = Logger.getLogger(TableLoader.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -150,12 +160,12 @@ public class TableLoader implements ClosableResource {
      */
     @SuppressWarnings({ "PMD.AvoidCatchingGenericException" })
     private void loadClasses() throws TableLoaderException {
+        Backend b = null;
         try {
             final List<CidsClass> l;
             if (backend == null) {
-                final Backend b = BackendFactory.getInstance().getBackend(runtime);
+                b = BackendFactory.getInstance().getBackend(runtime);
                 l = b.getAllEntities(CidsClass.class);
-                b.close();
             } else {
                 l = backend.getAllEntities(CidsClass.class);
             }
@@ -167,6 +177,14 @@ public class TableLoader implements ClosableResource {
             throw new TableLoaderException(
                 exceptionBundle.getString(DiffAccessor.TABLE_LOADER_EXCPETION_TABLE_LOAD_FAILED),
                 ex);
+        } finally {
+            if (b != null) {
+                try {
+                    b.close();
+                } catch (final Exception ex) {
+                    LOG.warn("cannot close intermediate backend", ex); // NOI18N
+                }
+            }
         }
     }
 
@@ -204,5 +222,24 @@ public class TableLoader implements ClosableResource {
     @Override
     public void close() throws Exception {
         data.close();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   args  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static void main(final String[] args) throws Exception {
+        final Properties p = new Properties();
+        p.load(new BufferedReader(
+                new FileReader(
+                    new File(
+                        "/Users/mscholl/gitwork/cismet/uba/cids-custom-udm2020-di/src/udm2020-diDist/server/udm2020-di/runtime.properties"))));
+        final TableLoader tl = new TableLoader(p);
+
+        final Table[] t = tl.getTables();
+        System.out.println(Arrays.toString(t));
     }
 }
