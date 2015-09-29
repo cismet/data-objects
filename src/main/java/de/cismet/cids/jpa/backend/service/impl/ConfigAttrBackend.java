@@ -268,10 +268,20 @@ public final class ConfigAttrBackend implements ConfigAttrService {
         ConfigAttrValue value = entry.getValue();
         if (value.getId() == null) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("found new value: " + value);                                               // NOI18N
+                LOG.debug("found new value: " + value); // NOI18N
             }
-            final Query q = manager.createQuery("FROM ConfigAttrValue cav WHERE cav.value = :value"); // NOI18N
-            q.setParameter("value", value.getValue());                                                // NOI18N
+            final Query q;
+
+            if (provider.getRuntimeProperties().getProperty("internalDialect", "").contains("oracle")) {
+                // simply converting to char as we cannot compare more than 4000 chars anyway without special clob
+                // handling
+                q = manager.createNativeQuery(
+                        "SELECT id, value FROM cs_config_attr_value WHERE to_char(value) = :value",
+                        ConfigAttrValue.class);
+            } else {
+                q = manager.createQuery("FROM ConfigAttrValue cav WHERE cav.value = :value"); // NOI18N
+            }
+            q.setParameter("value", value.getValue());                                        // NOI18N
 
             try {
                 final ConfigAttrValue existing = (ConfigAttrValue)q.getSingleResult();
