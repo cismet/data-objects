@@ -26,7 +26,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 
-import de.cismet.diff.container.PSQLStatementGroup;
+import de.cismet.diff.container.StatementGroup;
 
 import static org.junit.Assert.*;
 
@@ -129,7 +129,7 @@ public class DiffAccessorTest {
                         + "cidsDistribution/abf_dev_20090320/runtime.properties")));
             final Backend b = BackendFactory.getInstance().getBackend(prop);
             final DiffAccessor da = new DiffAccessor(prop, b);
-            final PSQLStatementGroup[] grp = da.getStatementGroups();
+            final StatementGroup[] grp = da.getStatementGroups();
             System.out.println(grp.length);
         } catch (final Exception e) {
             e.printStackTrace();

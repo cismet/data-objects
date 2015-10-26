@@ -23,6 +23,7 @@ public abstract class Statement {
 
     protected transient boolean pedantic;
     protected String warning;
+    protected String description;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -33,8 +34,20 @@ public abstract class Statement {
      * @param  pedantic  DOCUMENT ME!
      */
     public Statement(final String warning, final boolean pedantic) {
-        this.warning = warning;
+        this(warning, pedantic, null);
+    }
+
+    /**
+     * Creates a new Statement object.
+     *
+     * @param  warning      DOCUMENT ME!
+     * @param  pedantic     DOCUMENT ME!
+     * @param  description  DOCUMENT ME!
+     */
+    public Statement(final String warning, final boolean pedantic, final String description) {
         this.pedantic = pedantic;
+        this.warning = warning;
+        this.description = description;
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -65,6 +78,31 @@ public abstract class Statement {
     public boolean isPedantic() {
         return pedantic;
     }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  description  DOCUMENT ME!
+     */
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public abstract String getStatement();
 
     @Override
     public boolean equals(final Object obj) {

@@ -10,13 +10,11 @@ package de.cismet.diff.builder;
 import org.apache.log4j.Logger;
 
 import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 
 import java.text.MessageFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,13 +31,10 @@ import de.cismet.diff.DiffAccessor;
 
 import de.cismet.diff.container.Action;
 import de.cismet.diff.container.CodedStatement;
-import de.cismet.diff.container.PSQLStatementGroup;
 import de.cismet.diff.container.Statement;
 import de.cismet.diff.container.StatementGroup;
 import de.cismet.diff.container.Table;
 import de.cismet.diff.container.TableColumn;
-
-import de.cismet.diff.db.DatabaseConnection;
 
 import de.cismet.diff.exception.IllegalCodeException;
 import de.cismet.diff.exception.ScriptGeneratorException;
@@ -61,12 +56,13 @@ public class ScriptGenerator {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String INTEGER = "INTEGER";
-    private static final String INT = "int";
+    public static final String INTEGER = "INTEGER"; // NOI18N
+    private static final String INT = "int";        // NOI18N
 
     private static final transient Logger LOG = Logger.getLogger(ScriptGenerator.class);
-    private static final String NOT_NULL = "NOT NULL";
-    private static final String SEQ_SUFFIX = "_seq";
+    public static final String NULL = "NULL";
+    public static final String NOT_NULL = "NOT " + NULL;
+    public static final String SEQ_SUFFIX = "_seq";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -82,16 +78,16 @@ public class ScriptGenerator {
     private transient List<String> callStack;
 
     private transient List<StatementGroup> statements;
-    private transient PSQLStatementGroup[] psqlStatementGroups;
-    private transient Map<String, String> typemapCidsToPSQL;
-    private transient Map<String, String> typemapPSQLtoCids;
+    private transient StatementGroup[] dialectAwareStatementGroups;
+    private transient Map<String, String> typemapCidsToDBMS;
     private transient ProgressionQueue queue;
-    private transient Properties runtime;
 
     private final transient ResourceBundle exceptionBundle = ResourceBundle.getBundle(
             DiffAccessor.EXCEPTION_RESOURCE_BASE_NAME);
     private final transient ResourceBundle descBundle = ResourceBundle.getBundle(
             "de.cismet.diff.resource.psqlTemplateDescription"); // NOI18N
+
+    private final transient DataObjectsDialect dialect;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -167,14 +163,13 @@ public class ScriptGenerator {
                 this.classes.add(c);
             }
         }
+        this.dialect = DialectFactory.getDataObjectsDialect(runtime);
         this.classesDone = new ArrayList<CidsClass>(this.classes.size());
-        this.typemapCidsToPSQL = getTypeMap(true);
-        this.typemapPSQLtoCids = getTypeMap(false);
+        this.typemapCidsToDBMS = dialect.getTypeMap(true);
         this.statements = new ArrayList<StatementGroup>();
         this.queue = storage;
         this.callStack = new ArrayList<String>();
-        this.psqlStatementGroups = null;
-        this.runtime = runtime;
+        this.dialectAwareStatementGroups = null;
 
         final String propDropColumnsValue = runtime.getProperty(DiffAccessor.PROP_DROP_COLUMNS);
         // for backwards compatibility the default value is true, so we check if the property is explicitly set to
@@ -187,37 +182,13 @@ public class ScriptGenerator {
     /**
      * DOCUMENT ME!
      *
-     * @param   directionTo  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private Map<String, String> getTypeMap(final boolean directionTo) {
-        final ResourceBundle bundle = ResourceBundle.getBundle("de.cismet.diff.resource.typemap"); // NOI18N
-        final Map<String, String> map = new HashMap<String, String>();
-        final Enumeration<String> keys = bundle.getKeys();
-        while (keys.hasMoreElements()) {
-            final String key = keys.nextElement();
-            // for bidirectional mapping
-            if (directionTo) {
-                map.put(key, bundle.getString(key));
-            } else {
-                map.put(bundle.getString(key), key);
-            }
-        }
-
-        return map;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
      * @return  DOCUMENT ME!
      *
      * @throws  ScriptGeneratorException  DOCUMENT ME!
      */
-    public PSQLStatementGroup[] getStatementGroups() throws ScriptGeneratorException {
-        if (psqlStatementGroups != null) {
-            return Arrays.copyOf(psqlStatementGroups, psqlStatementGroups.length);
+    public StatementGroup[] getStatementGroups() throws ScriptGeneratorException {
+        if (dialectAwareStatementGroups != null) {
+            return Arrays.copyOf(dialectAwareStatementGroups, dialectAwareStatementGroups.length);
         }
         while (!classes.isEmpty()) {
             callStack.clear();
@@ -233,12 +204,12 @@ public class ScriptGenerator {
                 statements.add(s);
             }
         }
-        final LinkedList<PSQLStatementGroup> psql = new LinkedList<PSQLStatementGroup>();
+        final LinkedList<StatementGroup> dialectAwareGroups = new LinkedList<StatementGroup>();
         try {
             while (!statements.isEmpty()) {
                 final StatementGroup current = statements.remove(0);
                 if (current != null) {
-                    psql.addLast(new PSQLStatementGroup(current));
+                    dialectAwareGroups.addLast(dialect.createDialectAwareStatementGroup(current));
                 }
             }
         } catch (final IllegalCodeException ex) {
@@ -248,13 +219,14 @@ public class ScriptGenerator {
                     DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_EXC_STATEMENT_CREATE),
                 ex);
         }
-        psqlStatementGroups = new PSQLStatementGroup[psql.size()];
-        psqlStatementGroups = psql.toArray(psqlStatementGroups);
-        return Arrays.copyOf(psqlStatementGroups, psqlStatementGroups.length);
+        dialectAwareStatementGroups = new StatementGroup[dialectAwareGroups.size()];
+        dialectAwareStatementGroups = dialectAwareGroups.toArray(dialectAwareStatementGroups);
+
+        return Arrays.copyOf(dialectAwareStatementGroups, dialectAwareStatementGroups.length);
     }
 
     /**
-     * DOCUMENT ME!
+     * cids only, no dialect specific stuff.
      *
      * @param   c  DOCUMENT ME!
      *
@@ -266,7 +238,7 @@ public class ScriptGenerator {
         if (c == null) {
             return null;
         }
-        final Table t = getTable(c.getTableName());
+        final Table t = dialect.findTable(allTables, c.getTableName());
         if (t != null) {
             return create_ALTER_Statements(c, t);
         }
@@ -302,11 +274,9 @@ public class ScriptGenerator {
             final String attrName = current.getFieldName();
             final Type attrType = current.getType();
             String attrTypeName = attrType.getName().toLowerCase();
-            if (typemapCidsToPSQL.containsKey(attrTypeName)) {
-                attrTypeName = typemapCidsToPSQL.get(attrTypeName);
+            if (typemapCidsToDBMS.containsKey(attrTypeName)) {
+                attrTypeName = typemapCidsToDBMS.get(attrTypeName);
             }
-            // column is present?
-            final TableColumn column = t.getTableColumn(attrName);
 
             // extension attributes get special treatment: they will completely be left alone. However, if 'drop
             // columns' is activated, we still don't have to do anything but to go to the next object of the iterator,
@@ -323,6 +293,9 @@ public class ScriptGenerator {
             if ((current.getForeignKeyClass() != null) && (current.getForeignKeyClass() < 0)) {
                 continue;
             }
+
+            // column is present?
+            final TableColumn column = t.getTableColumn(attrName);
 
             // column not present, create new column
             if (column == null) {
@@ -405,22 +378,11 @@ public class ScriptGenerator {
                     statementGroups.addLast(new StatementGroup(s, false));
                 }                                                         // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" add default if present ">
-                if (current.getFieldName().equalsIgnoreCase(c.getPrimaryKeyField())) {
-                    final Statement[] s = {
-                            new CodedStatement(
-                                CodedStatement.CODE_ALTER_COLUMN_SET,
-                                null,
-                                false,
-                                t.getTableName(),
-                                attrName.toLowerCase(),
-                                "DEFAULT nextval('"
-                                        + t.getTableName()
-                                        + "_seq')") // NOI18N
-                        };
-                    statementGroups.addLast(new StatementGroup(s, false));
+                if (attrName.equalsIgnoreCase(c.getPrimaryKeyField())) {
+                    dialect.handlePKDefault(statementGroups, column, attrName, t.getTableName());
                 } else if (current.getDefaultValue() != null) {
                     if (
-                        !isDefaultValueValid(
+                        !dialect.isDefaultValueValid(
                                     attrName,
                                     attrTypeName,
                                     current.getPrecision(),
@@ -440,11 +402,11 @@ public class ScriptGenerator {
                                 false,
                                 t.getTableName(),
                                 attrName.toLowerCase(),
-                                "DEFAULT "          // NOI18N
+                                "DEFAULT " // NOI18N
                                         + current.getDefaultValue())
                         };
                     statementGroups.addLast(new StatementGroup(s, false));
-                }                                   // </editor-fold>
+                }                      // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" set not null if needed ">
                 if (!current.isOptional()) {
                     // default value is valid if present due to check above
@@ -487,8 +449,9 @@ public class ScriptGenerator {
                         statementGroups.addLast(group);
                     }
                 }                             // </editor-fold>
-                // column present, look for differences
-            } else {
+            }
+            // column present, look for differences
+            else {
                 // <editor-fold defaultstate="collapsed" desc=" handle complex type ">
                 if (attrType.isComplexType()) {
                     // checks whether this type is already present or tries to create it
@@ -514,113 +477,44 @@ public class ScriptGenerator {
                                 null);
                         }
 
-                        // TODO: add BIGINT support
-                        if (!column.getTypeName().equalsIgnoreCase("int4")) { // NOI18N
+                        if (!dialect.isIntegerType(t, attrName)) {
                             statementGroups.addLast(createTypeConversionStatements(
                                     t,
                                     current,
                                     INTEGER));
                         }
                     }
-                }                                                             // </editor-fold>
+                } // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal type ">
                 else {
                     // type mismatch
-                    if ((!attrTypeName.equalsIgnoreCase(column.getTypeName()))
-                                || ((current.getPrecision() != null)
-                                    && (current.getPrecision().intValue() != column.getPrecision()))
-                                || ((current.getScale() != null)
-                                    && (current.getScale().intValue() != column.getScale()))) {
-                        // this check has to be added since postgres jdbc driver 8 and later
-                        // handles columns, that are of type int or bigint and have not null
-                        // constraint as well as a sequence as their default value, as
-                        // serial types. serial types basically are integers
-                        if ((attrTypeName.equalsIgnoreCase("int4")                // NOI18N
-                                        || attrTypeName.equalsIgnoreCase("int8")) // NOI18N
-
-
-                                    // it is already interpreted
-                                    // as
-                                    // serial if there is a
-                                    // sequence
-                                    // present, maybe I
-                                    // misunderstood the
-                                    // description..... -.-
-                                    // column.getNullable() ==
-                                    // DatabaseMetaData.attributeNoNulls
-                                    // &&
-                                    && (column.getDefaultValue() != null)
-                                    && column.getDefaultValue().startsWith("nextval")) {   // NOI18N
-                            if (attrTypeName.equalsIgnoreCase("int4")) {                   // NOI18N
-                                if (!column.getTypeName().equalsIgnoreCase("serial")) {    // NOI18N
-                                    statementGroups.addLast(createTypeConversionStatements(
-                                            t,
-                                            current,
-                                            null));
-                                }
-                            } else {
-                                if (!column.getTypeName().equalsIgnoreCase("bigserial")) { // NOI18N
-                                    statementGroups.addLast(createTypeConversionStatements(
-                                            t,
-                                            current,
-                                            null));
-                                }
-                            }
-                        } else {
-                            statementGroups.addLast(createTypeConversionStatements(
-                                    t,
-                                    current,
-                                    null));
-                        }
+                    if (dialect.typeMismatch(column, current)) {
+                        statementGroups.addLast(createTypeConversionStatements(
+                                t,
+                                current,
+                                null));
                     }
-                }                                                                          // </editor-fold>
+                } // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle primary key ">
                 if (current.getFieldName().equalsIgnoreCase(c.getPrimaryKeyField())) {
-                    //J-
-                    final String defVal = column.getDefaultValue();
-                    // <editor-fold defaultstate="collapsed" desc=" set default 'nextval' ">
-                    if ((defVal == null)
-                                || !(
-                                    // this string represents postgres jdbc 7 drivers
-                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::text)") // NOI18N
-                                    ||
-                                    // this string represents postgres jdbc 8 drivers
-                                    defVal.equalsIgnoreCase("nextval('" + t.getTableName() + "_seq'::regclass)"))) { // NOI18N
-                        final Statement[] s = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_COLUMN_SET,
-                                    null,
-                                    false,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    "DEFAULT nextval('" + t.getTableName() + "_seq')") // NOI18N
-                            };
-                        statementGroups.addLast(new StatementGroup(s, false));
-                    }                              // </editor-fold>
-                    //J+
+                    dialect.handlePKDefault(statementGroups, column, attrName, t.getTableName());
                 } // </editor-fold>
                 // <editor-fold defaultstate="collapsed" desc=" handle normal attr ">
                 else {
                     // <editor-fold defaultstate="collapsed" desc=" drop default value ">
                     if ((current.getDefaultValue() == null)
-                                && (t.getDefaultValue(attrName) != null)) {
-                        final Statement[] s = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_COLUMN_DROP,
-                                    null,
-                                    false,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    "DEFAULT") // NOI18N
-                            };
-                        statementGroups.addLast(new StatementGroup(s, false));
+                                && ((t.getDefaultValue(attrName) != null)
+                                    && !t.getDefaultValue(attrName).equals("NULL"))) {
+                        statementGroups.addLast(new StatementGroup(
+                                dialect.removeDefault(t.getTableName(), attrName),
+                                false));
                     }
                     // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" set default value ">
                     if ((current.getDefaultValue() != null)
                                 && !defaultValueEquals(current.getDefaultValue(), t.getDefaultValue(attrName))) {
                         if (
-                            !isDefaultValueValid(
+                            !dialect.isDefaultValueValid(
                                         attrName,
                                         attrTypeName,
                                         current.getPrecision(),
@@ -655,16 +549,9 @@ public class ScriptGenerator {
                                 attrName,
                                 null);
                         }
-                        final Statement[] s = {
-                                new CodedStatement(
-                                    CodedStatement.CODE_ALTER_COLUMN_DROP,
-                                    null,
-                                    false,
-                                    t.getTableName(),
-                                    attrName.toLowerCase(),
-                                    NOT_NULL)
-                            };
-                        statementGroups.addLast(new StatementGroup(s, false));
+                        statementGroups.addLast(new StatementGroup(
+                                dialect.allowNull(t.getTableName(), attrName),
+                                false));
                     } // </editor-fold>
                     // <editor-fold defaultstate="collapsed" desc=" alter column to 'required' ">
                     if (!current.isOptional() && (column.getNullable() != DatabaseMetaData.attributeNoNulls)) {
@@ -681,7 +568,7 @@ public class ScriptGenerator {
                             statementGroups.addLast(new StatementGroup(s, false));
                         } else {
                             if (
-                                !isDefaultValueValid(
+                                !dialect.isDefaultValueValid(
                                             attrName,
                                             attrTypeName,
                                             current.getPrecision(),
@@ -751,11 +638,12 @@ public class ScriptGenerator {
         tables.remove(t);
         classes.remove(c);
         classesDone.add(c);
+
         return statementGroups;
     }
 
     /**
-     * DOCUMENT ME!
+     * cids only, no dialect specific stuff, at least atm.
      *
      * @param   cidsDefault  DOCUMENT ME!
      * @param   dbmsDefault  DOCUMENT ME!
@@ -766,7 +654,11 @@ public class ScriptGenerator {
         boolean equal = false;
 
         if (dbmsDefault != null) {
-            if ((cidsDefault.charAt(0) == '\'') && (cidsDefault.charAt(cidsDefault.length() - 1) == '\'')) {
+            if (cidsDefault.isEmpty()) {
+                equal = dbmsDefault.isEmpty();
+            } else if (cidsDefault.length() == 1) {
+                equal = (dbmsDefault.length() == 1) && (cidsDefault.charAt(0) == dbmsDefault.charAt(0));
+            } else if ((cidsDefault.charAt(0) == '\'') && (cidsDefault.charAt(cidsDefault.length() - 1) == '\'')) {
                 // we have a string default value
                 // strip the quotes and compare the 'bare' values
                 final String cD = cidsDefault.substring(1, cidsDefault.length() - 1);
@@ -789,7 +681,7 @@ public class ScriptGenerator {
     }
 
     /**
-     * DOCUMENT ME!
+     * cids only, no dialect specific stuff.
      *
      * @param   s  DOCUMENT ME!
      *
@@ -845,7 +737,7 @@ public class ScriptGenerator {
         final LinkedList<Statement> statem = new LinkedList<Statement>();
         final HashMap<String, String> map = new HashMap<String, String>();
         map.put(CodedStatement.KEY_TABLENAME, c.getTableName().toLowerCase());
-        final StringBuffer nameTypeEnum = new StringBuffer(20);
+        final StringBuilder nameTypeEnum = new StringBuilder(20);
         final Iterator<Attribute> it = c.getAttributes().iterator();
         boolean primarykeyFound = false;
         while (it.hasNext()) {
@@ -882,11 +774,14 @@ public class ScriptGenerator {
                     }
 
                     // TODO: INTEGER as default fk type? should depend on the pk type of the referenced class
-                    if (current.isOptional()) {
-                        nameTypeEnum.append(name).append(" INTEGER NULL");     // NOI18N
-                    } else {
-                        nameTypeEnum.append(name).append(" INTEGER NOT NULL"); // NOI18N
-                    }
+                    dialect.appendCreateTableExpression(
+                        nameTypeEnum,
+                        name,
+                        "INTEGER",
+                        current.isOptional(),
+                        null,
+                        null,
+                        null); // NOI18N
                 }
                 // handle primary key
                 // primary key is always integer and has a sequence as default value
@@ -901,7 +796,7 @@ public class ScriptGenerator {
                             c.getPrimaryKeyField().toLowerCase(),
                             null);
                     }
-                    if (!type.getName().equalsIgnoreCase(INTEGER)) {                            // NOI18N
+                    if (!type.getName().equalsIgnoreCase(INTEGER)) { // NOI18N
                         throw new ScriptGeneratorException(
                             exceptionBundle.getString(
                                 DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_PRIMKEY_NOT_INTEGER),
@@ -910,52 +805,39 @@ public class ScriptGenerator {
                             type.getName(),
                             null);
                     }
-                    nameTypeEnum.append(name).append(" INTEGER PRIMARY KEY DEFAULT nextval('"); // NOI18N
-                    nameTypeEnum.append(c.getTableName().toLowerCase()).append("_seq')");       // NOI18N
-                    if (!sequenceExists(c.getTableName() + SEQ_SUFFIX)) {
-                        statem.addFirst(
-                            new CodedStatement(
-                                CodedStatement.CODE_CREATE_SEQUENCE,
-                                null,
-                                false,
-                                c.getTableName().toLowerCase()
-                                        + SEQ_SUFFIX,                                           // NOI18N
-                                "1"));                                                          // NOI18N
-                    }
+                    dialect.handlePKCreation(statem, nameTypeEnum, name, c.getTableName());
                 } else {
-                    nameTypeEnum.append(name).append(' ').append(type.getName().toUpperCase()); // NOI18N
-                    if (current.getPrecision() != null) {
-                        nameTypeEnum.append('(').append(current.getPrecision());                // NOI18N
-                        if (current.getScale() != null) {
-                            nameTypeEnum.append(", ").append(current.getScale());               // NOI18N
+                    String defaultValue = null;
+                    // append default value if exists
+                    if ((current.getDefaultValue() != null) && !name.equalsIgnoreCase(c.getPrimaryKeyField())) {
+                        if (
+                            !dialect.isDefaultValueValid(
+                                        name,
+                                        type.getName(),
+                                        current.getPrecision(),
+                                        current.getScale(),
+                                        current.getDefaultValue())) {
+                            throw new ScriptGeneratorException(
+                                exceptionBundle.getString(
+                                    DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_DEF_TYPE_MISMATCH),
+                                c.getTableName().toLowerCase(),
+                                name,
+                                null);
                         }
-                        nameTypeEnum.append(')');                                               // NOI18N
+                        defaultValue = current.getDefaultValue();
                     }
-                    if (!current.isOptional()) {
-                        nameTypeEnum.append(" NOT");                                            // NOI18N
-                    }
-                    nameTypeEnum.append(" NULL");                                               // NOI18N
+
+                    dialect.appendCreateTableExpression(
+                        nameTypeEnum,
+                        name,
+                        type.getName(),
+                        current.isOptional(),
+                        current.getPrecision(),
+                        current.getScale(),
+                        defaultValue);
                 }
-                // append default value if exists
-                if ((current.getDefaultValue() != null) && !name.equalsIgnoreCase(
-                                c.getPrimaryKeyField())) {
-                    if (
-                        !isDefaultValueValid(
-                                    name,
-                                    type.getName(),
-                                    current.getPrecision(),
-                                    current.getScale(),
-                                    current.getDefaultValue())) {
-                        throw new ScriptGeneratorException(
-                            exceptionBundle.getString(
-                                DiffAccessor.SCRIPT_GENERATOR_EXCEPTION_DEF_TYPE_MISMATCH),
-                            c.getTableName().toLowerCase(),
-                            name,
-                            null);
-                    }
-                    nameTypeEnum.append(" DEFAULT ").append(current.getDefaultValue()); // NOI18N
-                }
-                nameTypeEnum.append(", ");                                              // NOI18N
+
+                nameTypeEnum.append(", "); // NOI18N
             }
         }
         if (!primarykeyFound) {
@@ -969,12 +851,19 @@ public class ScriptGenerator {
         map.put(CodedStatement.KEY_NAME_TYPE_ENUM, nameTypeEnum.toString());
         classes.remove(c);
         classesDone.add(c);
-        statem.addLast(new CodedStatement(
-                CodedStatement.CODE_CREATE_STANDARD,
-                // there has never been a warning assigned thus we simply put null here
-                null,
-                false,
-                map));
+        for (int i = statem.size() - 1; i >= 0; --i) {
+            final Statement s = statem.get(i);
+            // trigger statements must be last
+            if (!((s instanceof CodedStatement)
+                            && ((CodedStatement)s).getCode().equals(CodedStatement.CODE_CREATE_SEQ_TRIGGER))) {
+                statem.add(i + 1, (new CodedStatement(
+                            CodedStatement.CODE_CREATE_STANDARD,
+                            // there has never been a warning assigned thus we simply put null here
+                            null,
+                            false,
+                            map)));
+            }
+        }
         Statement[] s = new Statement[statem.size()];
         s = statem.toArray(s);
         final StatementGroup group = new StatementGroup(s, true);
@@ -984,6 +873,7 @@ public class ScriptGenerator {
         group.setDescription(descform.format(args));
         final LinkedList<StatementGroup> l = new LinkedList<StatementGroup>();
         l.add(group);
+
         return l;
     }
 
@@ -1004,7 +894,7 @@ public class ScriptGenerator {
         // cids system
         if (queue == null) {
             // sequence has to be dropped after table
-            if (sequenceExists(table.getTableName() + SEQ_SUFFIX)) {
+            if (dialect.sequenceExists(table.getTableName() + SEQ_SUFFIX)) {
                 statem.add(
                     new CodedStatement(
                         CodedStatement.CODE_DROP_SEQUENCE,
@@ -1028,7 +918,7 @@ public class ScriptGenerator {
                     // args[0] shall always be the table name if a drop action is stored
                     if (action.getArgs()[0].equalsIgnoreCase(table.getTableName())) {
                         // sequence has to be dropped after table
-                        if (sequenceExists(table.getTableName() + SEQ_SUFFIX)) {
+                        if (dialect.sequenceExists(table.getTableName() + SEQ_SUFFIX)) {
                             statem.add(
                                 new CodedStatement(
                                     CodedStatement.CODE_DROP_SEQUENCE,
@@ -1059,7 +949,7 @@ public class ScriptGenerator {
     }
 
     /**
-     * DOCUMENT ME!
+     * sql 99 compliant and not dialect dependent (with regard to mode of operation).
      *
      * @param   table            DOCUMENT ME!
      * @param   attr             DOCUMENT ME!
@@ -1113,9 +1003,8 @@ public class ScriptGenerator {
                     false,
                     table.getTableName(),
                     TMP_COLUMN,
-                    "DEFAULT '"
-                            + attr.getDefaultValue()
-                            + "'")); // NOI18N
+                    "DEFAULT " // NOI18N
+                            + attr.getDefaultValue()));
         }
         cstatem.addLast(
             new CodedStatement(
@@ -1219,84 +1108,9 @@ public class ScriptGenerator {
                 null);
         }
 
-        final LinkedList<CodedStatement> codedStatements = new LinkedList<CodedStatement>();
+        final LinkedList<Statement> codedStatements = new LinkedList<Statement>();
 
-        if (!sequenceExists(cidsClass.getTableName() + SEQ_SUFFIX)) { // NOI18N
-            if (isTableEmpty(cidsClass.getTableName())) {
-                codedStatements.addFirst(
-                    new CodedStatement(
-                        CodedStatement.CODE_CREATE_SEQUENCE,
-                        null,
-                        false,
-                        cidsClass.getTableName().toLowerCase()
-                                + SEQ_SUFFIX,                         // NOI18N
-                        "1"));                                        // NOI18N
-            } else {
-                codedStatements.addFirst(
-                    new CodedStatement(
-                        CodedStatement.CODE_SELECT_SETVAL_MAX,
-                        null,
-                        false,
-                        cidsClass.getTableName().toLowerCase(),
-                        cidsClass.getPrimaryKeyField().toLowerCase(),
-                        cidsClass.getTableName().toLowerCase()
-                                + SEQ_SUFFIX));                       // NOI18N
-                codedStatements.addFirst(
-                    new CodedStatement(
-                        CodedStatement.CODE_CREATE_SEQUENCE,
-                        null,
-                        false,
-                        cidsClass.getTableName().toLowerCase()
-                                + SEQ_SUFFIX,                         // NOI18N
-                        "1"));                                        // NOI18N
-            }
-        }
-        // composite primary key, drop it and create new
-        if (table.getPrimaryKeyColumnNames().length > 1) {
-            codedStatements.addLast(
-                new CodedStatement(
-                    CodedStatement.CODE_ALTER_DROP_CONSTRAINT,
-                    null,
-                    false,
-                    table.getTableName(),
-                    table.getTableName()
-                            + "_pkey")); // NOI18N
-            codedStatements.addLast(
-                new CodedStatement(
-                    CodedStatement.CODE_ALTER_ADD_PRIMARY,
-                    null,
-                    false,
-                    table.getTableName().toLowerCase(),
-                    cidsClass.getPrimaryKeyField().toLowerCase()));
-        }
-        // no primary key, create new
-        else if (table.getPrimaryKeyColumnNames().length < 1) {
-            codedStatements.addLast(
-                new CodedStatement(
-                    CodedStatement.CODE_ALTER_ADD_PRIMARY,
-                    null,
-                    false,
-                    table.getTableName().toLowerCase(),
-                    cidsClass.getPrimaryKeyField().toLowerCase()));
-        }                                // if key not equals, drop it create new
-        else if (!table.getPrimaryKeyColumnNames()[0].equalsIgnoreCase(
-                        cidsClass.getPrimaryKeyField())) {
-            codedStatements.addLast(
-                new CodedStatement(
-                    CodedStatement.CODE_ALTER_DROP_CONSTRAINT,
-                    CodedStatement.WARNING_DROP_PRIMARY_KEY,
-                    false,
-                    table.getTableName(),
-                    table.getTableName()
-                            + "_pkey")); // NOI18N
-            codedStatements.addLast(
-                new CodedStatement(
-                    CodedStatement.CODE_ALTER_ADD_PRIMARY,
-                    CodedStatement.WARNING_NEW_PRIMARY_KEY,
-                    false,
-                    table.getTableName().toLowerCase(),
-                    cidsClass.getPrimaryKeyField().toLowerCase()));
-        }
+        dialect.handlePKDiff(codedStatements, table, cidsClass);
 
         StatementGroup createGroup = null;
 
@@ -1315,23 +1129,7 @@ public class ScriptGenerator {
     }
 
     /**
-     * DOCUMENT ME!
-     *
-     * @param   name  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private Table getTable(final String name) {
-        for (final Table t : allTables) {
-            if (t.getTableName().equalsIgnoreCase(name)) {
-                return t;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * DOCUMENT ME!
+     * cids only, no dialect specific stuff.
      *
      * @param   cidsClass  DOCUMENT ME!
      *
@@ -1348,7 +1146,7 @@ public class ScriptGenerator {
     }
 
     /**
-     * DOCUMENT ME!
+     * cids only, no dialect specific stuff.
      *
      * @param   cidsClass  DOCUMENT ME!
      *
@@ -1366,7 +1164,7 @@ public class ScriptGenerator {
     }
 
     /**
-     * DOCUMENT ME!
+     * cids only, no dialect specific stuff.
      *
      * @param   cidsClass  DOCUMENT ME!
      *
@@ -1378,101 +1176,10 @@ public class ScriptGenerator {
             final Attribute current = it.next();
             if (current.getFieldName().equalsIgnoreCase(cidsClass.getPrimaryKeyField())) {
                 final String name = current.getType().getName();
-                return name.toLowerCase().startsWith(INT) ? true : false; // NOI18N
+
+                return name.toLowerCase().startsWith(INT);
             }
         }
         return false;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   seqName  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private boolean sequenceExists(final String seqName) {
-        try {
-            DatabaseConnection.execSQL(runtime, "SELECT * FROM " + seqName, this.hashCode()); // NOI18N
-            return true;
-        } catch (final SQLException ex) {
-            return false;
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   tableName  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private boolean isTableEmpty(final String tableName) {
-        try {
-            System.out.println("sel");
-            return !DatabaseConnection.execSQL(runtime, "SELECT 1 FROM " + tableName + " LIMIT 1", this.hashCode())
-                        .next(); // NOI18N
-        } catch (final SQLException ex) {
-            return true;
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   column        DOCUMENT ME!
-     * @param   typename      DOCUMENT ME!
-     * @param   precision     DOCUMENT ME!
-     * @param   scale         DOCUMENT ME!
-     * @param   defaultValue  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private boolean isDefaultValueValid(
-            final String column,
-            final String typename,
-            final Integer precision,
-            final Integer scale,
-            final String defaultValue) {
-        try {
-            String csTypename = typename;
-            // map typename back from postgres internal to cids type name if necessary
-            if (typemapPSQLtoCids.containsKey(typename)) {
-                csTypename = typemapPSQLtoCids.get(typename);
-            }
-            DatabaseConnection.updateSQL(runtime, "BEGIN WORK", this.hashCode()); // NOI18N
-            final StringBuffer sb = new StringBuffer(50);
-            // build a new temporary table creation string using the given values
-            sb.append("CREATE TEMP TABLE cs_tmptable (").append(column).append(' ').append(csTypename); // NOI18N
-            // typesize != null indicates that a type is parameterized
-            if (precision != null) {
-                sb.append('(').append(precision);                    // NOI18N
-                if (scale != null) {
-                    sb.append(", ").append(scale);                   // NOI18N
-                }
-                sb.append(')');                                      // NOI18N
-            }
-            sb.append(" DEFAULT ").append(defaultValue).append(")"); // NOI18N
-            // try to create table from creation string, if failes due to exception it
-            // indicates that the default value is not valid
-            DatabaseConnection.updateSQL(runtime, sb.toString(), this.hashCode());
-            // try to insert the default values into the table, if fails due to
-            // exception it indicates that the default value has correct type but does
-            // not fit in the reserved space for this column and so is not valid
-            DatabaseConnection.updateSQL(runtime, "INSERT INTO cs_tmptable DEFAULT VALUES", this.hashCode()); // NOI18N
-            // everyting was fine
-            return true;
-        } catch (final SQLException ex) {
-            // an exception indicated that the value is not valid
-            return false;
-        } finally {
-            try {
-                // rollback to delete the temporary table
-                DatabaseConnection.updateSQL(runtime, "ROLLBACK", this.hashCode()); // NOI18N
-            } catch (SQLException ex) {
-                // do nothing, table will be deleted when session ends
-                LOG.error("temp table could not be deleted", ex); // NOI18N
-            }
-        }
     }
 }

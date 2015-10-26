@@ -116,6 +116,12 @@ public class CodedStatement extends Statement {
     public static final String CODE_CREATE_SEQUENCE = "create_sequence";
 
     /**
+     * Code indicating a create trigger statement. Arguments that must be provided:<br/>
+     * trigger name, table name, attr name, sequence name in this order, no map support
+     */
+    public static final String CODE_CREATE_SEQ_TRIGGER = "create_seq_trigger";
+
+    /**
      * Code indicating addition of a column. Arguments, that must be provided:<br/>
      * <code>KEY_TABLENAME</code><br/>
      * <code>KEY_COLUMNNAME</code><br/>
@@ -159,6 +165,9 @@ public class CodedStatement extends Statement {
      * <code>KEY_COLUMNNAME</code>
      */
     public static final String CODE_ALTER_ADD_PRIMARY = "alter_add_primary";
+
+    /** Code indicating drop of a primary key constraint. Arguments that must be provided: <code>KEY_TABLENAME</code> */
+    public static final String CODE_ALTER_DROP_PRIMARY = "alter_drop_primary";
 
     /**
      * Code indicating the copy of a column. Arguments, that must be provided: <code>KEY_TABLENAME</code><br/>
@@ -250,6 +259,11 @@ public class CodedStatement extends Statement {
      */
     public String getCode() {
         return code;
+    }
+
+    @Override
+    public String getStatement() {
+        throw new UnsupportedOperationException("coded statements by nature are dialect unaware"); // NOI18N
     }
 
     /**
